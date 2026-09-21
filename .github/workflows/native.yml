@@ -1,0 +1,38 @@
+# UNTESTED DRAFT — do not rely on it until it has run once green.
+# Builds the SimpleX native libraries for arm64 and stores them as an artifact.
+name: native-libs
+on:
+  workflow_dispatch: {}
+  push:
+    paths:
+      - third_party/simplex-chat
+      - native/**
+      - .github/workflows/native.yml
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350   # free runners cap at 6 h; see docs/ARCHITECTURE.md risk 2
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install Nix (pinned installer, checksum verified)
+        run: |
+          curl -sSfL https://releases.nixos.org/nix/nix-2.22.0/install -o nix-install
+          echo "4fed7db867186c01ce2a2077da4a6950ed16232efbf78d0cd19700cff80559f9  nix-install" | sha256sum -c
+          sh nix-install --no-daemon
+          mkdir -p ~/.config/nix
+          printf 'experimental-features = nix-command flakes\nsandbox = true\n' > ~/.config/nix/nix.conf
+      - name: Build libsimplex.so + libsupport.so
+        run: |
+          . ~/.nix-profile/etc/profile.d/nix.sh
+          native/build-native.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-arm64-v8a
+          path: native/out/arm64-v8a/
+          if-no-files-found: error

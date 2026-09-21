@@ -1,0 +1,22 @@
+# Build output
+build/
+.gradle/
+.kotlin/
+*.apk
+*.aab
+*.so
+local.properties
+.idea/
+*.iml
+
+# Secrets — never commit
+*.jks
+*.keystore
+keystore.properties
+.env
+ADDRESSES.txt
+
+# Native libraries are built in CI from third_party/simplex-chat, not stored in git
+core/src/main/jniLibs/
+native/out/
+.DS_Store

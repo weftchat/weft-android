@@ -1,0 +1,18 @@
+# Versions looked up from Google Maven / Maven Central on 2026-09-21 (stable channel only).
+# Every entry must be justified in one line; add nothing without it.
+[versions]
+agp = "9.4.1"            # Android Gradle Plugin — builds the APK
+kotlin = "2.4.20"        # language + Compose compiler plugin
+compose-bom = "2026.09.00" # pins all androidx.compose.* versions together
+
+[libraries]
+compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
+compose-ui = { module = "androidx.compose.ui:ui" }                    # Compose runtime UI
+compose-foundation = { module = "androidx.compose.foundation:foundation" } # layout, lazy lists, gestures
+compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" } # @Preview in the IDE
+activity-compose = { module = "androidx.activity:activity-compose" }  # setContent {} entry point
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

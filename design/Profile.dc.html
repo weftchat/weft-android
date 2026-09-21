@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Weft · Profile</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;background:#0A0A12;font-family:'Manrope', -apple-system, 'Segoe UI', sans-serif;color:#F4F3FF}
+a{color:#A78BFA}a:hover{color:#C4B5FD}
+button,input{font-family:inherit}button{cursor:pointer}
+input::placeholder{color:#7F7DA0}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; padding: 0; display: flex; flex-direction: column; background: #0A0A12; color: #F4F3FF; font-family: 'Manrope', -apple-system, 'Segoe UI', sans-serif; overflow: hidden; "><div style="padding: 56px 16px 10px; display: flex; align-items: center; gap: 8px; flex: none;">
+<a href="Chats.dc.html" aria-label="Back" style="width: 44px; height: 44px; border-radius: 999px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;  display: grid; place-items: center; color: #F4F3FF;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"></path></svg></a>
+<h1 style="margin: 0 0 0 4px; flex-grow: 1; font-size: 22px; font-weight: 800; letter-spacing: -0.02em;">Profile</h1><button type="button" style="height: 40px; padding: 0 18px; border-radius: 999px; background: linear-gradient(135deg, {{accent}}, {{accent2}}); border: 0; color: #0B0B14; font-weight: 800; font-size: 13px;">Save</button>
+</div>
+<div style="flex-grow: 1; overflow-y: auto; padding: 12px 20px 32px; display: flex; flex-direction: column; gap: 24px;">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 14px;">
+<div style="position: relative; width: 116px; height: 116px;">
+<div style="width: 116px; height: 116px; border-radius: 999px; padding: 3px; box-sizing: border-box; background: linear-gradient(135deg, {{accent}}, {{accent2}});"><div style="width: 110px; height: 110px; border-radius: 999px; background: {{avatarBg}}; display: grid; place-items: center; font-size: 44px; font-weight: 800; color: #F4F3FF;">{{initial}}</div></div>
+<button type="button" aria-label="Change photo" style="position: absolute; right: -2px; bottom: -2px; width: 40px; height: 40px; border-radius: 999px; background: #12121C; border: 1px solid rgba(255,255,255,0.08); color: #F4F3FF; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg></button>
+</div>
+<div style="display: flex; gap: 8px; justify-content: center;">
+<sc-for list="{{colors}}" as="c" hint-placeholder-count="6">
+<button type="button" aria-label="Avatar color" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="width: 44px; height: 44px; border-radius: 999px; background: {{c.bg}}; border: 3px solid {{c.ring}}; box-sizing: border-box;"></button>
+</sc-for>
+</div>
+<div style="display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #5CF0B8;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#5CF0B8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>photo metadata is stripped before saving</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<label for="nick" style="font-size: 12px; font-weight: 600; color: #9A98B5;">Nickname</label>
+<input id="nick" type="text" value="joice" style="height: 52px; box-sizing: border-box; border-radius: 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;  color: #F4F3FF; padding: 0 16px; font-size: 15px; font-weight: 600; outline: none;">
+<p style="margin: 0; font-size: 11.5px; line-height: 1.55; color: #7F7DA0;">Only your contacts see this. It is not an ID: two people can share a nickname and it is never searchable.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<label for="status" style="font-size: 12px; font-weight: 600; color: #9A98B5;">Status <span style="color: #7F7DA0; font-weight: 500;">· optional</span></label>
+<input id="status" type="text" placeholder="e.g. replies slow this week" style="height: 52px; box-sizing: border-box; border-radius: 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;  color: #F4F3FF; padding: 0 16px; font-size: 14px; outline: none;">
+</div>
+<section style="display: flex; flex-direction: column; gap: 10px;">
+<h2 style="margin: 0 6px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: {{accent}};">Your identity</h2>
+<div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 0; overflow: hidden;">
+<div style="height: 2px; background: linear-gradient(135deg, {{accent}}, {{accent2}});"></div>
+<div style="padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 12px;">
+<div style="display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #9A98B5;"><span>Fingerprint</span><span style="display: flex; align-items: center; gap: 6px; color: #5CF0B8;"><span style="width: 6px; height: 6px; border-radius: 999px; background: #5CF0B8; box-shadow: 0 0 10px #5CF0B8;"></span>local only</span></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 15px; font-weight: 500; letter-spacing: 0.08em;"><span style="">7F3A</span><span style="">91C2</span><span style="">0B5E</span><span style="">D4A8</span><span style="">22F1</span><span style="">6C09</span><span style="">E3B7</span><span style="color: {{accent}};">58AD</span></div>
+<div style="display: flex; gap: 8px; margin-top: 4px;">
+<button type="button" style="flex-grow: 1; height: 42px; border-radius: 999px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;  color: #F4F3FF; font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"></rect><rect x="14" y="4" width="6" height="6" rx="1"></rect><rect x="4" y="14" width="6" height="6" rx="1"></rect><path d="M14 14h2v2h-2zM18 14h2M14 18h2M18 18h2v2"></path></svg>Show as QR</button>
+<button type="button" style="flex-grow: 1; height: 42px; border-radius: 999px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;  color: #F4F3FF; font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15V5h10"></path></svg>Copy</button>
+</div>
+</div>
+</div>
+</section>
+<section style="display: flex; flex-direction: column; gap: 10px;">
+<h2 style="margin: 0 6px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: {{accent}};">Account</h2>
+<div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; overflow: hidden;">
+<button type="button" style="display: flex; align-items: center; gap: 12px; width: 100%; padding: 0 16px; min-height: 56px; box-sizing: border-box; background: transparent; border: 0; border-bottom: 1px solid rgba(255,255,255,0.08); color: #F4F3FF; text-align: left; font-size: 14.5px; font-weight: 700; text-decoration: none;"><span style="flex-grow: 1;">Linked devices</span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; color: #9A98B5;">1</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A98B5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"></path></svg></button>
+<button type="button" style="display: flex; align-items: center; gap: 12px; width: 100%; padding: 0 16px; min-height: 56px; box-sizing: border-box; background: transparent; border: 0; border-bottom: 1px solid rgba(255,255,255,0.08); color: #F4F3FF; text-align: left; font-size: 14.5px; font-weight: 700; text-decoration: none;"><span style="flex-grow: 1;">Change PIN</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A98B5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"></path></svg></button>
+<a href="Security.dc.html" style="display: flex; align-items: center; gap: 12px; width: 100%; padding: 0 16px; min-height: 56px; box-sizing: border-box; background: transparent; border: 0;  color: #F4F3FF; text-align: left; font-size: 14.5px; font-weight: 700; text-decoration: none;"><span style="flex-grow: 1;">Security &amp; duress</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A98B5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"></path></svg></a>
+</div>
+</section>
+<button type="button" style="min-height: 54px; border-radius: 999px; background: transparent; border: 1px solid rgba(255,255,255,0.08); color: #9A98B5; font-size: 14px; font-weight: 700; flex: none;">Delete identity from this phone</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#A78BFA","options":["#A78BFA","#5CF0B8","#60A5FA","#F9A8D4"],"section":"Gradient"},"accent2":{"editor":"color","default":"#C4B5FD","options":["#C4B5FD","#A7F3D0","#93C5FD","#FBCFE8"],"section":"Gradient"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? '#A78BFA';
+    const palette = ['#2A2140', '#1F2A38', '#1E2E2A', '#2E2A20', '#1E2438', '#2A2030'];
+    const picked = (this.state && this.state.picked != null) ? this.state.picked : 0;
+    return {
+      accent, accent2: this.props.accent2 ?? '#C4B5FD',
+      initial: 'J', avatarBg: palette[picked],
+      colors: palette.map((bg, i) => ({ bg, ring: i === picked ? accent : 'transparent', pressed: i === picked ? 'true' : 'false', pick: () => this.setState({ picked: i }) }))
+    };
+  }
+}
+</script>
+</body>
+</html>

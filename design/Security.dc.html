@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Weft · Security</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;background:#0A0A12;font-family:'Manrope', -apple-system, 'Segoe UI', sans-serif;color:#F4F3FF}
+a{color:#A78BFA}a:hover{color:#C4B5FD}
+button,input{font-family:inherit}button{cursor:pointer}
+input::placeholder{color:#7F7DA0}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; padding: 0; display: flex; flex-direction: column; background: #0A0A12; color: #F4F3FF; font-family: 'Manrope', -apple-system, 'Segoe UI', sans-serif; overflow: hidden; "><div style="padding: 56px 16px 10px; display: flex; align-items: center; gap: 8px; flex: none;">
+<a href="Chats.dc.html" aria-label="Back" style="width: 44px; height: 44px; border-radius: 999px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;  display: grid; place-items: center; color: #F4F3FF;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"></path></svg></a>
+<h1 style="margin: 0 0 0 4px; flex-grow: 1; font-size: 22px; font-weight: 800; letter-spacing: -0.02em;">Security</h1>
+</div>
+<div style="flex-grow: 1; overflow-y: auto; padding: 8px 16px 32px; display: flex; flex-direction: column; gap: 22px;">
+<section style="display: flex; flex-direction: column; gap: 10px;">
+<h2 style="margin: 0 6px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: {{accent}};">Duress</h2>
+<div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; overflow: hidden;"><sc-for list="{{coercion}}" as="t" hint-placeholder-count="3">
+<button type="button" aria-pressed="{{t.pressed}}" onClick="{{t.toggle}}" style="display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px 16px; background: transparent; border: 0; border-bottom: 1px solid rgba(255,255,255,0.08); color: #F4F3FF; text-align: left; min-height: 68px; box-sizing: border-box;">
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14.5px; font-weight: 800; letter-spacing: -0.01em;">{{t.title}}</span><span style="font-size: 12px; line-height: 1.5; color: #9A98B5;">{{t.desc}}</span></span>
+<span style="width: 48px; height: 28px; border-radius: 999px; background: {{t.track}}; position: relative; flex: none;"><span style="position: absolute; top: 3px; left: {{t.knob}}; width: 22px; height: 22px; border-radius: 999px; background: {{t.knobColor}};"></span></span>
+</button>
+</sc-for></div>
+</section>
+<section style="display: flex; flex-direction: column; gap: 10px;">
+<h2 style="margin: 0 6px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: {{accent}};">Privacy</h2>
+<div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; overflow: hidden;">
+<div style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); min-height: 68px; box-sizing: border-box;">
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14.5px; font-weight: 800; letter-spacing: -0.01em;">End-to-end encryption</span><span style="font-size: 12px; line-height: 1.5; color: #9A98B5;">Every message and photo is encrypted on your phone. Relays only ever see ciphertext.</span></span>
+<span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10.5px; font-weight: 600; color: #5CF0B8; background: rgba(92,240,184,0.10); border-radius: 999px; padding: 5px 10px; flex: none;">always on</span>
+</div>
+<div style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); min-height: 68px; box-sizing: border-box;">
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14.5px; font-weight: 800; letter-spacing: -0.01em;">Strip photo metadata</span><span style="font-size: 12px; line-height: 1.5; color: #9A98B5;">GPS, device model, timestamp and camera ID are removed before anything is sent.</span></span>
+<span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10.5px; font-weight: 600; color: #5CF0B8; background: rgba(92,240,184,0.10); border-radius: 999px; padding: 5px 10px; flex: none;">always on</span>
+</div>
+<sc-for list="{{messages}}" as="t" hint-placeholder-count="1">
+<button type="button" aria-pressed="{{t.pressed}}" onClick="{{t.toggle}}" style="display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px 16px; background: transparent; border: 0; border-bottom: 1px solid rgba(255,255,255,0.08); color: #F4F3FF; text-align: left; min-height: 68px; box-sizing: border-box;">
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14.5px; font-weight: 800; letter-spacing: -0.01em;">{{t.title}}</span><span style="font-size: 12px; line-height: 1.5; color: #9A98B5;">{{t.desc}}</span></span>
+<span style="width: 48px; height: 28px; border-radius: 999px; background: {{t.track}}; position: relative; flex: none;"><span style="position: absolute; top: 3px; left: {{t.knob}}; width: 22px; height: 22px; border-radius: 999px; background: {{t.knobColor}};"></span></span>
+</button>
+</sc-for>
+<button type="button" style="display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 16px; min-height: 60px; background: transparent; border: 0; color: #F4F3FF; text-align: left;"><span style="flex-grow: 1; font-size: 14.5px; font-weight: 800;">Default disappearing timer</span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: #9A98B5;">1 h</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A98B5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"></path></svg></button>
+</div>
+</section>
+<section style="display: flex; flex-direction: column; gap: 10px;">
+<h2 style="margin: 0 6px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: {{accent}};">Network &amp; relays</h2>
+<div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; overflow: hidden;">
+<div style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+<span style="width: 8px; height: 8px; border-radius: 999px; background: #5CF0B8; box-shadow: 0 0 10px #5CF0B8; flex: none;"></span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px;"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; font-weight: 600;">r2 · via Tor</span><span style="font-size: 12px; color: #9A98B5;">active · 38 ms</span></span>
+<span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #5CF0B8;">in use</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+<span style="width: 8px; height: 8px; border-radius: 999px; background: #F5C36B; box-shadow: 0 0 10px #F5C36B; flex: none;"></span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px;"><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; font-weight: 600;">r1 · direct</span><span style="font-size: 12px; color: #9A98B5;">blocked on this network</span></span>
+<span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #F5C36B;">standby</span>
+</div>
+<sc-for list="{{network}}" as="t" hint-placeholder-count="1">
+<button type="button" aria-pressed="{{t.pressed}}" onClick="{{t.toggle}}" style="display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px 16px; background: transparent; border: 0; border-bottom: 1px solid rgba(255,255,255,0.08); color: #F4F3FF; text-align: left; min-height: 68px; box-sizing: border-box;">
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14.5px; font-weight: 800; letter-spacing: -0.01em;">{{t.title}}</span><span style="font-size: 12px; line-height: 1.5; color: #9A98B5;">{{t.desc}}</span></span>
+<span style="width: 48px; height: 28px; border-radius: 999px; background: {{t.track}}; position: relative; flex: none;"><span style="position: absolute; top: 3px; left: {{t.knob}}; width: 22px; height: 22px; border-radius: 999px; background: {{t.knobColor}};"></span></span>
+</button>
+</sc-for>
+<button type="button" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 0 16px; min-height: 52px; background: transparent; border: 0; color: {{accent}}; font-size: 14px; font-weight: 800; text-align: left;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Add your own relay</button>
+</div>
+</section>
+<button type="button" style="min-height: 54px; border-radius: 999px; background: rgba(255,107,138,0.08); border: 1px solid rgba(255,107,138,0.4); color: #FF6B8A; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 10px; flex: none;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"></path></svg>Wipe everything now</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#A78BFA","options":["#A78BFA","#5CF0B8","#60A5FA","#F9A8D4"],"section":"Gradient"},"accent2":{"editor":"color","default":"#C4B5FD","options":["#C4B5FD","#A7F3D0","#93C5FD","#FBCFE8"],"section":"Gradient"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? '#A78BFA';
+    const accent2 = this.props.accent2 ?? '#C4B5FD';
+    const defaults = { duress: true, panic: true, wipe10: false, rotate: true, screens: true };
+    const s = Object.assign({}, defaults, this.state || {});
+    const make = (key, title, desc) => ({
+      title, desc,
+      pressed: s[key] ? 'true' : 'false',
+      track: s[key] ? 'linear-gradient(135deg, ' + accent + ', ' + accent2 + ')' : '#2A2A3A',
+      knob: s[key] ? '23px' : '3px',
+      knobColor: s[key] ? '#0B0B14' : '#F4F3FF',
+      toggle: () => this.setState({ [key]: !s[key] })
+    });
+    return {
+      accent, accent2,
+      coercion: [
+        make('duress', 'Duress PIN', 'A second PIN opens a decoy profile with harmless chats. Nobody can tell the difference.'),
+        make('panic', 'Emergency wipe', 'Press the side button 5 times or enter the wipe PIN.'),
+        make('wipe10', 'Wipe after 10 failed attempts', 'If someone keeps guessing PINs, everything is erased.')
+      ],
+      network: [make('rotate', 'Rotate relay when blocked', 'Switches server automatically when one stops responding.')],
+      messages: [make('screens', 'Block screenshots', 'Hides content in screenshots and in the app switcher.')]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Weft · Conversation</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;background:#0A0A12;font-family:'Manrope', -apple-system, 'Segoe UI', sans-serif;color:#F4F3FF}
+a{color:#A78BFA}a:hover{color:#C4B5FD}
+button,input{font-family:inherit}button{cursor:pointer}
+input::placeholder{color:#7F7DA0}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; padding: 0; display: flex; flex-direction: column; background: #0A0A12; color: #F4F3FF; font-family: 'Manrope', -apple-system, 'Segoe UI', sans-serif; overflow: hidden; ">
+<div style="padding: 52px 12px 12px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+<a href="Chats.dc.html" aria-label="Back" style="width: 44px; height: 44px; display: grid; place-items: center; color: #F4F3FF;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"></path></svg></a>
+<span style="width: 38px; height: 38px; border-radius: 13px; background: #1F2A38; display: grid; place-items: center; font-weight: 800; font-size: 14px; flex: none;">N</span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+<span style="font-size: 15px; font-weight: 800; letter-spacing: -0.01em;">nomad</span>
+<span style="display: flex; align-items: center; gap: 5px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #5CF0B8;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#5CF0B8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"></path><path d="m9 12 2 2 4-4"></path></svg>E2E · verified in person</span>
+</span>
+<button type="button" aria-label="Disappearing messages: 1 hour" style="height: 36px; padding: 0 12px; border-radius: 999px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;  color: #F4F3FF; display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2M9 2h6"></path></svg>1 h</button>
+</div>
+<div style="flex-grow: 1; padding: 16px; display: flex; flex-direction: column; gap: 10px; overflow: hidden;">
+<div style="align-self: center; display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #7F7DA0; border: 1px dashed rgba(255,255,255,0.14); border-radius: 999px; padding: 6px 12px; margin-bottom: 6px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#7F7DA0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="3"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>only you two · disappears 1 h after read</div>
+<sc-for list="{{msgs}}" as="m" hint-placeholder-count="5">
+<sc-if value="{{m.them}}" hint-placeholder-val="{{true}}">
+<div style="align-self: flex-start; max-width: 80%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; border-radius: 20px 20px 20px 6px; padding: 11px 14px; display: flex; flex-direction: column; gap: 4px;">
+<span style="font-size: 14px; line-height: 1.45;">{{m.text}}</span>
+<span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10.5px; color: #7F7DA0;">{{m.time}}</span>
+</div>
+</sc-if>
+<sc-if value="{{m.meText}}" hint-placeholder-val="{{false}}">
+<div style="align-self: flex-end; max-width: 80%; background: linear-gradient(135deg, {{accent}}, {{accent2}}); border-radius: 20px 20px 6px 20px; padding: 11px 14px; display: flex; flex-direction: column; gap: 4px; color: #0B0B14;">
+<span style="font-size: 14px; line-height: 1.45; font-weight: 600;">{{m.text}}</span>
+<span style="display: flex; align-items: center; gap: 5px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10.5px; color: rgba(11,11,20,0.7); align-self: flex-end;">{{m.time}}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0B0B14" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 13l4 4L13 9M9 17l2 2 10-10"></path></svg></span>
+</div>
+</sc-if>
+<sc-if value="{{m.mePhoto}}" hint-placeholder-val="{{false}}">
+<div style="align-self: flex-end; width: 240px; border-radius: 20px 20px 6px 20px; overflow: hidden; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; border-radius: 20px 20px 6px 20px;">
+<div style="height: 150px; background: repeating-linear-gradient(135deg, #171826 0 10px, #1E2030 10px 20px); display: grid; place-items: center; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; color: #9A98B5;">[photo]</div>
+<div style="padding: 10px 12px; display: flex; flex-direction: column; gap: 4px;">
+<span style="display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10.5px; color: #5CF0B8;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#5CF0B8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>metadata stripped</span>
+<span style="display: flex; justify-content: space-between; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; color: #7F7DA0;"><span>GPS · device · timestamp removed</span><span>{{m.time}}</span></span>
+</div>
+</div>
+</sc-if>
+</sc-for>
+<div style="align-self: flex-end; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10.5px; color: #7F7DA0;">read 21:12 · disappears in 58 min</div>
+</div>
+<div style="padding: 10px 12px 30px; display: flex; align-items: center; gap: 8px;">
+<button type="button" aria-label="Attach photo (metadata is stripped before sending)" style="width: 44px; height: 44px; border-radius: 999px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;  color: #9A98B5; display: grid; place-items: center; flex: none;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg></button>
+<label for="msg" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;">Message</label>
+<div style="flex-grow: 1; min-width: 0; height: 46px; box-sizing: border-box; border-radius: 999px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;  display: flex; align-items: center; gap: 8px; padding: 0 14px;">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5CF0B8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="3"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+<input id="msg" type="text" placeholder="Encrypted message…" style="flex-grow: 1; min-width: 0; height: 40px; border: 0; background: transparent; color: #F4F3FF; padding: 0; font-size: 14px; outline: none;">
+</div>
+<button type="button" aria-label="Send" style="width: 46px; height: 46px; border-radius: 999px; background: linear-gradient(135deg, {{accent}}, {{accent2}}); border: 0; color: #0B0B14; display: grid; place-items: center; flex: none; box-shadow: 0 8px 24px -10px {{accent}};"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B0B14" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#A78BFA","options":["#A78BFA","#5CF0B8","#60A5FA","#F9A8D4"],"section":"Gradient"},"accent2":{"editor":"color","default":"#C4B5FD","options":["#C4B5FD","#A7F3D0","#93C5FD","#FBCFE8"],"section":"Gradient"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const raw = [
+      { who: 'them', text: 'did you get there ok?', time: '21:02' },
+      { who: 'me', text: 'yes. sending you the address here, not on the other app', time: '21:03' },
+      { who: 'them', text: 'perfect. delete it as soon as you have it', time: '21:04' },
+      { who: 'photo', text: '', time: '21:06' },
+      { who: 'them', text: 'got it. wiping the thread once read', time: '21:12' }
+    ];
+    return {
+      accent: this.props.accent ?? '#A78BFA', accent2: this.props.accent2 ?? '#C4B5FD',
+      msgs: raw.map((m) => ({ text: m.text, time: m.time, them: m.who === 'them', meText: m.who === 'me', mePhoto: m.who === 'photo' }))
+    };
+  }
+}
+</script>
+</body>
+</html>

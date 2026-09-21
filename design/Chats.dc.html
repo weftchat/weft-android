@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Weft · Chats</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;background:#0A0A12;font-family:'Manrope', -apple-system, 'Segoe UI', sans-serif;color:#F4F3FF}
+a{color:#A78BFA}a:hover{color:#C4B5FD}
+button,input{font-family:inherit}button{cursor:pointer}
+input::placeholder{color:#7F7DA0}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; padding: 0; display: flex; flex-direction: column; background: #0A0A12; color: #F4F3FF; font-family: 'Manrope', -apple-system, 'Segoe UI', sans-serif; overflow: hidden; ">
+<div style="padding: 56px 20px 12px; display: flex; align-items: center; gap: 10px;">
+<a href="Profile.dc.html" aria-label="Your profile" style="width: 42px; height: 42px; border-radius: 999px; padding: 2px; background: linear-gradient(135deg, {{accent}}, {{accent2}}); display: grid; text-decoration: none; flex: none;"><span style="width: 38px; height: 38px; border-radius: 999px; background: #12121C; display: grid; place-items: center; font-weight: 800; font-size: 14px; color: #F4F3FF;">J</span></a>
+<h1 style="margin: 0 0 0 2px; flex-grow: 1; font-size: 30px; font-weight: 800; letter-spacing: -0.03em;">Chats</h1>
+<button type="button" aria-label="Search" style="width: 44px; height: 44px; border-radius: 999px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;  color: #F4F3FF; display: grid; place-items: center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg></button>
+<a href="AddContact.dc.html" aria-label="New contact" style="width: 44px; height: 44px; border-radius: 999px; background: linear-gradient(135deg, {{accent}}, {{accent2}}); color: #0B0B14; display: grid; place-items: center; box-shadow: 0 8px 24px -10px {{accent}};"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B0B14" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></a>
+</div>
+<div style="margin: 0 20px 10px; padding: 10px 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; border-radius: 999px; display: flex; align-items: center; gap: 10px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px;">
+<span style="width: 8px; height: 8px; border-radius: 999px; background: #5CF0B8; box-shadow: 0 0 10px #5CF0B8; flex: none;"></span>
+<span style="flex-grow: 1; color: #9A98B5;">relay <span style="color: #F4F3FF;">r2</span> · via Tor · 38 ms</span>
+<a href="Security.dc.html" style="color: {{accent}}; text-decoration: none; font-weight: 600;">Rotate</a>
+</div>
+<div style="margin: 0 20px 10px; padding: 4px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; border-radius: 999px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px;">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="3">
+<button type="button" aria-pressed="{{t.pressed}}" onClick="{{t.pick}}" style="height: 36px; border-radius: 999px; border: 0; background: {{t.bg}}; color: {{t.fg}}; font-size: 13px; font-weight: 700;">{{t.label}}</button>
+</sc-for>
+</div>
+<div style="flex-grow: 1; padding: 0 12px; display: flex; flex-direction: column; gap: 6px; overflow: hidden;">
+<sc-for list="{{chats}}" as="c" hint-placeholder-count="6">
+<a href="Conversation.dc.html" style="display: flex; gap: 12px; align-items: center; padding: 12px 12px; border-radius: 18px; color: #F4F3FF; text-decoration: none; min-height: 72px; box-sizing: border-box; background: {{c.bg}};">
+<span style="width: 48px; height: 48px; border-radius: 16px; background: {{c.av}}; display: grid; place-items: center; font-weight: 800; font-size: 15px; color: #F4F3FF; flex: none;">{{c.ini}}</span>
+<span style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px;">
+<span style="display: flex; justify-content: space-between; gap: 8px; align-items: baseline;"><span style="display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 800; letter-spacing: -0.01em;">{{c.name}}<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#5CF0B8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="3"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></span><span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #7F7DA0; flex: none;">{{c.time}}</span></span>
+<span style="display: flex; justify-content: space-between; gap: 8px; align-items: center;">
+<span style="font-size: 12.5px; color: #9A98B5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{c.last}}</span>
+<sc-if value="{{c.timer}}" hint-placeholder-val="{{false}}"><span style="display: flex; align-items: center; gap: 4px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #9A98B5; flex: none;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2M9 2h6"></path></svg>{{c.timer}}</span></sc-if>
+<sc-if value="{{c.unread}}" hint-placeholder-val="{{false}}"><span style="min-width: 22px; height: 22px; padding: 0 7px; box-sizing: border-box; border-radius: 999px; background: linear-gradient(135deg, {{accent}}, {{accent2}}); color: #0B0B14; font-size: 11px; font-weight: 800; display: grid; place-items: center; flex: none;">{{c.unread}}</span></sc-if>
+</span>
+</span>
+</a>
+</sc-for>
+</div>
+<nav aria-label="Main" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0 12px 14px; padding: 6px 8px; border-radius: 24px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;  background: rgba(18,18,28,0.9);"><a href="Chats.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 5px; min-height: 52px; justify-content: center; color: {{accent}}; text-decoration: none; font-size: 11px; font-weight: 800;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"></path></svg>Chats</a><a href="AddContact.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 5px; min-height: 52px; justify-content: center; color: #7F7DA0; text-decoration: none; font-size: 11px; font-weight: 600;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4"></circle><path d="M2 20c0-4 3-6 7-6s7 2 7 6M19 8v6M16 11h6"></path></svg>Contacts</a><a href="Security.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 5px; min-height: 52px; justify-content: center; color: #7F7DA0; text-decoration: none; font-size: 11px; font-weight: 600;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"></path><path d="m9 12 2 2 4-4"></path></svg>Security</a><a href="Profile.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 5px; min-height: 52px; justify-content: center; color: #7F7DA0; text-decoration: none; font-size: 11px; font-weight: 600;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"></path></svg>Profile</a></nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#A78BFA","options":["#A78BFA","#5CF0B8","#60A5FA","#F9A8D4"],"section":"Gradient"},"accent2":{"editor":"color","default":"#C4B5FD","options":["#C4B5FD","#A7F3D0","#93C5FD","#FBCFE8"],"section":"Gradient"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? '#A78BFA';
+    const accent2 = this.props.accent2 ?? '#C4B5FD';
+    const tab = (this.state && this.state.tab != null) ? this.state.tab : 0;
+    const tabs = ['All', 'Direct', 'Timed'].map((label, i) => ({
+      label, pressed: i === tab ? 'true' : 'false',
+      bg: i === tab ? 'rgba(255,255,255,0.10)' : 'transparent',
+      fg: i === tab ? '#F4F3FF' : '#9A98B5',
+      pick: () => this.setState({ tab: i })
+    }));
+    const all = [
+      { ini: '30', av: '#2A2140', name: 'circle·30', last: 'lena: tomorrow at 8pm, usual place', time: '21:48', unread: '4', timer: '' },
+      { ini: 'N', av: '#1F2A38', name: 'nomad', last: 'got it. wiping the thread once read', time: '21:12', unread: '', timer: '1 h' },
+      { ini: 'K', av: '#1E2E2A', name: 'kestrel', last: '[photo · metadata stripped]', time: '19:05', unread: '', timer: '' },
+      { ini: 'T', av: '#2E2A20', name: 'tadeo', last: 'did you rotate the relay yet?', time: 'yesterday', unread: '1', timer: '' },
+      { ini: 'V', av: '#1E2438', name: 'vela', last: 'fingerprint verified in person', time: 'Mon', unread: '', timer: '24 h' },
+      { ini: 'O', av: '#2A2030', name: 'orion', last: 'see you', time: 'Sep 12', unread: '', timer: '' }
+    ];
+    const chats = all
+      .filter((c) => tab === 0 || (tab === 1 && c.ini.length === 1) || (tab === 2 && c.timer))
+      .map((c) => ({ ...c, bg: c.unread ? 'rgba(255,255,255,0.04)' : 'transparent' }));
+    return { accent, accent2, tabs, chats };
+  }
+}
+</script>
+</body>
+</html>
