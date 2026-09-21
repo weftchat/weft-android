@@ -28,3 +28,10 @@ protocol. Target OS: GrapheneOS (no Google Play Services). AGPL-3.0 — the code
 ## Layout
 `app/` screens · `design-system/` tokens + components · `core/` Kotlin wrapper + JNI over SimpleX ·
 `security/` PIN, Keystore, wipe · `native/` reproducible build of libsimplex.so · `ci/` checks · `docs/`.
+
+## Build (Mac)
+`JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home" ./gradlew :app:assembleRelease`
+- Signing key: `~/weft-signing/` (outside the repo, never committed; back it up — losing it means no app updates).
+  Override with `WEFT_KEYSTORE_PROPERTIES=/path/to/keystore.properties` (CI).
+- `ci/check-no-google.sh release` must pass before any release.
+- `applicationId = app.weft` is **provisional**: confirm with the owner before the first published release.

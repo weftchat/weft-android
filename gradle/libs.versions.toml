@@ -4,13 +4,14 @@
 agp = "9.4.1"            # Android Gradle Plugin — builds the APK
 kotlin = "2.4.20"        # language + Compose compiler plugin
 compose-bom = "2026.09.00" # pins all androidx.compose.* versions together
+activity = "1.13.0"      # activity-compose is not covered by the BOM
 
 [libraries]
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
 compose-ui = { module = "androidx.compose.ui:ui" }                    # Compose runtime UI
 compose-foundation = { module = "androidx.compose.foundation:foundation" } # layout, lazy lists, gestures
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" } # @Preview in the IDE
-activity-compose = { module = "androidx.activity:activity-compose" }  # setContent {} entry point
+activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }  # setContent {} entry point
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
