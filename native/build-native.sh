@@ -11,10 +11,12 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 core="$root/third_party/simplex-chat"
 out="$root/native/out/arm64-v8a"
 
-want_tag="v7.0.2"
-have_tag="$(git -C "$core" describe --tags --exact-match)"
-if [ "$have_tag" != "$want_tag" ]; then
-  echo "third_party/simplex-chat is at '$have_tag', expected '$want_tag'" >&2; exit 1
+# Pinned by commit, not `git describe --tags`: a CI checkout of the submodule is shallow and
+# does not fetch tag refs, so `describe` fails there even though the right commit is checked out.
+want_commit="4df04bdb3ff94059734ad2da7d2766de6dba2cc7"  # tag v7.0.2
+have_commit="$(git -C "$core" rev-parse HEAD)"
+if [ "$have_commit" != "$want_commit" ]; then
+  echo "third_party/simplex-chat is at '$have_commit', expected '$want_commit' (v7.0.2)" >&2; exit 1
 fi
 
 mkdir -p "$out"
