@@ -26,4 +26,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "weft"
-include(":app", ":core")
+include(":app", ":core", ":design-system")

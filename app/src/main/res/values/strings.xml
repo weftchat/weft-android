@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Every string is English, exactly as in design/v3/weft-v3.html. -->
+<resources>
+    <string name="app_name">Weft</string>
+
+    <!-- 1 · Create identity -->
+    <string name="onboard_version">v%1$s · beta</string>
+    <string name="onboard_eyebrow">No phone number · no email</string>
+    <string name="onboard_display">Your keys.\nYour words.</string>
+    <string name="onboard_lede">Weft has no user IDs. Every contact gets their own keys, made on this phone. Nobody — not even us — can see who you talk to.</string>
+    <string name="onboard_check_1">End-to-end encrypted, post-quantum ratchet</string>
+    <string name="onboard_check_2">Relays switch on their own when one is blocked</string>
+    <string name="onboard_check_3">Duress PIN and emergency wipe built in</string>
+    <string name="onboard_create">Create identity</string>
+    <string name="onboard_fine">Takes 2 seconds · nothing leaves this phone</string>
+
+    <string name="forge_eyebrow">Working on this phone</string>
+    <string name="forge_title">Weaving your keys</string>
+    <string name="forge_device_key">Device key</string>
+    <string name="forge_ratchet">Ratchet keys</string>
+    <string name="forge_queues">Private relay queues</string>
+    <string name="forge_fine">Stay on this screen · about 2 seconds</string>
+
+    <string name="name_eyebrow">Keys ready</string>
+    <string name="name_title">What should your contacts call you?</string>
+    <string name="keycard_title">Device fingerprint</string>
+    <string name="keycard_local">local only</string>
+    <string name="keycard_made">made just now</string>
+    <string name="name_label">"Nickname "</string>
+    <string name="name_label_hint">· optional, only your contacts see it</string>
+    <string name="name_placeholder">e.g. heron</string>
+    <string name="name_choose_pin">Choose a PIN</string>
+</resources>

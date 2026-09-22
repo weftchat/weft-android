@@ -20,3 +20,6 @@ ADDRESSES.txt
 core/src/main/jniLibs/
 native/out/
 .DS_Store
+
+# Local tool scratch (browser screenshots/snapshots)
+.playwright-cli/
