@@ -43,34 +43,18 @@ Servidor propio en Hetzner (Nuremberg), desplegado desde `~/Developer/weft-infra
 - Distribución: **Accrescent** (principal) + releases en GitHub con APK firmado y SHA-256 para Obtainium. Firma con clave propia (APK Signature v3). Builds reproducibles como objetivo desde v1.
 - Rendimiento medible: abrir un chat < 100 ms; arranque en frío < 1 s en un Pixel de hace 4 años.
 
-## Diseño — dirección "Vault" (estilo wallet cripto)
+## Diseño — dirección "Vault", versión 3 (estilo wallet cripto)
 
-Las 7 pantallas están en `design/*.dc.html` como HTML autocontenido: **son la referencia exacta** de layout, espaciado, tipografía y color. Ábrelos en un navegador para verlos. Reprodúcelos en Compose con fidelidad; no "mejores" el diseño.
+La referencia exacta es **`design/v3/weft-v3.html`** (prototipo navegable: ábrelo en un navegador) junto con **`design/v3/DESIGN.md`**, que traduce colores, tipografía, animaciones y comportamiento a Compose. Reprodúcelo con fidelidad; no "mejores" el diseño. Toda la app va en **inglés**. La versión anterior (7 pantallas) está archivada en `design/v2/` solo como historial.
 
-**Tokens:**
-- Fondo `#0A0A12` · superficie `#12121C` · tinta (texto sobre acento) `#0B0B14`
-- Texto `#F4F3FF` · muted `#9A98B5` · dim `#7F7DA0`
-- Acento: degradado lavanda `#A78BFA → #C4B5FD` (botones primarios, burbujas propias, anillos, toggles activos). Texto sobre él siempre en tinta, nunca blanco.
-- **Menta `#5CF0B8` solo para estados seguros/verificados/cifrados.** Peligro `#FF6B8A` solo para borrar/wipe.
-- Cristal: `rgba(255,255,255,0.04)` con borde `rgba(255,255,255,0.08)`, radio 20 px. Botones en píldora (999 px).
-- Tipografía: **Manrope** 700-800 para UI (titulares con tracking -0.03em), **JetBrains Mono** para claves, huellas, relays, tiempos y etiquetas en mayúsculas con tracking 0.14em.
-- Sin barra de estado ni teclado dibujados. Áreas táctiles ≥ 44 px. Contraste ≥ 4.5:1.
-
-**Pantallas (orden del flujo):**
-1. `Main` — Crear identidad (clave de dispositivo, apodo opcional)
-2. `Unlock` — PIN de 6 dígitos
-3. `Chats` — lista con selector All / Direct / Timed, estado del relay, nav inferior
-4. `Conversation` — chat 1:1 con efímeros, foto con metadatos eliminados
-5. `AddContact` — QR de un solo uso, escanear, copiar enlace
-6. `Security` — coacción, privacidad, red y relays, wipe
-7. `Profile` — avatar, apodo, huella, cuenta
+**Pantallas v3 (11):** Create identity · PIN (elegir, repetir, entrar; PIN de coacción → perfil señuelo) · Chats · Conversation · Group chat · Group call · New group · Add contact · Security · Emergency wipe · Profile.
 
 ## Plan por fases (cada una termina en algo usable por el piloto)
 
 | Fase | Entrega |
 |---|---|
 | 0 · Base | Proyecto Kotlin + Compose sobre el núcleo SimpleX; arranca en GrapheneOS; SQLCipher; firma propia; build reproducible; CI sin Google |
-| 1 · Identidad y chat 1:1 | Las 7 pantallas funcionando contra el relay propio |
+| 1 · Identidad y chat 1:1 | Design system v3 + pantallas Create identity, PIN, Chats, Conversation, Add contact y Profile funcionando contra el relay propio |
 | 2 · Seguridad del dispositivo | PIN de coacción + señuelo, wipe de emergencia, wipe tras 10 intentos, FLAG_SECURE, bloqueo automático |
 | 3 · Red | Relays del usuario, enrutado privado por defecto, Tor (Arti), rotación automática, UnifiedPush |
 | 4 · Grupos y llamadas | Grupos ≤ 50, llamadas 1:1 con TURN propio, llamadas de grupo en malla ≤ 6 |

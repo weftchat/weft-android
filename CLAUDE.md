@@ -1,8 +1,10 @@
 # Weft — project memory for Claude Code
 
 Read `BRIEF.md` first: it is the single source of truth. Do not invent what it does not say;
-if something is undecided, ask before coding. The 7 screens in `design/*.dc.html` are the exact
-reference for layout, spacing, type and colour — reproduce them in Compose, do not "improve" them.
+if something is undecided, ask before coding. **Design v3** is the exact reference for layout,
+spacing, type, colour, motion and behaviour: open `design/v3/weft-v3.html` in a browser and follow
+`design/v3/DESIGN.md` (tokens, motion specs in Compose terms, the 11 screens, what is mockup-only).
+Reproduce it in Compose, do not "improve" it. `design/v2/` is the old version, kept only for history.
 
 ## What this is
 Android-native (Kotlin + Jetpack Compose) messenger with total metadata privacy, on the SimpleX
