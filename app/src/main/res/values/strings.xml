@@ -30,4 +30,19 @@
     <string name="name_label_hint">· optional, only your contacts see it</string>
     <string name="name_placeholder">e.g. heron</string>
     <string name="name_choose_pin">Choose a PIN</string>
+
+    <!-- 2 · PIN -->
+    <string name="pin_choose_title">Choose a PIN</string>
+    <string name="pin_choose_sub">6 digits · you’ll need it every time</string>
+    <string name="pin_repeat_title">Repeat your PIN</string>
+    <string name="pin_repeat_sub">Just to be sure</string>
+    <string name="pin_enter_title">Enter your PIN</string>
+    <string name="pin_enter_sub">Weft locks itself after 1 min away</string>
+    <string name="pin_mismatch">PINs didn’t match — try again</string>
+    <string name="pin_is_duress">That’s the duress PIN — pick another</string>
+    <string name="pin_ready">PIN set · Weft is ready</string>
+
+    <!-- 3 · Chats -->
+    <string name="chats_title">Chats</string>
+    <string name="chats_lock">Lock Weft</string>
 </resources>

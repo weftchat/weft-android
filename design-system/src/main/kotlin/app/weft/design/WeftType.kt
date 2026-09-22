@@ -62,6 +62,7 @@ object WeftType {
     val titleXl = sans(30f, 800, -0.03f, 1.05f)
     val screenTitle = sans(30f, 800, -0.03f)
     val pinTitle = sans(26f, 800, -0.02f)
+    val pinKey = sans(28f, 600)
     val sheetTitle = sans(20f, 800, -0.02f)
     val wordmark = sans(18f, 800, 0.04f)
     val rowName = sans(15f, 800, -0.01f)
@@ -83,4 +84,6 @@ object WeftType {
     val pill = monoStyle(11f, 500)
     val fingerprint = monoStyle(18f, 500, 0.08f)
     val fine = monoStyle(11f, 400, lineHeight = 1.55f)
+    /** `.pin-copy p` — mono 12 / 400 / 1.5. */
+    val pinSub = monoStyle(12f, 400, lineHeight = 1.5f)
 }

@@ -15,11 +15,13 @@ import app.weft.design.WeftColors
 import app.weft.design.WeftToastHost
 import app.weft.design.WeftToastState
 import app.weft.identity.DemoIdentityMaker
+import app.weft.lock.DemoPinVault
 import app.weft.nav.PinMode
 import app.weft.nav.Route
 import app.weft.nav.WeftNavHost
 import app.weft.nav.WeftNavigator
 import app.weft.ui.onboarding.OnboardingScreen
+import app.weft.ui.chats.ChatsScreen
 import app.weft.ui.pin.PinScreen
 import androidx.compose.ui.unit.dp
 
@@ -38,7 +40,13 @@ class MainActivity : ComponentActivity() {
                             makeIdentity = DemoIdentityMaker::create,
                             onChoosePin = { nav.push(Route.Pin(PinMode.Choose)) },
                         )
-                        is Route.Pin -> PinScreen(route.mode)
+                        is Route.Pin -> PinScreen(
+                            start = route.mode,
+                            vault = DemoPinVault,
+                            toast = toast::show,
+                            onUnlocked = { nav.root(Route.Chats) },
+                        )
+                        Route.Chats -> ChatsScreen(onLock = { nav.root(Route.Pin(PinMode.Enter)) })
                     }
                 }
                 WeftToastHost(toast, bottom = 40.dp)
