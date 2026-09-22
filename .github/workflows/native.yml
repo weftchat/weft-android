@@ -26,7 +26,12 @@ jobs:
           echo "4fed7db867186c01ce2a2077da4a6950ed16232efbf78d0cd19700cff80559f9  nix-install" | sha256sum -c
           sh nix-install --no-daemon
           mkdir -p ~/.config/nix
-          printf 'experimental-features = nix-command flakes\nsandbox = true\n' > ~/.config/nix/nix.conf
+          # Without this, Nix ignores the flake's haskell.nix input's own cache config (flake
+          # nixConfig isn't applied non-interactively) and rebuilds GHC — and the whole Haskell
+          # package set — from source, which takes many hours. Key verified against IOG's own
+          # cardano-node flake.nix (github.com/IntersectMBO/cardano-node), the same org that
+          # publishes this cache and maintains haskell.nix.
+          printf 'experimental-features = nix-command flakes\nsandbox = true\nextra-substituters = https://cache.iog.io\nextra-trusted-public-keys = hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=\n' > ~/.config/nix/nix.conf
       - name: Build libsimplex.so + libsupport.so
         run: |
           . ~/.nix-profile/etc/profile.d/nix.sh

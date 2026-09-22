@@ -37,6 +37,11 @@ wipe (Phase 2) · `native/` native build · `ci/` checks (no-Google, hashes).
 
 ## Known risks (measured in Phase 0)
 1. **Cold start < 1 s**: the Haskell runtime starts with `-A64m -H64m`. Measure on a real Pixel; tune RTS flags if needed.
-2. **Native build time**: haskell.nix builds GHC 9.6.3 cross toolchains; without a binary cache this can take hours
-   and may exceed a free GitHub runner. Mitigations: IOG binary cache / Cachix, or a paid larger runner.
+2. **Native build time**: haskell.nix builds GHC 9.6.3 cross toolchains. `.github/workflows/native.yml` configures
+   the IOG binary cache (`cache.iog.io`) so it downloads prebuilt GHC instead of building it — run #2 (2026-09-22)
+   spent 2+ hours rebuilding GHC from scratch without this and was cancelled; confirmed the cache config was
+   simply missing (`flake.nix` declares no `nixConfig`, and Nix does not apply a flake input's own `nixConfig`
+   non-interactively). If a run is still very slow with the cache configured, that's a different problem —
+   check the step log for actual cache hits (`copying path ... from 'https://cache.iog.io'`) before assuming
+   the cache itself is at fault.
 3. **No GrapheneOS device yet** for validation (open question to the owner).
