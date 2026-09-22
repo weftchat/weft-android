@@ -39,6 +39,8 @@ Servidor propio en Hetzner (Nuremberg), desplegado desde `~/Developer/weft-infra
 - Grupos: los nativos de SimpleX, tope 50 miembros.
 - Llamadas 1:1: WebRTC de SimpleX vía relay TURN propio (pendiente de desplegar).
 - Llamadas de grupo: **no existen en SimpleX**. v1: malla WebRTC hasta 6 participantes, clave repartida por el chat de grupo. SFU en v2 si hace falta.
+- **Enlaces sin rastreo:** antes de enviar, la app quita de los enlaces los parámetros de seguimiento (`utm_*`, `fbclid`, `gclid`, `igshid`…); activado por defecto, desactivable. Sin vista previa de enlaces por defecto (si se activa, solo a través de Tor). Tocar un enlace nunca lo abre directamente: pregunta si abrir en Tor Browser, en el navegador normal o copiar.
+- **Sin consultas DNS:** los relays se contactan solo por dirección `.onion` o IP fija, nunca por nombre de dominio.
 - Sin blockchain, tokens ni pagos. Nunca.
 - Distribución: **Accrescent** (principal) + releases en GitHub con APK firmado y SHA-256 para Obtainium. Firma con clave propia (APK Signature v3). Builds reproducibles como objetivo desde v1.
 - Rendimiento medible: abrir un chat < 100 ms; arranque en frío < 1 s en un Pixel de hace 4 años.
