@@ -23,3 +23,6 @@ native/out/
 
 # Local tool scratch (browser screenshots/snapshots)
 .playwright-cli/
+
+# CMake build output of the JNI glue
+core/.cxx/
