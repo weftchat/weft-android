@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Weft — Speak freely. Leave no trace.</title>
+<meta name="description" content="Weft is an encrypted, decentralized messenger with no phone number, no email and no identity to hand over. Built for journalists, politicians and anyone whose words could cost them.">
+<meta name="theme-color" content="#07070C">
+<meta name="referrer" content="no-referrer">
+<!-- No external fonts, no analytics, no trackers: everything this page needs is in this folder. -->
+<style>
+:root{--bg:#07070C;--surface:#12121C;--line:rgba(237,235,250,.12);--text:#EDEBFA;--muted:#A19DBA;--violet:#A78BFA;--violet2:#C4B5FD;--on:#0B0B14;
+--sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+--serif:ui-serif,"New York","Iowan Old Style",Georgia,"Times New Roman",serif;
+--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.hero{position:relative;min-height:100svh;overflow:hidden;isolation:isolate;display:flex;flex-direction:column}
+.bg{position:absolute;inset:-6%;z-index:-2;object-fit:cover;width:112%;height:112%;filter:blur(38px) saturate(1.1) brightness(.55);transform:scale(1.05)}
+.shade{position:absolute;inset:0;z-index:-1;background:radial-gradient(120% 90% at 75% 40%,rgba(7,7,12,.15),rgba(7,7,12,.85) 70%),linear-gradient(180deg,rgba(7,7,12,.55),rgba(7,7,12,0) 25%,rgba(7,7,12,0) 70%,var(--bg))}
+nav{display:flex;align-items:center;justify-content:space-between;padding:22px clamp(16px,5vw,64px)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg.mark{width:34px;height:34px}
+.brand svg.word{height:22px;width:auto}
+.links{display:flex;align-items:center;gap:28px;font-size:15px;color:var(--muted)}
+.links a:hover{color:var(--text)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:12px;font-weight:650;font-size:15px;padding:12px 18px;border:0;cursor:pointer;font-family:inherit}
+.btn-v{background:var(--violet);color:var(--on)}
+.btn-v:hover{background:var(--violet2)}
+.btn-ghost{background:rgba(237,235,250,.06);border:1px solid var(--line);color:var(--text)}
+.wrap{flex:1;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);align-items:center;gap:clamp(24px,5vw,80px);padding:clamp(12px,3vw,40px) clamp(16px,5vw,64px) clamp(40px,6vw,80px);max-width:1320px;width:100%;margin:0 auto}
+.eyebrow{font-family:var(--mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--violet2);display:flex;align-items:center;gap:10px;margin-bottom:22px}
+.eyebrow i{width:8px;height:8px;border-radius:50%;background:var(--violet);box-shadow:0 0 12px var(--violet)}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(46px,7.2vw,104px);line-height:.98;letter-spacing:-.02em}
+h1 .bar{position:relative;white-space:nowrap}
+h1 .bar::after{content:"";position:absolute;left:-2%;right:-2%;top:18%;bottom:14%;background:var(--violet);border-radius:6px;transform-origin:left;transform:scaleX(0);animation:redact .7s 1.1s cubic-bezier(.7,0,.2,1) forwards;mix-blend-mode:normal}
+@keyframes redact{to{transform:scaleX(1)}}
+.lede{margin-top:24px;font-size:clamp(17px,1.5vw,20px);line-height:1.55;color:var(--muted);max-width:34em}
+.lede b{color:var(--text);font-weight:600}
+form{margin-top:34px;display:flex;gap:10px;max-width:520px;background:rgba(18,18,28,.72);border:1px solid var(--line);border-radius:16px;padding:6px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--text);font:inherit;font-size:16px;padding:12px 14px}
+input::placeholder{color:#6F6A8A}
+.note{margin-top:12px;font-size:13px;color:#7D7899;max-width:520px;line-height:1.5}
+.ok{display:none;margin-top:34px;max-width:520px;padding:16px 18px;border-radius:14px;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.4);font-size:15px}
+.trust{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px}
+.trust span{font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:7px 12px;background:rgba(7,7,12,.4)}
+.device{justify-self:center;position:relative;height:min(78svh,780px);aspect-ratio:9/19.5;padding:10px;border-radius:52px;background:linear-gradient(145deg,#2b2a33,#101016 45%,#1c1b22);box-shadow:0 0 0 1.5px #3a3946,0 40px 120px rgba(0,0,0,.65),0 0 90px rgba(167,139,250,.16)}
+.device::before,.device::after{content:"";position:absolute;right:-5px;width:5px;border-radius:0 3px 3px 0;background:linear-gradient(90deg,#26252d,#3b3a45)}
+.device::before{top:19%;height:8%}
+.device::after{top:31%;height:15%}
+.screen{position:relative;width:100%;height:100%;border-radius:42px;overflow:hidden;background:#000}
+.screen video{width:100%;height:100%;object-fit:cover;display:block}
+.cam{position:absolute;top:14px;left:50%;transform:translateX(-50%);width:13px;height:13px;border-radius:50%;background:#050507;box-shadow:inset 0 0 0 2px #1a1a22,0 0 0 1px rgba(255,255,255,.04);z-index:3}
+.sound{position:absolute;right:16px;bottom:18px;z-index:4;display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:1px solid rgba(237,235,250,.25);background:rgba(7,7,12,.7);color:#EDEBFA;font:600 14px var(--sans);cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.sound:hover{border-color:var(--violet)}
+.sec{max-width:1320px;margin:0 auto;padding:clamp(64px,9vw,120px) clamp(16px,5vw,64px);border-top:1px solid var(--line)}
+.sec h2{font-family:var(--serif);font-weight:400;font-size:clamp(38px,5vw,64px);line-height:1.05;letter-spacing:-.01em;max-width:15em}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px;margin-top:40px}
+.feat{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:26px}
+.feat .ic{width:44px;height:44px;border-radius:12px;background:rgba(167,139,250,.14);display:grid;place-items:center;margin-bottom:16px}
+.feat .ic svg{width:22px;height:22px;stroke:var(--violet);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.feat h3{font-size:18px;font-weight:700;margin-bottom:8px}
+.feat p{color:var(--muted);font-size:15px;line-height:1.55}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:40px;counter-reset:s}
+.step{padding:26px;border-radius:20px;border:1px solid var(--line);position:relative}
+.step::before{counter-increment:s;content:"0" counter(s);font-family:var(--mono);font-size:14px;color:var(--violet);display:block;margin-bottom:14px}
+.step h3{font-size:20px;margin-bottom:8px}
+.step p{color:var(--muted);line-height:1.55;font-size:15px}
+.who{display:flex;flex-wrap:wrap;gap:10px;margin-top:32px}
+.who span{padding:12px 18px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:600}
+details{border-bottom:1px solid var(--line);padding:22px 0}
+details summary{cursor:pointer;font-size:18px;font-weight:650;list-style:none;display:flex;justify-content:space-between;gap:16px}
+details summary::after{content:"+";color:var(--violet);font-size:24px;line-height:1}
+details[open] summary::after{content:"–"}
+details p{color:var(--muted);line-height:1.6;margin-top:12px;max-width:52em}
+.faq{margin-top:28px;max-width:900px}
+footer{border-top:1px solid var(--line);padding:40px clamp(16px,5vw,64px);max-width:1320px;margin:0 auto;display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:center;color:var(--muted);font-size:14px}
+footer nav{padding:0;gap:22px;display:flex;flex-wrap:wrap}
+footer a:hover{color:var(--text)}
+.donate{max-width:1320px;margin:0 auto;padding:clamp(64px,9vw,120px) clamp(16px,5vw,64px)}
+.donate h2{font-family:var(--serif);font-weight:400;font-size:clamp(38px,5vw,64px);line-height:1.05;letter-spacing:-.01em;max-width:14em}
+.donate .lede{max-width:40em}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:40px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:26px}
+.card h3{font-size:18px;font-weight:700;margin-bottom:8px}
+.card p{color:var(--muted);font-size:15px;line-height:1.55}
+.card .btn{margin-top:18px}
+.soon{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--violet2);border:1px solid rgba(167,139,250,.4);border-radius:999px;padding:3px 8px;margin-left:8px;vertical-align:middle}
+.peers{margin-top:40px;padding:22px 26px;border-radius:20px;border:1px dashed rgba(167,139,250,.35);color:var(--muted);font-size:15px;line-height:1.6}
+.peers a{color:var(--violet2);text-decoration:underline;text-underline-offset:3px}
+.skip{position:absolute;left:-999px}
+.skip:focus{left:16px;top:16px;z-index:9;background:var(--violet);color:var(--on);padding:8px 12px;border-radius:8px}
+@media (max-width:860px){
+ .links a:not(.btn){display:none}
+ .bg{filter:brightness(.5) saturate(1.05);inset:0;width:100%;height:100%;transform:none}
+ .shade{background:linear-gradient(180deg,rgba(7,7,12,.6),rgba(7,7,12,.1) 30%,rgba(7,7,12,.55) 55%,var(--bg) 92%)}
+ .wrap{grid-template-columns:1fr;align-content:end;padding-top:0}
+ .device{display:none}
+ h1{font-size:clamp(44px,13vw,64px)}
+ form{flex-direction:column}
+ form .btn{width:100%;padding:14px}
+}
+@media (prefers-reduced-motion:reduce){h1 .bar::after{animation:none;transform:scaleX(1)} .bg,.device video{display:none}}
+</style>
+</head>
+<body>
+<a class="skip" href="#join">Skip to sign-up</a>
+<header class="hero">
+  <video class="bg" autoplay muted loop playsinline preload="metadata" poster="hero_poster.jpg" aria-hidden="true">
+    <source src="hero_loop.mp4" type="video/mp4">
+  </video>
+  <div class="shade"></div>
+  <nav>
+    <a class="brand" href="/" aria-label="Weft home">
+      <svg class="mark" viewBox="8 8 48 50" aria-hidden="true"><path d="M20 12H44A8 8 0 0 1 52 20V36A8 8 0 0 1 44 44H30L20 54V44A8 8 0 0 1 12 36V20A8 8 0 0 1 20 12Z" fill="none" stroke="#A78BFA" stroke-width="5" stroke-linejoin="round"/><rect x="20" y="25" width="24" height="7" rx="1.5" fill="#A78BFA"/></svg>
+      <svg class="word" viewBox="0 -1480 4104 1520" aria-hidden="true"><path fill="#EDEBFA" d="M370 0 40 -1082 306 -1080 502 -436 701 -1080H927L1126 -436L1322 -1080H1588L1258 0H1050L814 -704L578 0Z M2170.0 30Q2004.0 30 1877.5 -41.5Q1751.0 -113 1679.5 -238.5Q1608.0 -364 1608.0 -526Q1608.0 -703 1678.0 -834.0Q1748.0 -965 1871.0 -1037.5Q1994.0 -1110 2154.0 -1110Q2324.0 -1110 2443.0 -1030.0Q2562.0 -950 2619.0 -805.0Q2676.0 -660 2659.0 -464H2390.0V-564Q2390.0 -729 2337.5 -801.5Q2285.0 -874 2166.0 -874Q2027.0 -874 1961.5 -789.5Q1896.0 -705 1896.0 -540Q1896.0 -389 1961.5 -306.5Q2027.0 -224 2154.0 -224Q2234.0 -224 2291.0 -259.0Q2348.0 -294 2378.0 -360L2650.0 -282Q2589.0 -134 2457.5 -52.0Q2326.0 30 2170.0 30ZM1812.0 -464V-666H2528.0V-464Z M2874.0 0V-1076Q2874.0 -1117 2876.0 -1169.0Q2878.0 -1221 2892.5 -1274.0Q2907.0 -1327 2946.0 -1370Q2996.0 -1426 3054.5 -1446.5Q3113.0 -1467 3168.0 -1468.5Q3223.0 -1470 3262.0 -1470H3396.0V-1250H3272.0Q3208.0 -1250 3177.0 -1217.5Q3146.0 -1185 3146.0 -1140V0ZM2704.0 -870V-1080H3396.0V-870Z M4104.0 0Q3992.0 21 3884.5 18.5Q3777.0 16 3692.5 -19.5Q3608.0 -55 3564.0 -134Q3524.0 -208 3522.0 -284.5Q3520.0 -361 3520.0 -458V-1380H3792.0V-474Q3792.0 -411 3793.5 -360.5Q3795.0 -310 3814.0 -280Q3850.0 -223 3929.0 -218.0Q4008.0 -213 4104.0 -226ZM3336.0 -870V-1080H4104.0V-870Z"/></svg>
+    </a>
+    <div class="links">
+      <a href="#security">Security</a>
+      <a href="#how">How it works</a>
+      
+      <a href="#faq">FAQ</a>
+      <a href="#donate">Donate</a>
+      <a class="btn btn-ghost" href="#join">Join the beta</a>
+    </div>
+  </nav>
+  <div class="wrap">
+    <div>
+      <p class="eyebrow"><i></i>Encrypted · Decentralized · Anonymous</p>
+      <h1>Speak freely.<br>Leave no <span class="bar">trace.</span></h1>
+      <p class="lede">The messenger with <b>no phone number, no email and no identity to hand over</b>. Built for journalists, politicians and anyone whose words could cost them.</p>
+      <form id="join" autocomplete="off" novalidate>
+        <label class="skip" for="contact">Your email</label>
+        <input id="contact" name="contact" type="email" inputmode="email" spellcheck="false" autocapitalize="off" placeholder="Your email" required>
+        <button class="btn btn-v" type="submit">Join the beta</button>
+      </form>
+      <p class="ok" id="ok" role="status">Your email app just opened — press <b>Send</b> and you're on the list. We'll write once, when your invite is ready. No app opened? Email <a href="mailto:weftchat@proton.me?subject=Join%20the%20Weft%20beta" style="color:#C4B5FD;text-decoration:underline">weftchat@proton.me</a>.</p>
+      <p class="note">No name needed. No cookies, no analytics, no trackers on this site. We use your email only to send your beta invite.</p>
+      <div class="trust"><span>Open source · AGPLv3</span><span>Built on SimpleX</span><span>Zero Google</span><span>GrapheneOS-first</span></div>
+    </div>
+    <div class="device">
+      <div class="screen">
+        <span class="cam" aria-hidden="true"></span>
+        <video id="promo" autoplay muted loop playsinline preload="metadata" poster="hero_poster.jpg" aria-label="Weft promo video">
+          <source src="weft_promo.mp4" type="video/mp4">
+          <source src="hero_loop.mp4" type="video/mp4">
+        </video>
+        <button class="sound" id="sound" type="button" aria-pressed="false">&#128263; Tap for sound</button>
+      </div>
+    </div>
+  </div>
+</header>
+<section class="sec" id="security" aria-labelledby="sec-title">
+  <p class="eyebrow"><i></i>Security</p>
+  <h2 id="sec-title">Private by design, not by promise.</h2>
+  <p class="lede">Weft protects what you say <b>and</b> the traces around it: who you talk to, when and from where.</p>
+  <div class="grid"><div class="feat"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6"/><path d="M16 16l5 5M21 16l-5 5"/></svg></div><h3>No identity to hand over</h3><p>No phone number, no email, no username. Your identity is a key created on your phone — there is no account for anyone to seize.</p></div><div class="feat"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div><h3>Metadata stays dark</h3><p>Messages are end-to-end encrypted and routed through two private relays, so no server knows who talks to whom, or when.</p></div><div class="feat"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12h6"/></svg></div><h3>Duress PIN & decoy</h3><p>Forced to unlock? A second PIN opens a harmless decoy profile that looks completely real.</p></div><div class="feat"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></div><h3>Emergency wipe</h3><p>One long press erases every chat and key on the device. Ten wrong PINs do the same, automatically.</p></div><div class="feat"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12s3.5-7 9-7 9 7 9 7-3.5 7-9 7-9-7-9-7z"/><path d="M4 4l16 16"/></svg></div><h3>Leaves nothing behind</h3><p>Disappearing messages by default, no screenshots, GPS stripped from photos, incognito keyboard and tracker-free links.</p></div><div class="feat"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></div><h3>Hard to block</h3><p>Your own relays, .onion addresses and automatic relay rotation keep Weft reachable when networks are censored.</p></div></div>
+</section>
+<section class="sec" id="how" aria-labelledby="how-title">
+  <p class="eyebrow"><i></i>How it works</p>
+  <h2 id="how-title">Three steps. No sign-up.</h2>
+  <div class="steps">
+    <div class="step"><h3>Install and set a PIN</h3><p>Weft creates your keys on the device. Nothing about you is ever sent to a server.</p></div>
+    <div class="step"><h3>Connect in person or by link</h3><p>Add contacts by scanning a QR code or sharing a one-time link. There is no user directory to search.</p></div>
+    <div class="step"><h3>Talk freely</h3><p>Chats, groups, files and calls travel encrypted through private relays — yours or ours.</p></div>
+  </div>
+  <p class="eyebrow" style="margin-top:56px"><i></i>Built for</p>
+  <div class="who"><span>Journalists</span><span>Sources &amp; whistleblowers</span><span>Politicians</span><span>Activists &amp; NGOs</span><span>Lawyers</span><span>Anyone who values privacy</span></div>
+</section>
+<section class="sec" id="faq" aria-labelledby="faq-title">
+  <p class="eyebrow"><i></i>FAQ</p>
+  <h2 id="faq-title">Questions, answered.</h2>
+  <div class="faq">
+    <details><summary>Is Weft available now?</summary><p>Weft is in development. A private beta for Android and GrapheneOS is coming first. Join the list above and we will write once, when it is ready.</p></details>
+    <details><summary>Why no iPhone version?</summary><p>We start where privacy is strongest: GrapheneOS and Android, with zero Google services. iOS may come later.</p></details>
+    <details><summary>How is Weft different from Signal?</summary><p>Signal is excellent, but it requires a phone number. Weft is built on the SimpleX protocol, which has no user identifiers at all — not even random ones.</p></details>
+    <details><summary>Can you read my messages or hand over my data?</summary><p>No. Messages are end-to-end encrypted and we have no accounts, phone numbers or contact lists to hand over. Relays only see encrypted queues with no owner.</p></details>
+    <details><summary>Is it open source?</summary><p>Yes. Weft is licensed under AGPLv3 and the code will be public, so anyone can audit it.</p></details>
+    <details><summary>How is Weft funded?</summary><p>By donations. No ads, no investors, no data sales. Donating never unlocks features.</p></details>
+  </div>
+</section>
+<section class="donate" id="donate" aria-labelledby="donate-title">
+  <p class="eyebrow"><i></i>Support the project</p>
+  <h2 id="donate-title">Free for everyone. Funded by the people who use it.</h2>
+  <p class="lede">Like <b>Signal</b> and <b>SimpleX</b>, Weft has no ads, no investors to answer to and no data to sell. It is kept alive by donations. <b>Donating never unlocks features</b> and is never linked to your chat identity — everyone gets the same privacy.</p>
+  <div class="cards">
+    <div class="card">
+      <h3>One-off or monthly <span class="soon">SOON</span></h3>
+      <p>Card or bank transfer through a transparent collective, where every expense is public.</p>
+      <a class="btn btn-v" href="#donate" aria-disabled="true">Donate</a>
+    </div>
+    <div class="card">
+      <h3>Crypto <span class="soon">SOON</span></h3>
+      <p>Private donations with no account and no email. Addresses will be published here and signed with the project key.</p>
+      <a class="btn btn-ghost" href="#donate" aria-disabled="true">Show addresses</a>
+    </div>
+    <div class="card">
+      <h3>Where the money goes</h3>
+      <p>Relay servers, independent security audits and development time. We will publish a yearly report.</p>
+    </div>
+  </div>
+  <p class="peers">Weft is built on the <a href="https://simplex.chat" rel="noopener">SimpleX</a> protocol and inspired by <a href="https://signal.org" rel="noopener">Signal</a>. If private messaging matters to you, consider supporting them too: <a href="https://simplex.chat/donate/" rel="noopener">donate to SimpleX</a> · <a href="https://signal.org/donate/" rel="noopener">donate to Signal</a>.</p>
+</section>
+<footer>
+  <span>© 2026 Weft · weftchat.com</span>
+  <nav><a href="#security">Security</a><a href="#how">How it works</a><a href="#faq">FAQ</a><a href="#donate">Donate</a></nav>
+  <span>No cookies. No analytics. No trackers.</span>
+</footer>
+<script>
+// Beta sign-up: no server, no third parties. Opens the visitor's own mail app with a pre-filled message to our Proton inbox.
+document.getElementById('join').addEventListener('submit',function(e){e.preventDefault();var v=document.getElementById('contact').value.trim();if(!v){document.getElementById('contact').focus();return}var body='Hi Weft team,%0D%0A%0D%0APlease add me to the beta waiting list.%0D%0AContact: '+encodeURIComponent(v)+'%0D%0A';window.location.href='mailto:weftchat@proton.me?subject='+encodeURIComponent('Join the Weft beta')+'&body='+body;this.style.display='none';document.getElementById('ok').style.display='block';});
+(function(){var v=document.getElementById('promo'),b=document.getElementById('sound');b.addEventListener('click',function(){v.muted=!v.muted;if(!v.muted){v.currentTime=0;v.play();}b.setAttribute('aria-pressed',String(!v.muted));b.innerHTML=v.muted?'&#128263; Tap for sound':'&#128266; Sound on';});})();
+</script>
+</body>
+</html>

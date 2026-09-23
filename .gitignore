@@ -26,3 +26,6 @@ native/out/
 
 # CMake build output of the JNI glue
 core/.cxx/
+
+# Generated upload bundles
+*.zip
