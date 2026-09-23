@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -140,6 +141,8 @@ fun WeftItem(
     value: String? = null,
     chevron: Boolean = false,
     tone: ItemTone = ItemTone.Accent,
+    titleStyle: TextStyle = WeftType.itemTitle,
+    textGap: Dp = 4.dp,
     onClick: (() -> Unit)? = null,
     trailing: (@Composable () -> Unit)? = null,
 ) {
@@ -156,8 +159,8 @@ fun WeftItem(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         ItemIcon(icon, tone = tone)
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            WeftText(title, style = WeftType.itemTitle.copy(color = WeftColors.text))
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(textGap)) {
+            WeftText(title, style = titleStyle.copy(color = WeftColors.text))
             if (detail != null) WeftText(detail, style = WeftType.itemDetail.copy(color = WeftColors.muted))
         }
         trailing?.invoke()
@@ -168,4 +171,17 @@ fun WeftItem(
             }
         }
     }
+}
+
+enum class TagTone { On, Standby, Bad }
+
+/** `.tag` — mono 11 / 500 capsule: safe "in use", muted "standby", danger "blocked". */
+@Composable
+fun WeftTag(text: String, tone: TagTone, modifier: Modifier = Modifier) {
+    val (ink, fill) = when (tone) {
+        TagTone.On -> WeftColors.safe to WeftColors.safe.copy(alpha = 0.10f)
+        TagTone.Standby -> WeftColors.muted to Color.White.copy(alpha = 0.05f)
+        TagTone.Bad -> WeftColors.danger to WeftColors.danger.copy(alpha = 0.10f)
+    }
+    WeftText(text, style = WeftType.pill.copy(color = ink), modifier = modifier.background(fill, CircleShape).padding(horizontal = 9.dp, vertical = 5.dp))
 }

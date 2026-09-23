@@ -40,6 +40,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.weft.R
+import app.weft.data.NoRelayException
 import app.weft.privacy.SensitiveClipboard
 import app.weft.ui.common.qrModules
 import app.weft.design.ButtonKind
@@ -68,11 +69,14 @@ fun AddContactScreen(
     invitations: Invitations,
     bottomPadding: Dp,
     toast: (String, WeftIcon) -> Unit,
+    onAddRelay: () -> Unit = {},
 ) {
     val reduce = rememberReduceMotion()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var invitation by remember { mutableStateOf<Invitation?>(null) }
+    // No relay of the user's own yet: no code can be made (it would use SimpleX's presets).
+    var noRelay by remember { mutableStateOf(false) }
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     // New code: the card flashes from 20 % and 0.97 back to full, 380 ms EaseOut.
     val flash = remember { Animatable(1f) }
@@ -81,7 +85,15 @@ fun AddContactScreen(
     val copied = stringResource(R.string.add_copied)
 
     suspend fun renew(animate: Boolean) {
-        invitation = invitations.renew()
+        invitation = try {
+            invitations.renew().also { noRelay = false }
+        } catch (_: NoRelayException) {
+            noRelay = true
+            return
+        } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            return // keep the old code; the countdown tries again next second
+        }
         now = System.currentTimeMillis()
         if (animate && !reduce) {
             flash.snapTo(0f)
@@ -94,7 +106,7 @@ fun AddContactScreen(
         while (true) {
             delay(1000)
             now = System.currentTimeMillis()
-            if ((invitation?.expiresAtMs ?: 0) <= now) renew(animate = true)
+            if (!noRelay && (invitation?.expiresAtMs ?: 0) <= now) renew(animate = true)
         }
     }
 
@@ -111,8 +123,9 @@ fun AddContactScreen(
             )
             WeftIconButton(WeftIcon.Refresh, stringResource(R.string.add_new_code), onClick = {
                 scope.launch {
+                    val before = invitation
                     renew(animate = true)
-                    toast(renewed, WeftIcon.Refresh)
+                    if (!noRelay && invitation !== before) toast(renewed, WeftIcon.Refresh)
                 }
             }, iconSize = 19.dp)
         }
@@ -122,6 +135,14 @@ fun AddContactScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
+            if (noRelay) {
+                WeftText(
+                    stringResource(R.string.add_no_relay),
+                    style = WeftType.lede.copy(color = WeftColors.muted, textAlign = TextAlign.Center),
+                )
+                WeftButton(stringResource(R.string.relay_add), onClick = onAddRelay, kind = ButtonKind.Ghost, leading = WeftIcon.Server, leadingStroke = 2f)
+                return@Column
+            }
             WeftText(
                 buildAnnotatedString {
                     append(stringResource(R.string.add_lede_before))

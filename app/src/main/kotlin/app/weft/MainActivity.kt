@@ -12,11 +12,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import app.weft.data.CoreChats
+import app.weft.data.CoreInvitations
+import app.weft.data.CoreProfile
+import app.weft.data.CoreRelays
+import app.weft.data.WeftSession
 import app.weft.design.TabItem
 import app.weft.design.WeftBottomSheet
 import app.weft.design.WeftColors
@@ -27,8 +34,7 @@ import app.weft.design.WeftToastState
 import app.weft.design.backdropSource
 import app.weft.design.rememberBackdrop
 import app.weft.design.tabBarBottom
-import app.weft.identity.DemoIdentityMaker
-import app.weft.lock.DemoPinVault
+import app.weft.lock.CorePinVault
 import app.weft.nav.NavMode
 import app.weft.nav.PinMode
 import app.weft.nav.Route
@@ -37,21 +43,23 @@ import app.weft.nav.WeftNavHost
 import app.weft.nav.WeftNavigator
 import app.weft.relay.DemoRelays
 import app.weft.ui.add.AddContactScreen
-import app.weft.ui.add.DemoInvitations
 import app.weft.ui.chats.ChatKind
 import app.weft.ui.chats.ChatsScreen
-import app.weft.ui.conversation.ConversationScreen
-import app.weft.ui.conversation.DemoConversations
-import app.weft.ui.profile.DemoProfile
-import app.weft.ui.profile.ProfileScreen
-import app.weft.ui.sheets.FingerprintSheet
-import app.weft.ui.sheets.NewSheet
-import app.weft.ui.sheets.Sheet
-import app.weft.ui.sheets.TimerSheet
-import app.weft.ui.chats.DemoChatList
 import app.weft.ui.common.PlaceholderScreen
+import app.weft.ui.conversation.ConversationScreen
 import app.weft.ui.onboarding.OnboardingScreen
 import app.weft.ui.pin.PinScreen
+import app.weft.ui.profile.ProfileScreen
+import app.weft.ui.security.SecurityScreen
+import app.weft.ui.sheets.AddRelaySheet
+import app.weft.ui.sheets.FingerprintSheet
+import app.weft.ui.sheets.NewSheet
+import app.weft.ui.sheets.RelayAdd
+import app.weft.ui.sheets.Sheet
+import app.weft.ui.sheets.TimerSheet
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,7 +67,20 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge(SystemBarStyle.dark(Color.TRANSPARENT), SystemBarStyle.dark(Color.TRANSPARENT))
         super.onCreate(savedInstanceState)
         setContent {
-            val nav = remember { WeftNavigator(Route.Onboard) }
+            // First run: create identity. Later: the PIN, or straight to Chats if still unlocked.
+            val nav = remember {
+                WeftNavigator(
+                    when {
+                        !WeftSession.hasIdentity -> Route.Onboard
+                        WeftSession.userId.value != null -> Route.Chats
+                        else -> Route.Pin(PinMode.Enter)
+                    },
+                )
+            }
+            val scope = rememberCoroutineScope()
+            // The nickname typed on screen 1, used when the PIN creates the identity.
+            var pendingNickname by rememberSaveable { mutableStateOf("") }
+            val vault = remember { CorePinVault { pendingNickname } }
             val toast = remember { WeftToastState() }
             var sheet by remember { mutableStateOf<Sheet?>(null) }
             // Keeps the closing sheet's content on screen while it slides away.
@@ -70,38 +91,51 @@ class MainActivity : ComponentActivity() {
             // when the system navigation area pushes it higher.
             val lift = tabBarBottom() - 14.dp
             val backdrop = rememberBackdrop()
+            val failedRelay = stringResource(R.string.relay_failed)
             Box(Modifier.fillMaxSize().background(WeftColors.bg)) {
                 WeftNavHost(nav, Modifier.backdropSource(backdrop)) { route ->
                     when (route) {
                         Route.Onboard -> OnboardingScreen(
-                            makeIdentity = { DemoIdentityMaker.create().also(DemoProfile::setFingerprint) },
+                            makeIdentity = {
+                                withContext(Dispatchers.Default) { WeftSession.device.create() }.also(CoreProfile::setFingerprint)
+                            },
                             onChoosePin = { nickname ->
-                                DemoProfile.setNickname(nickname)
+                                pendingNickname = nickname
                                 nav.push(Route.Pin(PinMode.Choose))
                             },
                         )
                         is Route.Pin -> PinScreen(
                             start = route.mode,
-                            vault = DemoPinVault,
+                            vault = vault,
                             toast = toast::show,
                             onUnlocked = { nav.root(Route.Chats) },
                         )
                         Route.Chats -> ChatsScreen(
-                            chatList = DemoChatList,
+                            chatList = CoreChats,
                             relays = DemoRelays,
                             bottomPadding = 94.dp + lift,
                             toast = toast::show,
-                            onLock = { nav.root(Route.Pin(PinMode.Enter)) },
+                            onLock = {
+                                scope.launch {
+                                    WeftSession.lock()
+                                    nav.root(Route.Pin(PinMode.Enter))
+                                }
+                            },
                             onNew = { open(Sheet.New) },
                             onOpen = { chat ->
-                                DemoChatList.markRead(chat.id)
+                                CoreChats.markRead(chat.id)
                                 nav.push(if (chat.kind == ChatKind.Group) Route.GroupChat(chat.id, chat.name) else Route.Conversation(chat.id))
                             },
                         )
-                        Route.Add -> AddContactScreen(DemoInvitations, bottomPadding = 94.dp + lift, toast = toast::show)
-                        Route.Security -> PlaceholderScreen(stringResource(R.string.tab_security))
+                        Route.Add -> AddContactScreen(
+                            CoreInvitations,
+                            bottomPadding = 94.dp + lift,
+                            toast = toast::show,
+                            onAddRelay = { open(Sheet.AddRelay) },
+                        )
+                        Route.Security -> SecurityScreen(bottomPadding = 94.dp + lift, onAddRelay = { open(Sheet.AddRelay) })
                         Route.Profile -> ProfileScreen(
-                            store = DemoProfile,
+                            store = CoreProfile,
                             bottomPadding = 94.dp + lift,
                             toast = toast::show,
                             onShowQr = { open(Sheet.Fingerprint) },
@@ -112,8 +146,8 @@ class MainActivity : ComponentActivity() {
                         Route.Wipe -> PlaceholderScreen("Emergency wipe", onBack = nav::pop)
                         is Route.Conversation -> ConversationScreen(
                             chatId = route.chatId,
-                            chatList = DemoChatList,
-                            conversations = DemoConversations,
+                            chatList = CoreChats,
+                            conversations = CoreChats,
                             toast = toast::show,
                             onBack = nav::pop,
                             onTimer = { open(Sheet.Timer(route.chatId)) },
@@ -141,11 +175,31 @@ class MainActivity : ComponentActivity() {
                             onContact = { sheet = null; nav.root(Route.Add) },
                             onGroup = { sheet = null; nav.push(Route.NewGroup) },
                         )
-                        Sheet.Fingerprint -> FingerprintSheet(DemoProfile.profile.value.fingerprint)
+                        Sheet.Fingerprint -> FingerprintSheet(CoreProfile.profile.value.fingerprint)
+                        Sheet.AddRelay -> AddRelaySheet(
+                            onAdd = { address ->
+                                val failure = runCatching { CoreRelays.test(address) }.getOrElse { it.message ?: "error" }
+                                when {
+                                    failure != null -> RelayAdd.Failed(failedRelay.format(failure))
+                                    else -> try {
+                                        CoreRelays.add(address)
+                                        RelayAdd.Added
+                                    } catch (e: CoreRelays.NeedPartner) {
+                                        RelayAdd.NeedPartner(e.need)
+                                    } catch (e: Exception) {
+                                        RelayAdd.Failed(failedRelay.format(e.message ?: "error"))
+                                    }
+                                }
+                            },
+                            onDone = { message ->
+                                sheet = null
+                                toast.show(message, WeftIcon.Check)
+                            },
+                        )
                         is Sheet.Timer -> TimerSheet(
-                            current = DemoChatList.chats.value.firstOrNull { it.id == s.chatId }?.timer,
+                            current = CoreChats.chats.value.firstOrNull { it.id == s.chatId }?.timer,
                             onPick = { timer, message ->
-                                DemoChatList.setTimer(s.chatId, timer)
+                                CoreChats.setTimer(s.chatId, timer)
                                 sheet = null
                                 toast.show(message, WeftIcon.Timer)
                             },

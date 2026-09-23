@@ -61,6 +61,7 @@ android {
 dependencies {
     implementation(project(":core"))
     implementation(project(":design-system"))
+    implementation(project(":security"))
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
     implementation(libs.compose.foundation)

@@ -41,6 +41,7 @@
     <string name="pin_mismatch">PINs didn’t match — try again</string>
     <string name="pin_is_duress">That’s the duress PIN — pick another</string>
     <string name="pin_ready">PIN set · Weft is ready</string>
+    <string name="pin_failed">Weft could not open · try again</string>
 
     <!-- 3 · Chats -->
     <string name="chats_title">Chats</string>
@@ -111,6 +112,23 @@
     <string name="profile_delete">Delete identity from this phone</string>
     <string name="fp_sheet_title">Your fingerprint</string>
     <string name="fp_sheet_detail">Let a contact scan this to verify you in person.</string>
+
+    <!-- 9 · Security (Phase 1: relays) -->
+    <string name="security_title">Security</string>
+    <string name="security_relays">Relays</string>
+    <string name="relay_tag_in_use">in use</string>
+    <string name="relay_kind_messages">messages · your own relay</string>
+    <string name="relay_kind_files">files · your own relay</string>
+    <string name="relay_add">Add your own relay</string>
+    <string name="relay_add_detail">Your Hetzner server, or a friend’s.</string>
+    <string name="relay_add_sheet_detail">Paste an smp:// or xftp:// address from your own server. It is tested before it is saved.</string>
+    <string name="relay_add_placeholder">smp://… or xftp://…</string>
+    <string name="relay_add_button">Add relay</string>
+    <string name="relay_testing">Testing…</string>
+    <string name="relay_added">Relay added · tested and working</string>
+    <string name="relay_failed">The relay did not answer · %1$s</string>
+    <string name="relay_need_partner">Tested and working. Now paste the %1$s:// address of the same server: Weft needs both, one for messages and one for files.</string>
+    <string name="add_no_relay">Add your own relay first. Weft only uses relays you choose, so there is nowhere to put a code yet.</string>
 
     <string name="sheet_new_title">Start something new</string>
     <string name="sheet_new_contact">New contact</string>

@@ -6,7 +6,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
@@ -17,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import app.weft.R
 import app.weft.design.FingerprintGrid
 import app.weft.design.QrCard
+import app.weft.design.WeftButton
 import app.weft.design.WeftColors
 import app.weft.design.WeftIcon
 import app.weft.design.WeftNavOption
@@ -24,14 +30,17 @@ import app.weft.design.WeftOption
 import app.weft.design.WeftRadio
 import app.weft.design.WeftSheetTitle
 import app.weft.design.WeftText
+import app.weft.design.WeftTextField
 import app.weft.design.WeftType
 import app.weft.ui.common.qrModules
+import kotlinx.coroutines.launch
 
 /** The bottom sheets of design v3. */
 sealed interface Sheet {
     data object New : Sheet
     data class Timer(val chatId: String) : Sheet
     data object Fingerprint : Sheet
+    data object AddRelay : Sheet
 }
 
 /** "Your fingerprint" — a QR of it (200 dp, 14 dp card padding) and the groups, centred. */
@@ -97,4 +106,52 @@ private fun Modifier.pullUp(by: Dp) = layout { measurable, constraints ->
     val p = measurable.measure(constraints)
     val d = by.roundToPx()
     layout(p.width, (p.height - d).coerceAtLeast(0)) { p.place(0, -d) }
+}
+
+/** What happened to an address pasted in "Add your own relay". */
+sealed interface RelayAdd {
+    data object Added : RelayAdd
+    /** Tested and working, waiting for its partner ("smp" or "xftp"). */
+    data class NeedPartner(val need: String) : RelayAdd
+    data class Failed(val why: String) : RelayAdd
+}
+
+/**
+ * "Add your own relay" — paste an smp:// or xftp:// address; it is tested against the real server
+ * before it is saved. The core keeps message and file relays together, so after one works the
+ * sheet asks for the other.
+ */
+@Composable
+fun AddRelaySheet(onAdd: suspend (String) -> RelayAdd, onDone: (String) -> Unit) {
+    var address by rememberSaveable { mutableStateOf("") }
+    var busy by remember { mutableStateOf(false) }
+    var problem by remember { mutableStateOf<String?>(null) }
+    var partner by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+    val valid = address.trim().let { it.startsWith("smp://") || it.startsWith("xftp://") }
+    WeftSheetTitle(stringResource(R.string.relay_add))
+    WeftText(
+        partner?.let { stringResource(R.string.relay_need_partner, it) } ?: stringResource(R.string.relay_add_sheet_detail),
+        style = WeftType.secondary.copy(color = if (partner != null) WeftColors.safe else WeftColors.muted, lineHeight = WeftType.itemDetail.lineHeight),
+        modifier = Modifier.padding(horizontal = 4.dp).pullUp(6.dp),
+    )
+    WeftTextField(address, { address = it; problem = null }, stringResource(R.string.relay_add_placeholder))
+    problem?.let { WeftText(it, style = WeftType.secondary.copy(color = WeftColors.danger), modifier = Modifier.padding(horizontal = 4.dp)) }
+    val added = stringResource(R.string.relay_added)
+    WeftButton(
+        stringResource(if (busy) R.string.relay_testing else R.string.relay_add_button),
+        onClick = {
+            busy = true
+            scope.launch {
+                val outcome = onAdd(address.trim())
+                busy = false
+                when (outcome) {
+                    RelayAdd.Added -> { address = ""; partner = null; onDone(added) }
+                    is RelayAdd.NeedPartner -> { address = ""; partner = outcome.need }
+                    is RelayAdd.Failed -> problem = outcome.why
+                }
+            }
+        },
+        enabled = valid && !busy,
+    )
 }

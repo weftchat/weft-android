@@ -96,4 +96,6 @@ object WeftType {
     /** `.relay` text and `.link-btn`. */
     val monoBody = monoStyle(12f, 400)
     val linkButton = monoStyle(12f, 600)
+    /** `.relay-row .item-t` */
+    val relayName = monoStyle(13.5f, 600)
 }

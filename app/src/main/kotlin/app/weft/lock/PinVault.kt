@@ -26,3 +26,15 @@ object DemoPinVault : PinVault {
     override suspend fun unlock(pin: String): Boolean =
         this.pin?.let { MessageDigest.isEqual(it, pin.toByteArray()) } ?: false
 }
+
+/** The real vault: the PIN opens (or, the first time, creates) the encrypted store. */
+class CorePinVault(private val nickname: () -> String) : PinVault {
+    override val isSet get() = app.weft.data.WeftSession.hasIdentity
+    override suspend fun set(pin: String): Boolean {
+        val session = app.weft.data.WeftSession
+        if (session.hasIdentity) session.changePin(pin) else session.create(pin, nickname())
+        return true
+    }
+    override suspend fun unlock(pin: String): Boolean =
+        app.weft.data.WeftSession.unlock(pin) == app.weft.data.WeftSession.Unlock.Ok
+}

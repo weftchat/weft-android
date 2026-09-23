@@ -83,6 +83,7 @@ fun PinScreen(
     val mismatch = stringResource(R.string.pin_mismatch)
     val isDuress = stringResource(R.string.pin_is_duress)
     val ready = stringResource(R.string.pin_ready)
+    val failed = stringResource(R.string.pin_failed)
 
     // Wrong PIN: red rings + shake; the dots clear at 520 ms and the screen resets at 540 ms.
     fun fail(then: PinMode) = scope.launch {
@@ -92,7 +93,7 @@ fun PinScreen(
         delay(20); mode = then; busy = false
     }
 
-    fun check(pin: String) = scope.launch {
+    suspend fun checkNow(pin: String) {
         when (mode) {
             PinMode.Choose -> { first = pin; mode = PinMode.Repeat; typed = ""; busy = false }
             PinMode.Repeat -> if (pin == first) {
@@ -105,6 +106,20 @@ fun PinScreen(
                 fail(PinMode.Choose)
             }
             PinMode.Enter -> if (vault.unlock(pin)) onUnlocked(false) else fail(PinMode.Enter)
+        }
+    }
+
+    fun check(pin: String) = scope.launch {
+        try {
+            checkNow(pin)
+        } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            android.util.Log.e("Weft", "PIN check failed", e)
+            toast(failed, WeftIcon.Alert)
+            first = null
+            typed = ""
+            mode = if (mode == PinMode.Enter) PinMode.Enter else PinMode.Choose
+            busy = false
         }
     }
 

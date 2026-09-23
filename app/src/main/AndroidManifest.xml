@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- No permissions yet. The brief allows only camera, microphone and notifications, added when needed. -->
+    <!-- Network: needed to reach the user's own relay. Granted at install, never asked (GrapheneOS shows
+         it as the "Network" toggle). The brief's asked-for permissions are only camera, microphone and
+         notifications, added when needed. -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
+        android:name=".WeftApp"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:label="Weft"
