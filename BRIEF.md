@@ -37,6 +37,8 @@ Servidor propio en Hetzner (Nuremberg), desplegado desde `~/Developer/weft-infra
 - **Teclado incógnito (confirmado por el dueño):** todos los campos de texto piden al teclado que no aprenda lo que se escribe.
 - **Portapapeles (confirmado por el dueño):** lo que Weft copia se marca como sensible (Android no muestra su vista previa) y se borra a los 60 s.
 - **Escanear códigos QR (confirmado por el dueño):** cámara con CameraX y lectura con ZXing, todo en el teléfono.
+- **Huella del dispositivo (confirmado por el dueño):** SimpleX no tiene identidad global. La "huella" de las pantallas 1 y 11 es un código de este teléfono que no identifica nada en la red; verificar a un contacto se hace con el código de seguridad de ese contacto, desde su conversación.
+- **Relays en la app (confirmado por el dueño):** la app no lleva ningún relay dentro (la dirección `smp://` lleva contraseña y el APK es público). El usuario añade el suyo en el teléfono con "Add your own relay"; la app no usa los servidores preestablecidos de SimpleX.
 - **FLAG_SECURE** en todas las pantallas de chat (sin capturas ni vista previa en el selector de apps).
 - Permisos: cámara (QR y fotos), micrófono (llamadas), notificaciones. **Nada más.**
 - Mensajes efímeros **activados por defecto** (1 h tras lectura), configurable.
