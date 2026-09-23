@@ -5,7 +5,15 @@ sealed class Route(val key: String) {
     data object Onboard : Route("onboard")
     data class Pin(val mode: PinMode) : Route("pin-$mode")
     data object Chats : Route("chats")
+    data object Add : Route("add")
+    data object Security : Route("security")
+    data object Profile : Route("profile")
+    data class Conversation(val chatId: String, val name: String) : Route("convo-$chatId")
+    data object NewGroup : Route("newgroup")
 }
 
 /** Choose and Repeat are one screen: Choose moves on to Repeat by itself. */
 enum class PinMode { Choose, Repeat, Enter }
+
+/** The four tab-bar screens, in bar order. */
+val TABS: List<Route> = listOf(Route.Chats, Route.Add, Route.Security, Route.Profile)

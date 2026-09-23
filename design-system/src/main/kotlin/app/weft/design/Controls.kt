@@ -94,7 +94,7 @@ fun WeftSegmented(options: List<String>, selected: Int, onSelect: (Int) -> Unit,
         modifier
             .fillMaxWidth()
             .background(WeftColors.glass, CircleShape)
-            .border(1.dp, WeftColors.line, CircleShape)
+            .cssBorder(1.dp, WeftColors.line, CircleShape)
             .padding(4.dp),
     ) {
         val cell = maxWidth / options.size

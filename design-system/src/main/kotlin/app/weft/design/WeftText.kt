@@ -1,10 +1,16 @@
 package app.weft.design
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.AlignmentLine
+import androidx.compose.ui.layout.FirstBaseline
+import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.text
@@ -37,7 +43,9 @@ fun WeftText(
     overflow: TextOverflow = TextOverflow.Clip,
 ) {
     val measurer = rememberTextMeasurer()
-    val lines = remember { ArrayList<Pair<TextLayoutResult, Offset>>() }
+    // Written while measuring and read while drawing, so new text always redraws — even when it
+    // measures to the same size as the old.
+    var lines by remember { mutableStateOf(emptyList<Pair<TextLayoutResult, Offset>>()) }
     // Measure without the line-height: we place the lines ourselves.
     val natural = style.copy(lineHeight = TextUnit.Unspecified)
     Layout(
@@ -50,12 +58,12 @@ fun WeftText(
         val full = measurer.measure(text, natural, overflow, softWrap = true, maxLines = maxLines, constraints = Constraints(maxWidth = maxWidth))
         val count = full.lineCount
         val lineHeightPx = lineHeightPx(style, full)
-        lines.clear()
         var widest = 0
         val measured = (0 until count).map { i ->
-            val end = full.getLineEnd(i, visibleEnd = true)
-            val slice = text.subSequence(full.getLineStart(i), end)
             val last = i == count - 1
+            // A cut-off last line takes the rest of the text, so the ellipsis lands where it should.
+            val end = if (last && full.hasVisualOverflow) text.length else full.getLineEnd(i, visibleEnd = true)
+            val slice = text.subSequence(full.getLineStart(i), end)
             val one = measurer.measure(
                 slice, natural,
                 overflow = if (last && full.hasVisualOverflow) overflow else TextOverflow.Clip,
@@ -66,17 +74,23 @@ fun WeftText(
             one
         }
         val width = widest.coerceIn(constraints.minWidth, maxWidth.coerceAtLeast(constraints.minWidth))
-        measured.forEachIndexed { i, one ->
+        val placed = measured.mapIndexed { i, one ->
             val y = i * lineHeightPx + (lineHeightPx - one.size.height) / 2f
             val x = when (style.textAlign) {
                 TextAlign.Center -> (width - one.size.width) / 2f
                 TextAlign.End, TextAlign.Right -> (width - one.size.width).toFloat()
                 else -> 0f
             }
-            lines += one to Offset(x, y)
+            one to Offset(x, y)
         }
         val height = ceil(count * lineHeightPx).roundToInt().coerceIn(constraints.minHeight, constraints.maxHeight)
-        layout(width, height) {}
+        // Baselines, so rows can align text like CSS `align-items: baseline`.
+        val baselines: Map<AlignmentLine, Int> = if (placed.isEmpty()) emptyMap() else mapOf(
+            FirstBaseline to (placed.first().second.y + placed.first().first.firstBaseline).roundToInt(),
+            LastBaseline to (placed.last().second.y + placed.last().first.lastBaseline).roundToInt(),
+        )
+        lines = placed
+        layout(width, height, baselines) {}
     }
 }
 

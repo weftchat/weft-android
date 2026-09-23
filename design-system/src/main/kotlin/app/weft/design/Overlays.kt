@@ -10,6 +10,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -112,7 +114,7 @@ fun WeftToastHost(state: WeftToastState, bottom: Dp, modifier: Modifier = Modifi
                 .semantics { liveRegion = LiveRegionMode.Polite }
                 .dropShadow(RoundedCornerShape(16.dp), Shadow(40.dp, Color.Black.copy(alpha = 0.7f), spread = (-12).dp, offset = DpOffset(0.dp, 18.dp)))
                 .background(WeftColors.toast, RoundedCornerShape(16.dp))
-                .border(1.dp, WeftColors.line2, RoundedCornerShape(16.dp))
+                .cssBorder(1.dp, WeftColors.line2, RoundedCornerShape(16.dp))
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -153,6 +155,7 @@ fun WeftBottomSheet(visible: Boolean, onDismiss: () -> Unit, content: @Composabl
     }
     if (!shown) return
     BackHandler(enabled = visible, onBack = onDismiss)
+    val navBottom = with(density) { WindowInsets.navigationBars.getBottom(this).toDp() }
 
     Box(Modifier.fillMaxSize()) {
         Box(
@@ -165,13 +168,13 @@ fun WeftBottomSheet(visible: Boolean, onDismiss: () -> Unit, content: @Composabl
         Column(
             Modifier
                 .align(Alignment.BottomCenter)
-                .navigationBarsPadding()
-                .padding(8.dp)
+                // 8 dp from the edges, or clear of the system navigation area if that is taller.
+                .padding(start = 8.dp, end = 8.dp, bottom = maxOf(8.dp, navBottom))
                 .fillMaxWidth()
                 .onSizeChanged { height = it.height }
                 .graphicsLayer { translationY = (1f - open.value) * height * 1.15f + drag.value }
                 .background(WeftColors.sheet, RoundedCornerShape(34.dp))
-                .border(1.dp, WeftColors.line2, RoundedCornerShape(34.dp))
+                .cssBorder(1.dp, WeftColors.line2, RoundedCornerShape(34.dp))
                 .clickable(remember { MutableInteractionSource() }, indication = null) { /* swallow scrim taps */ }
                 .padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 20.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
@@ -214,6 +217,13 @@ fun WeftBottomSheet(visible: Boolean, onDismiss: () -> Unit, content: @Composabl
 
 /* ---------------------------------------------------------------- tab bar */
 
+/**
+ * Distance of the tab bar from the bottom edge: the mockup's 14 dp, or the system navigation
+ * area if that is taller. Screens with tabs and toasts above the bar move by the same amount.
+ */
+@Composable
+fun tabBarBottom(): Dp = maxOf(14.dp, with(LocalDensity.current) { WindowInsets.navigationBars.getBottom(this).toDp() })
+
 data class TabItem(val label: String, val icon: WeftIcon)
 
 /**
@@ -229,14 +239,13 @@ fun WeftTabBar(items: List<TabItem>, selected: Int, visible: Boolean, onSelect: 
     BoxWithConstraints(
         modifier
             .fillMaxWidth()
-            .navigationBarsPadding()
-            .padding(start = 12.dp, end = 12.dp, bottom = 14.dp)
+            .padding(start = 12.dp, end = 12.dp, bottom = tabBarBottom())
             .graphicsLayer {
                 translationY = hide.value * size.height * 1.4f
                 alpha = (1f - hide.value / 0.57f).coerceIn(0f, 1f) // opacity fades in 240 ms of the 420
             }
             .background(WeftColors.tabBar, RoundedCornerShape(26.dp))
-            .border(1.dp, WeftColors.line, RoundedCornerShape(26.dp))
+            .cssBorder(1.dp, WeftColors.line, RoundedCornerShape(26.dp))
             .padding(6.dp),
     ) {
         val cell = maxWidth / items.size

@@ -73,6 +73,7 @@ import app.weft.BuildConfig
 import app.weft.R
 import app.weft.design.DotState
 import app.weft.design.StatusDot
+import app.weft.design.cssBorder
 import app.weft.design.WeftButton
 import app.weft.design.WeftColors
 import app.weft.design.WeftEyebrow
@@ -360,7 +361,7 @@ private fun ColumnScope.NameStep(reduce: Boolean, fingerprint: List<String>, nic
 @Composable
 private fun KeyCard(fingerprint: List<String>, modifier: Modifier = Modifier) {
     val shape = RoundedCornerShape(20.dp)
-    Column(modifier.fillMaxWidth().clip(shape).background(Color.White.copy(alpha = 0.035f), shape).border(1.dp, WeftColors.line, shape)) {
+    Column(modifier.fillMaxWidth().clip(shape).background(Color.White.copy(alpha = 0.035f), shape).cssBorder(1.dp, WeftColors.line, shape)) {
         Box(Modifier.fillMaxWidth().height(2.dp).gradientBackground(RectangleShape))
         Column(Modifier.padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {

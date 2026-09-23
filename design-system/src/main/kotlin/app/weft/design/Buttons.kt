@@ -119,7 +119,7 @@ fun WeftPill(text: String, modifier: Modifier = Modifier) {
         maxLines = 1,
         modifier = modifier
             .background(WeftColors.glass, CircleShape)
-            .border(1.dp, WeftColors.line, CircleShape)
+            .cssBorder(1.dp, WeftColors.line, CircleShape)
             .padding(horizontal = 11.dp, vertical = 6.dp),
     )
 }

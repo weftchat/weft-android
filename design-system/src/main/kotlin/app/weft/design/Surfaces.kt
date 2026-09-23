@@ -1,5 +1,7 @@
 package app.weft.design
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.border
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloat
@@ -31,6 +33,13 @@ fun Modifier.gradientBackground(shape: Shape): Modifier = this.drawBehind {
     val outline = shape.createOutline(size, layoutDirection, this)
     drawOutline(outline, WeftColors.gradient(size.width, size.height))
 }
+
+/**
+ * A CSS border: drawn like [border], but it also takes up its width, as the mockup's
+ * `border: 1px solid` does (box-sizing: border-box). Use it where the size comes from the content;
+ * fixed-size elements (buttons, keys, inputs) keep plain [border].
+ */
+fun Modifier.cssBorder(width: Dp, color: Color, shape: Shape): Modifier = border(width, color, shape).padding(width)
 
 enum class DotState { Live, Switching, Off, Blocked }
 

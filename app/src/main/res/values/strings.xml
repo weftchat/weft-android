@@ -45,4 +45,27 @@
     <!-- 3 · Chats -->
     <string name="chats_title">Chats</string>
     <string name="chats_lock">Lock Weft</string>
+    <string name="chats_new">New chat or group</string>
+    <string name="relay_in_use">relay %1$s · %2$s · %3$d ms</string>
+    <string name="relay_switching">switching relay…</string>
+    <string name="relay_rotate">Rotate</string>
+    <string name="relay_switched">Switched to relay %1$s · chats keep working</string>
+    <string name="filter_all">All</string>
+    <string name="filter_direct">Direct</string>
+    <string name="filter_groups">Groups</string>
+    <string name="filter_timed">Timed</string>
+    <string name="chats_empty">Nothing here yet.</string>
+    <string name="chats_verified">Verified in person</string>
+
+    <string name="sheet_new_title">Start something new</string>
+    <string name="sheet_new_contact">New contact</string>
+    <string name="sheet_new_contact_detail">Show a one-time code in person</string>
+    <string name="sheet_new_group">New group</string>
+    <string name="sheet_new_group_detail">From people you’ve already met</string>
+
+    <!-- Tab bar -->
+    <string name="tab_chats">Chats</string>
+    <string name="tab_add">Add</string>
+    <string name="tab_security">Security</string>
+    <string name="tab_profile">Profile</string>
 </resources>

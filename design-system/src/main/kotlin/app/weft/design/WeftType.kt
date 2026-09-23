@@ -74,6 +74,11 @@ object WeftType {
     val fieldLabel = sans(12f, 700)
     val input = sans(15f, 600)
     val tab = sans(11f, 600)
+    /** `.badge` — unread count. */
+    val badge = sans(11f, 800)
+    /** `.item-t` / `.item-d` — list and sheet option text. */
+    val itemTitle = sans(14.5f, 700)
+    val itemDetail = sans(12.5f, 500, lineHeight = 1.5f)
 
     /** Mono 11 / 500 / +0.16 em / UPPERCASE / accent. Callers upper-case the text. */
     val eyebrow = monoStyle(11f, 500, 0.16f, 1f)
@@ -86,4 +91,7 @@ object WeftType {
     val fine = monoStyle(11f, 400, lineHeight = 1.55f)
     /** `.pin-copy p` — mono 12 / 400 / 1.5. */
     val pinSub = monoStyle(12f, 400, lineHeight = 1.5f)
+    /** `.relay` text and `.link-btn`. */
+    val monoBody = monoStyle(12f, 400)
+    val linkButton = monoStyle(12f, 600)
 }
