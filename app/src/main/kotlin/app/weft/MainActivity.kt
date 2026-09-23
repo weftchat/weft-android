@@ -7,14 +7,11 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,8 +21,6 @@ import app.weft.design.TabItem
 import app.weft.design.WeftBottomSheet
 import app.weft.design.WeftColors
 import app.weft.design.WeftIcon
-import app.weft.design.WeftNavOption
-import app.weft.design.WeftSheetTitle
 import app.weft.design.WeftTabBar
 import app.weft.design.WeftToastHost
 import app.weft.design.WeftToastState
@@ -39,7 +34,13 @@ import app.weft.nav.TABS
 import app.weft.nav.WeftNavHost
 import app.weft.nav.WeftNavigator
 import app.weft.relay.DemoRelays
+import app.weft.ui.chats.ChatKind
 import app.weft.ui.chats.ChatsScreen
+import app.weft.ui.conversation.ConversationScreen
+import app.weft.ui.conversation.DemoConversations
+import app.weft.ui.sheets.NewSheet
+import app.weft.ui.sheets.Sheet
+import app.weft.ui.sheets.TimerSheet
 import app.weft.ui.chats.DemoChatList
 import app.weft.ui.common.PlaceholderScreen
 import app.weft.ui.onboarding.OnboardingScreen
@@ -53,7 +54,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             val nav = remember { WeftNavigator(Route.Onboard) }
             val toast = remember { WeftToastState() }
-            var newSheet by rememberSaveable { mutableStateOf(false) }
+            var sheet by remember { mutableStateOf<Sheet?>(null) }
+            // Keeps the closing sheet's content on screen while it slides away.
+            var lastSheet by remember { mutableStateOf<Sheet>(Sheet.New) }
+            fun open(s: Sheet) { lastSheet = s; sheet = s }
             val onTabs = nav.current in TABS
             // `.has-tabs` keeps 94 dp clear for the bar; toasts sit 104 dp up. Both follow the bar
             // when the system navigation area pushes it higher.
@@ -77,16 +81,24 @@ class MainActivity : ComponentActivity() {
                             bottomPadding = 94.dp + lift,
                             toast = toast::show,
                             onLock = { nav.root(Route.Pin(PinMode.Enter)) },
-                            onNew = { newSheet = true },
+                            onNew = { open(Sheet.New) },
                             onOpen = { chat ->
                                 DemoChatList.markRead(chat.id)
-                                nav.push(Route.Conversation(chat.id, chat.name))
+                                nav.push(if (chat.kind == ChatKind.Group) Route.GroupChat(chat.id, chat.name) else Route.Conversation(chat.id))
                             },
                         )
                         Route.Add -> PlaceholderScreen(stringResource(R.string.tab_add))
                         Route.Security -> PlaceholderScreen(stringResource(R.string.tab_security))
                         Route.Profile -> PlaceholderScreen(stringResource(R.string.tab_profile))
-                        is Route.Conversation -> PlaceholderScreen(route.name, onBack = nav::pop)
+                        is Route.Conversation -> ConversationScreen(
+                            chatId = route.chatId,
+                            chatList = DemoChatList,
+                            conversations = DemoConversations,
+                            toast = toast::show,
+                            onBack = nav::pop,
+                            onTimer = { open(Sheet.Timer(route.chatId)) },
+                        )
+                        is Route.GroupChat -> PlaceholderScreen(route.name, onBack = nav::pop)
                         Route.NewGroup -> PlaceholderScreen("New group", onBack = nav::pop)
                     }
                 }
@@ -102,20 +114,29 @@ class MainActivity : ComponentActivity() {
                     onSelect = { i -> if (TABS[i] != nav.current) nav.root(TABS[i], NavMode.Fade) },
                     modifier = Modifier.align(Alignment.BottomCenter),
                 )
-                WeftBottomSheet(visible = newSheet, onDismiss = { newSheet = false }) {
-                    WeftSheetTitle(stringResource(R.string.sheet_new_title))
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        WeftNavOption(WeftIcon.UserPlus, stringResource(R.string.sheet_new_contact), stringResource(R.string.sheet_new_contact_detail)) {
-                            newSheet = false
-                            nav.root(Route.Add)
-                        }
-                        WeftNavOption(WeftIcon.Users, stringResource(R.string.sheet_new_group), stringResource(R.string.sheet_new_group_detail)) {
-                            newSheet = false
-                            nav.push(Route.NewGroup)
-                        }
+                WeftBottomSheet(visible = sheet != null, onDismiss = { sheet = null }) {
+                    when (val s = lastSheet) {
+                        Sheet.New -> NewSheet(
+                            onContact = { sheet = null; nav.root(Route.Add) },
+                            onGroup = { sheet = null; nav.push(Route.NewGroup) },
+                        )
+                        is Sheet.Timer -> TimerSheet(
+                            current = DemoChatList.chats.value.firstOrNull { it.id == s.chatId }?.timer,
+                            onPick = { timer, message ->
+                                DemoChatList.setTimer(s.chatId, timer)
+                                sheet = null
+                                toast.show(message, WeftIcon.Timer)
+                            },
+                        )
                     }
                 }
-                WeftToastHost(toast, bottom = if (onTabs) 104.dp + lift else 40.dp)
+                // Toasts sit 104 dp up over the tab bar, 96 dp over a composer, 40 dp elsewhere.
+                val toastBottom = when {
+                    onTabs -> 104.dp + lift
+                    nav.current is Route.Conversation || nav.current is Route.GroupChat -> 96.dp
+                    else -> 40.dp
+                }
+                WeftToastHost(toast, bottom = toastBottom)
             }
         }
     }

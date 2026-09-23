@@ -8,7 +8,8 @@ sealed class Route(val key: String) {
     data object Add : Route("add")
     data object Security : Route("security")
     data object Profile : Route("profile")
-    data class Conversation(val chatId: String, val name: String) : Route("convo-$chatId")
+    data class Conversation(val chatId: String) : Route("convo-$chatId")
+    data class GroupChat(val chatId: String, val name: String) : Route("group-$chatId")
     data object NewGroup : Route("newgroup")
 }
 

@@ -66,6 +66,8 @@ object WeftType {
     val sheetTitle = sans(20f, 800, -0.02f)
     val wordmark = sans(18f, 800, 0.04f)
     val rowName = sans(15f, 800, -0.01f)
+    /** `.head-name` — conversation header. */
+    val headName = sans(16f, 800, -0.01f)
     val button = sans(15f, 800, -0.01f, 1f)
     val lede = sans(14.5f, 500, lineHeight = 1.6f)
     val body = sans(14f, 500, lineHeight = 1.45f)

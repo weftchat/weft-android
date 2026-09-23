@@ -25,6 +25,8 @@ data class ChatSummary(
 interface ChatList {
     val chats: StateFlow<List<ChatSummary>>
     fun markRead(id: String)
+    /** Sets the disappearing-message timer ("5 min", "1 h", "24 h", "1 week"), or null for off. */
+    fun setTimer(id: String, timer: String?)
 }
 
 /**
@@ -45,4 +47,5 @@ object DemoChatList : ChatList {
     )
 
     override fun markRead(id: String) = chats.update { list -> list.map { if (it.id == id) it.copy(unread = 0) else it } }
+    override fun setTimer(id: String, timer: String?) = chats.update { list -> list.map { if (it.id == id) it.copy(timer = timer) else it } }
 }

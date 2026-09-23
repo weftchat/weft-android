@@ -57,6 +57,27 @@
     <string name="chats_empty">Nothing here yet.</string>
     <string name="chats_verified">Verified in person</string>
 
+    <!-- 4 · Conversation -->
+    <string name="convo_back">Back to chats</string>
+    <string name="convo_verified">E2E · verified in person</string>
+    <string name="convo_not_verified">E2E · not verified yet</string>
+    <string name="convo_timer_label">Disappearing messages: %1$s</string>
+    <string name="convo_note_plain">only you two · end-to-end encrypted</string>
+    <string name="convo_note_timer">only you two · disappears %1$s after read</string>
+    <string name="convo_photo_stripped">metadata stripped</string>
+    <string name="convo_photo_removed">GPS · device · time removed · %1$s</string>
+    <string name="convo_photo">Send photo (metadata is removed first)</string>
+    <string name="convo_placeholder">Encrypted message…</string>
+    <string name="convo_send">Send</string>
+    <string name="convo_photo_sent">Photo sent · location and camera data removed</string>
+
+    <string name="timer_title">Disappearing messages</string>
+    <string name="timer_detail">Counted from when a message is read, on both phones.</string>
+    <string name="timer_off">Off</string>
+    <string name="timer_off_option">Off — keep messages</string>
+    <string name="timer_kept">Messages are kept</string>
+    <string name="timer_set">Messages disappear %1$s after read</string>
+
     <string name="sheet_new_title">Start something new</string>
     <string name="sheet_new_contact">New contact</string>
     <string name="sheet_new_contact_detail">Show a one-time code in person</string>
