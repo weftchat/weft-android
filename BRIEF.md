@@ -34,6 +34,9 @@ Servidor propio en Hetzner (Nuremberg), desplegado desde `~/Developer/weft-infra
 - **Cero dependencias de Google.** Notificaciones por **UnifiedPush** (servidor ntfy propio, aún no desplegado); si no hay distribuidor, conexión persistente en segundo plano. CI debe fallar si aparece cualquier librería de Google/Firebase en el APK.
 - Datos en reposo: **SQLCipher**, claves en Android Keystore respaldado por hardware, `allowBackup=false`.
 - **PIN (confirmado por el dueño):** el PIN no se guarda en ningún sitio, ni cifrado. El PIN más una clave del Android Keystore abren la base de datos SQLCipher; un PIN incorrecto simplemente no la abre. Cada intento fallido añade una espera creciente.
+- **Teclado incógnito (confirmado por el dueño):** todos los campos de texto piden al teclado que no aprenda lo que se escribe.
+- **Portapapeles (confirmado por el dueño):** lo que Weft copia se marca como sensible (Android no muestra su vista previa) y se borra a los 60 s.
+- **Escanear códigos QR (confirmado por el dueño):** cámara con CameraX y lectura con ZXing, todo en el teléfono.
 - **FLAG_SECURE** en todas las pantallas de chat (sin capturas ni vista previa en el selector de apps).
 - Permisos: cámara (QR y fotos), micrófono (llamadas), notificaciones. **Nada más.**
 - Mensajes efímeros **activados por defecto** (1 h tras lectura), configurable.
