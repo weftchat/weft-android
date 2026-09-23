@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.graphics.vector.addPathNodes
@@ -99,20 +100,25 @@ fun WeftIconView(icon: WeftIcon, size: Dp, tint: Color, modifier: Modifier = Mod
     )
 }
 
-private val logoChevron = PathParser().parsePathString("M8 10l5 4-5 4M15 19h6").toPath()
+// The Weft mark from design/logo (weft-app-icon.svg, viewBox 64): a solid violet speech bubble with
+// two redaction bars, on a #1B1530 tile — the same as the launcher icon.
+private val logoBubble = PathParser().parsePathString("M20 12H44A8 8 0 0 1 52 20V36A8 8 0 0 1 44 44H30L20 54V44A8 8 0 0 1 12 36V20A8 8 0 0 1 20 12Z").toPath()
 
-/** The Weft mark: chevron inside a rounded square with the accent gradient (viewBox 28, radius 8). */
+/** The Weft mark: the app icon's tile (radius 14/64) with the bubble scaled 0.72 inside it. */
 @Composable
 fun WeftLogo(size: Dp, modifier: Modifier = Modifier) {
     Canvas(modifier.size(size)) {
-        val s = this.size.width / 28f
-        drawRoundRect(
-            brush = Brush.linearGradient(listOf(WeftColors.accent, WeftColors.accent2), Offset.Zero, Offset(this.size.width, this.size.height)),
-            cornerRadius = CornerRadius(8f * s),
-            size = Size(this.size.width, this.size.height),
-        )
-        val path = androidx.compose.ui.graphics.Path().apply { addPath(logoChevron) }
-        path.transform(androidx.compose.ui.graphics.Matrix().apply { scale(s, s) })
-        drawPath(path, WeftColors.onAccent, style = Stroke(width = 2.2f * s, cap = StrokeCap.Round, join = StrokeJoin.Round))
+        val s = this.size.width / 64f
+        drawRoundRect(WeftColors.logoTile, cornerRadius = CornerRadius(14f * s), size = this.size)
+        withTransform({
+            scale(s, s, pivot = Offset.Zero)
+            translate(8.96f, 8.24f)
+            scale(0.72f, 0.72f, pivot = Offset.Zero)
+        }) {
+            drawPath(logoBubble, WeftColors.accent)
+            drawPath(logoBubble, WeftColors.accent, style = Stroke(width = 5f, join = StrokeJoin.Round))
+            drawRoundRect(WeftColors.logoTile, topLeft = Offset(19f, 22f), size = Size(26f, 7f), cornerRadius = CornerRadius(1.5f))
+            drawLine(WeftColors.logoTile, Offset(21f, 35f), Offset(35f, 35f), strokeWidth = 3.5f, cap = StrokeCap.Round)
+        }
     }
 }

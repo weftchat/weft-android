@@ -25,6 +25,8 @@ object WeftColors {
     val accent = Color(0xFFA78BFA)
     val accent2 = Color(0xFFC4B5FD)
     val onAccent = Color(0xFF0B0B14)
+    /** The logo tile behind the bubble (design/logo: icon background). */
+    val logoTile = Color(0xFF1B1530)
 
     /** Only for encrypted / verified / "always on" / live relay. */
     val safe = Color(0xFF5CF0B8)
