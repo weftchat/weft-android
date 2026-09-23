@@ -1,7 +1,9 @@
 package app.weft
 
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -72,6 +74,12 @@ class MainActivity : ComponentActivity() {
         // Weft is dark only: light status/navigation bar icons on a transparent bar.
         enableEdgeToEdge(SystemBarStyle.dark(Color.TRANSPARENT), SystemBarStyle.dark(Color.TRANSPARENT))
         super.onCreate(savedInstanceState)
+        // FLAG_SECURE (BRIEF): no screenshots, no screen recording, and a blank tile in the app switcher.
+        // Only debug builds leave it off, so the emulator can be screenshotted while testing.
+        if (!BuildConfig.DEBUG) {
+            window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
+            if (Build.VERSION.SDK_INT >= 33) setRecentsScreenshotEnabled(false)
+        }
         setContent {
             // First run: create identity. Later: the PIN, or straight to Chats if still unlocked.
             val nav = remember {

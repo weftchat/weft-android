@@ -155,6 +155,26 @@ fun SecurityScreen(
                 }
             }
             Column {
+                WeftSectionHeader(stringResource(R.string.security_privacy))
+                WeftCard {
+                    WeftItem(
+                        WeftIcon.Lock, stringResource(R.string.privacy_e2e), first = true,
+                        detail = stringResource(R.string.privacy_e2e_detail), tone = ItemTone.Safe,
+                        trailing = { WeftTag(stringResource(R.string.always_on), TagTone.On) },
+                    )
+                    WeftItem(
+                        WeftIcon.Image, stringResource(R.string.privacy_strip), first = false,
+                        detail = stringResource(R.string.privacy_strip_detail), tone = ItemTone.Safe,
+                        trailing = { WeftTag(stringResource(R.string.always_on), TagTone.On) },
+                    )
+                    WeftItem(
+                        WeftIcon.EyeOff, stringResource(R.string.privacy_screens), first = false,
+                        detail = stringResource(R.string.privacy_screens_detail),
+                        trailing = { WeftTag(stringResource(R.string.always_on), TagTone.On) },
+                    )
+                }
+            }
+            Column {
                 WeftSectionHeader(stringResource(R.string.security_relays))
                 WeftCard {
                     servers.forEachIndexed { i, address ->

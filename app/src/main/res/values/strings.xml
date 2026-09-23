@@ -146,6 +146,14 @@
     <string name="toast_wipe10_off">10-attempt wipe off</string>
     <string name="pin_enter_sub_wipe">wrong PIN 10× wipes this phone</string>
     <string name="pin_enter_sub_wipe_count">wrong PIN 10× wipes this phone · %1$d/10</string>
+    <string name="security_privacy">Privacy</string>
+    <string name="always_on">always on</string>
+    <string name="privacy_e2e">End-to-end encryption</string>
+    <string name="privacy_e2e_detail">Relays only ever see ciphertext.</string>
+    <string name="privacy_strip">Strip photo metadata</string>
+    <string name="privacy_strip_detail">GPS, device and time removed before sending.</string>
+    <string name="privacy_screens">Block screenshots</string>
+    <string name="privacy_screens_detail">Also hides chats in the app switcher.</string>
     <string name="security_relays">Relays</string>
     <string name="security_wipe_now">Wipe everything now</string>
     <string name="relay_tag_in_use">in use</string>
