@@ -70,6 +70,7 @@ fun AddContactScreen(
     bottomPadding: Dp,
     toast: (String, WeftIcon) -> Unit,
     onAddRelay: () -> Unit = {},
+    onScan: () -> Unit = {},
 ) {
     val reduce = rememberReduceMotion()
     val scope = rememberCoroutineScope()
@@ -81,7 +82,6 @@ fun AddContactScreen(
     // New code: the card flashes from 20 % and 0.97 back to full, 380 ms EaseOut.
     val flash = remember { Animatable(1f) }
     val renewed = stringResource(R.string.add_renewed)
-    val scanSoon = stringResource(R.string.add_scan_soon)
     val copied = stringResource(R.string.add_copied)
 
     suspend fun renew(animate: Boolean) {
@@ -179,7 +179,7 @@ fun AddContactScreen(
             ExpiryPill(((invitation?.expiresAtMs ?: now) - now).coerceAtLeast(0))
             Spacer(Modifier.weight(1f))
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                WeftButton(stringResource(R.string.add_scan), onClick = { toast(scanSoon, WeftIcon.Scan) }, leading = WeftIcon.Scan)
+                WeftButton(stringResource(R.string.add_scan), onClick = onScan, leading = WeftIcon.Scan)
                 WeftButton(
                     stringResource(R.string.add_copy),
                     onClick = {

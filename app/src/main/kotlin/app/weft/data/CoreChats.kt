@@ -160,7 +160,8 @@ object CoreChats : ChatList, Conversations {
     private fun previewText(ci: JSONObject): String {
         val mc = ci.getJSONObject("content").optJSONObject("msgContent")
         return when {
-            mc == null -> ci.getJSONObject("meta").optString("itemText")
+            // Core notices (features turned on, encryption info) are not messages: no preview.
+            mc == null -> ""
             mc.optString("type") == "image" -> "Photo · metadata stripped"
             else -> mc.optString("text")
         }

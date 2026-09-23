@@ -12,6 +12,7 @@ sealed class Route(val key: String) {
     data class GroupChat(val chatId: String, val name: String) : Route("group-$chatId")
     data object NewGroup : Route("newgroup")
     data object Wipe : Route("wipe")
+    data object Scan : Route("scan")
 }
 
 /** Choose and Repeat are one screen: Choose moves on to Repeat by itself. */

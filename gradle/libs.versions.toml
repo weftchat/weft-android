@@ -7,6 +7,8 @@ compose-bom = "2026.09.00" # pins all androidx.compose.* versions together
 activity = "1.13.0"      # activity-compose is not covered by the BOM
 qrcodegen = "1.8.0"      # Nayuki QR Code generator (MIT, no dependencies)
 coroutines = "1.9.0"     # same version Compose already brings in
+camerax = "1.5.3"        # AndroidX camera (no Google Play services); 1.6 adds Dagger, not needed
+zxing = "3.5.4"          # ZXing core: QR decoding on the phone (Apache 2.0, no dependencies)
 
 [libraries]
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
@@ -15,6 +17,10 @@ compose-foundation = { module = "androidx.compose.foundation:foundation" } # lay
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" } # @Preview in the IDE
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }  # setContent {} entry point
 qrcodegen = { module = "io.nayuki:qrcodegen", version.ref = "qrcodegen" }
+camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "camerax" }      # camera access (Camera2 under the hood)
+camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camerax" }  # camera follows the screen's lifecycle
+camera-compose = { module = "androidx.camera:camera-compose", version.ref = "camerax" }      # camera preview as a Compose element
+zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }                      # reads the QR codes the camera sees
 coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }  # core: background event loop and suspend calls  # draws the one-time invitation link as a QR code
 
 [plugins]

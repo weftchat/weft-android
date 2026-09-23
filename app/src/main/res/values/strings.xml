@@ -90,7 +90,15 @@
     <string name="add_scan">Scan their code</string>
     <string name="add_copy">Copy one-time link</string>
     <string name="add_renewed">New one-time code · the old one no longer works</string>
-    <string name="add_scan_soon">Your camera opens here in the app</string>
+    <string name="scan_hint">Point the camera at their one-time code.</string>
+    <string name="scan_no_camera">Camera access is off. You can still paste a one-time link they sent you.</string>
+    <string name="scan_paste">Paste a one-time link</string>
+    <string name="scan_nothing_to_paste">Nothing to paste · copy their one-time link first</string>
+    <string name="scan_connecting">Connecting · they will appear in Chats</string>
+    <string name="scan_own">That is your own code</string>
+    <string name="scan_known">You are already connected to them</string>
+    <string name="scan_not_invitation">That is not a one-time invitation</string>
+    <string name="scan_failed">Could not connect · try again</string>
     <string name="add_copied">One-time link copied · works once</string>
 
     <!-- 11 · Profile -->

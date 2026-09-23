@@ -67,5 +67,9 @@ dependencies {
     implementation(libs.compose.foundation)
     implementation(libs.activity.compose)
     implementation(libs.qrcodegen) // QR code of the one-time invitation link (Add contact)
+    implementation(libs.camera.camera2) // "Scan their code": camera
+    implementation(libs.camera.lifecycle)
+    implementation(libs.camera.compose) // camera preview in Compose
+    implementation(libs.zxing.core) // "Scan their code": reading the QR, on the phone
     debugImplementation(libs.compose.ui.tooling.preview)
 }

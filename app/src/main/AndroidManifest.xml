@@ -4,6 +4,9 @@
          it as the "Network" toggle). The brief's asked-for permissions are only camera, microphone and
          notifications, added when needed. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Asked for the first time "Scan their code" is used (BRIEF: camera for QR and photos). -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera.any" android:required="false" />
     <application
         android:name=".WeftApp"
         android:allowBackup="false"

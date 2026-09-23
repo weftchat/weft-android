@@ -43,6 +43,7 @@ import app.weft.nav.WeftNavHost
 import app.weft.nav.WeftNavigator
 import app.weft.relay.DemoRelays
 import app.weft.ui.add.AddContactScreen
+import app.weft.ui.add.ScanScreen
 import app.weft.ui.chats.ChatKind
 import app.weft.ui.chats.ChatsScreen
 import app.weft.ui.common.PlaceholderScreen
@@ -132,7 +133,9 @@ class MainActivity : ComponentActivity() {
                             bottomPadding = 94.dp + lift,
                             toast = toast::show,
                             onAddRelay = { open(Sheet.AddRelay) },
+                            onScan = { nav.push(Route.Scan) },
                         )
+                        Route.Scan -> ScanScreen(toast = toast::show, onBack = nav::pop, onJoined = { nav.root(Route.Chats) })
                         Route.Security -> SecurityScreen(bottomPadding = 94.dp + lift, onAddRelay = { open(Sheet.AddRelay) })
                         Route.Profile -> ProfileScreen(
                             store = CoreProfile,
