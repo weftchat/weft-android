@@ -1,8 +1,5 @@
 package app.weft.ui.add
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -43,6 +40,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.weft.R
+import app.weft.privacy.SensitiveClipboard
 import app.weft.design.ButtonKind
 import app.weft.design.QrCard
 import app.weft.design.QrModules
@@ -166,7 +164,7 @@ fun AddContactScreen(
                     stringResource(R.string.add_copy),
                     onClick = {
                         val link = invitation?.link ?: return@WeftButton
-                        copyLink(context, link)
+                        SensitiveClipboard.copy(context, link)
                         toast(copied, WeftIcon.Copy)
                     },
                     kind = ButtonKind.Ghost,
@@ -205,9 +203,4 @@ private fun ExpiryPill(leftMs: Long) {
 private fun qrModules(link: String): QrModules {
     val qr = QrCode.encodeText(link, QrCode.Ecc.MEDIUM)
     return QrModules(qr.size) { x, y -> qr.getModule(x, y) }
-}
-
-private fun copyLink(context: Context, link: String) {
-    val clipboard = context.getSystemService(ClipboardManager::class.java)
-    clipboard.setPrimaryClip(ClipData.newPlainText("Weft invitation", link))
 }
