@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.weft.R
+import app.weft.data.AutoLock
 import app.weft.design.FingerprintGrid
 import app.weft.design.QrCard
 import app.weft.design.WeftButton
@@ -33,6 +34,7 @@ import app.weft.design.WeftText
 import app.weft.design.WeftTextField
 import app.weft.design.WeftType
 import app.weft.ui.common.qrModules
+import app.weft.ui.security.autoLockOption
 import kotlinx.coroutines.launch
 
 /** The bottom sheets of design v3. */
@@ -41,6 +43,7 @@ sealed interface Sheet {
     data class Timer(val chatId: String) : Sheet
     data object Fingerprint : Sheet
     data object AddRelay : Sheet
+    data object AutoLock : Sheet
 }
 
 /** "Your fingerprint" — a QR of it (200 dp, 14 dp card padding) and the groups, centred. */
@@ -154,4 +157,23 @@ fun AddRelaySheet(onAdd: suspend (String) -> RelayAdd, onDone: (String) -> Unit)
         },
         enabled = valid && !busy,
     )
+}
+
+/** "Lock automatically" — the times after which Weft locks once the user has left it. */
+@Composable
+fun AutoLockSheet(current: Int, onPick: (seconds: Int) -> Unit) {
+    WeftSheetTitle(stringResource(R.string.autolock_sheet_title))
+    WeftText(
+        stringResource(R.string.autolock_sheet_detail),
+        style = WeftType.secondary.copy(color = WeftColors.muted, lineHeight = WeftType.itemDetail.lineHeight),
+        modifier = Modifier.padding(horizontal = 4.dp).pullUp(6.dp),
+    )
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        for (seconds in AutoLock.OPTIONS) {
+            WeftOption(onClick = { onPick(seconds) }, minHeight = 54.dp, selected = seconds == current) {
+                WeftRadio(checked = seconds == current)
+                WeftText(stringResource(autoLockOption(seconds)), style = WeftType.itemTitle.copy(color = WeftColors.text), modifier = Modifier.weight(1f))
+            }
+        }
+    }
 }

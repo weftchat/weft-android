@@ -57,6 +57,8 @@ fun SecurityScreen(
     onAddRelay: () -> Unit,
     onChoose: (PinPurpose) -> Unit,
     onWipe: () -> Unit,
+    autoLockSeconds: Int,
+    onAutoLock: () -> Unit,
 ) {
     val servers by CoreRelays.servers.collectAsState()
     val scope = rememberCoroutineScope()
@@ -151,6 +153,12 @@ fun SecurityScreen(
                                 modifier = Modifier.align(Alignment.CenterVertically),
                             )
                         },
+                    )
+                    WeftItem(
+                        WeftIcon.Timer, stringResource(R.string.autolock_title), first = false,
+                        detail = stringResource(R.string.autolock_detail),
+                        value = stringResource(autoLockValue(autoLockSeconds)), chevron = true,
+                        onClick = onAutoLock,
                     )
                 }
             }

@@ -38,7 +38,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.weft.R
+import app.weft.data.AutoLock
 import app.weft.data.WeftSession
+import app.weft.ui.security.autoLockValue
 import app.weft.data.WipePolicy
 import app.weft.design.PIN_DELETE
 import app.weft.design.PinDots
@@ -195,6 +197,10 @@ fun PinScreen(
             WeftText(stringResource(title), style = WeftType.pinTitle.copy(color = WeftColors.text, textAlign = TextAlign.Center))
             val subText = if (mode == PinMode.Enter && wipeOn) {
                 if (fails > 0) stringResource(R.string.pin_enter_sub_wipe_count, fails) else stringResource(R.string.pin_enter_sub_wipe)
+            } else if (mode == PinMode.Enter) {
+                val secs = AutoLock.seconds(context)
+                if (secs == 0) stringResource(R.string.pin_enter_sub_now)
+                else stringResource(R.string.pin_enter_sub_after, stringResource(autoLockValue(secs)))
             } else stringResource(sub)
             WeftText(subText, style = WeftType.pinSub.copy(color = WeftColors.muted, textAlign = TextAlign.Center))
         }

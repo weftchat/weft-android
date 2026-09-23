@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -21,6 +22,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.weft.data.CoreChats
@@ -59,6 +61,9 @@ import app.weft.ui.pin.PinScreen
 import app.weft.ui.profile.ProfileScreen
 import app.weft.ui.security.SecurityScreen
 import app.weft.ui.sheets.AddRelaySheet
+import app.weft.ui.sheets.AutoLockSheet
+import app.weft.ui.security.autoLockValue
+import app.weft.data.AutoLock
 import app.weft.ui.sheets.FingerprintSheet
 import app.weft.ui.wipe.WipeScreen
 import app.weft.ui.sheets.NewSheet
@@ -109,6 +114,19 @@ class MainActivity : ComponentActivity() {
             val wiped by WeftSession.wiped.collectAsState()
             LaunchedEffect(wiped) {
                 if (wiped && nav.current !is Route.Wipe) { pendingNickname = ""; sheet = null; nav.root(Route.Onboard) }
+            }
+            val context = LocalContext.current
+            var autoLockSeconds by remember { mutableIntStateOf(AutoLock.seconds(context)) }
+            val toastNow = stringResource(R.string.toast_autolock_now)
+            val toastAfter = stringResource(R.string.toast_autolock)
+            // Locked (by the timer, the padlock or the USB guard): whatever was on screen gives way to the PIN.
+            val userId by WeftSession.userId.collectAsState()
+            LaunchedEffect(userId) {
+                val c = nav.current
+                if (userId == null && WeftSession.hasIdentity && c !is Route.Pin && c !is Route.Onboard && c !is Route.Wipe) {
+                    sheet = null
+                    nav.root(Route.Pin(PinMode.Enter))
+                }
             }
             val backdrop = rememberBackdrop()
             val failedRelay = stringResource(R.string.relay_failed)
@@ -166,6 +184,8 @@ class MainActivity : ComponentActivity() {
                             onAddRelay = { open(Sheet.AddRelay) },
                             onChoose = { nav.push(Route.Pin(PinMode.Choose, it)) },
                             onWipe = { nav.push(Route.Wipe) },
+                            autoLockSeconds = autoLockSeconds,
+                            onAutoLock = { open(Sheet.AutoLock) },
                         )
                         Route.Profile -> ProfileScreen(
                             store = CoreProfile,
@@ -210,6 +230,18 @@ class MainActivity : ComponentActivity() {
                         Sheet.New -> NewSheet(
                             onContact = { sheet = null; nav.root(Route.Add) },
                             onGroup = { sheet = null; nav.push(Route.NewGroup) },
+                        )
+                        Sheet.AutoLock -> AutoLockSheet(
+                            current = autoLockSeconds,
+                            onPick = { seconds ->
+                                AutoLock.setSeconds(context, seconds)
+                                autoLockSeconds = seconds
+                                sheet = null
+                                toast.show(
+                                    if (seconds == 0) toastNow else toastAfter.format(context.getString(autoLockValue(seconds))),
+                                    WeftIcon.Timer,
+                                )
+                            },
                         )
                         Sheet.Fingerprint -> FingerprintSheet(CoreProfile.profile.value.fingerprint)
                         Sheet.AddRelay -> AddRelaySheet(
