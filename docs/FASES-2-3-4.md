@@ -54,6 +54,13 @@ Alcance:
 5. Notificaciones con UnifiedPush (sin Google). El servidor ntfy propio aún no existe: dime qué hay que desplegar
    en ~/Developer/weft-infra y hazlo paso a paso conmigo. Si no hay distribuidor, conexión persistente en segundo plano.
 6. Enlaces sin rastreo y el aviso al tocar un enlace (Tor Browser / navegador normal / copiar), si aún no están.
+7. DECISIÓN A CONFIRMAR CONMIGO ANTES DE CODIFICAR — relays por defecto: hoy la app no trae ningún relay
+   (BRIEF). Para el lanzamiento público propongo: relays públicos de Weft SIN contraseña preconfigurados
+   (separados del relay privado actual, que lleva contraseña y no entra en el APK) + "Add your own relay"
+   para relays propios o privados gestionados (ver docs/RELAYS-NEGOCIO.md). Explícame pros, contras y
+   qué habría que desplegar en ~/Developer/weft-infra, y espera mi OK. Actualiza BRIEF.md con lo decidido.
+8. Script en ~/Developer/weft-infra para crear y borrar un relay privado de cliente (SMP + XFTP + .onion)
+   con la API de Hetzner, sin nombres de dominio (solo IP y .onion). Ver docs/RELAYS-NEGOCIO.md, etapa 1.
 
 Reglas: propón el plan antes de codificar y espera mi OK; commits pequeños; ninguna dependencia de Google
 (ci/check-no-google.sh debe pasar); al final APK + lista de pruebas en español para el emulador.
