@@ -136,6 +136,10 @@
     <string name="duress_pin">PIN</string>
     <string name="duress_change">Change</string>
     <string name="toast_duress_off">Duress PIN off</string>
+    <string name="panic_title">Panic code</string>
+    <string name="panic_detail">A third code. It opens the decoy as if nothing happened, and silently erases your real chats, contacts and keys.</string>
+    <string name="panic_code">Code</string>
+    <string name="toast_panic_off">Panic code off</string>
     <string name="security_relays">Relays</string>
     <string name="relay_tag_in_use">in use</string>
     <string name="relay_kind_messages">messages · your own relay</string>

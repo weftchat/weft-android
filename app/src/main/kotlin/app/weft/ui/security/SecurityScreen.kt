@@ -57,11 +57,13 @@ fun SecurityScreen(
     val scope = rememberCoroutineScope()
     // Only the real profile knows whether a duress PIN exists; the decoy shows the feature off.
     var duress by remember { mutableStateOf(false) }
+    var panic by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         runCatching { CoreRelays.load() }
-        duress = withContext(Dispatchers.IO) { WeftSession.notes()?.duress == true }
+        withContext(Dispatchers.IO) { WeftSession.notes() }?.let { duress = it.duress; panic = it.panic }
     }
     val duressOff = stringResource(R.string.toast_duress_off)
+    val panicOff = stringResource(R.string.toast_panic_off)
     Column(Modifier.fillMaxSize().background(WeftColors.bg)) {
         Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 56.dp, bottom = 14.dp)) {
             WeftText(stringResource(R.string.security_title), style = WeftType.screenTitle.copy(color = WeftColors.text), modifier = Modifier.padding(start = 2.dp))
@@ -95,6 +97,30 @@ fun SecurityScreen(
                                     }
                                 },
                                 contentDescription = stringResource(R.string.duress_title),
+                                modifier = Modifier.align(Alignment.CenterVertically),
+                            )
+                        },
+                    )
+                    WeftItem(
+                        WeftIcon.Bolt, stringResource(R.string.panic_title), first = false,
+                        detail = stringResource(R.string.panic_detail),
+                        tone = ItemTone.Danger,
+                        topAligned = true,
+                        below = if (panic) ({
+                            WeftSubRow(stringResource(R.string.panic_code), "••••••", stringResource(R.string.duress_change), onAction = { onChoose(PinPurpose.Panic) })
+                        }) else null,
+                        trailing = {
+                            WeftSwitch(
+                                checked = panic,
+                                onCheckedChange = { on ->
+                                    if (on) onChoose(PinPurpose.Panic)
+                                    else scope.launch {
+                                        WeftSession.disablePanic()
+                                        panic = false
+                                        toast(panicOff, WeftIcon.Alert)
+                                    }
+                                },
+                                contentDescription = stringResource(R.string.panic_title),
                                 modifier = Modifier.align(Alignment.CenterVertically),
                             )
                         },
