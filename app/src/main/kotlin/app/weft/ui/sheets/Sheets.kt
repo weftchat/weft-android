@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.weft.R
 import app.weft.data.AutoLock
+import app.weft.design.ButtonKind
 import app.weft.design.FingerprintGrid
 import app.weft.design.QrCard
 import app.weft.design.WeftButton
@@ -44,6 +45,7 @@ sealed interface Sheet {
     data object Fingerprint : Sheet
     data object AddRelay : Sheet
     data object AutoLock : Sheet
+    data object UsbWipe : Sheet
 }
 
 /** "Your fingerprint" — a QR of it (200 dp, 14 dp card padding) and the groups, centred. */
@@ -175,5 +177,20 @@ fun AutoLockSheet(current: Int, onPick: (seconds: Int) -> Unit) {
                 WeftText(stringResource(autoLockOption(seconds)), style = WeftType.itemTitle.copy(color = WeftColors.text), modifier = Modifier.weight(1f))
             }
         }
+    }
+}
+
+/** "Wipe on USB data?" — the clear warning before the advanced option goes on. */
+@Composable
+fun UsbWipeSheet(onTurnOn: () -> Unit, onCancel: () -> Unit) {
+    WeftSheetTitle(stringResource(R.string.usb_wipe_sheet_title))
+    WeftText(
+        stringResource(R.string.usb_wipe_sheet_detail),
+        style = WeftType.secondary.copy(color = WeftColors.muted, lineHeight = WeftType.itemDetail.lineHeight),
+        modifier = Modifier.padding(horizontal = 4.dp).pullUp(6.dp),
+    )
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        WeftButton(stringResource(R.string.usb_wipe_turn_on), onTurnOn, kind = ButtonKind.Danger, leading = WeftIcon.Trash, leadingStroke = 2f)
+        WeftButton(stringResource(R.string.usb_wipe_cancel), onCancel, kind = ButtonKind.Ghost)
     }
 }

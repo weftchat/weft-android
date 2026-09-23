@@ -23,14 +23,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import app.weft.BuildConfig
 import app.weft.R
 import app.weft.data.CoreRelays
-import app.weft.data.WipePolicy
+import app.weft.data.UsbGuard
 import app.weft.data.WeftSession
+import app.weft.data.WipePolicy
 import app.weft.design.ButtonKind
-import app.weft.design.WeftButton
 import app.weft.design.ItemTone
 import app.weft.design.TagTone
+import app.weft.design.WeftButton
 import app.weft.design.WeftCard
 import app.weft.design.WeftColors
 import app.weft.design.WeftIcon
@@ -43,6 +45,7 @@ import app.weft.design.WeftText
 import app.weft.design.WeftType
 import app.weft.nav.PinPurpose
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -59,6 +62,8 @@ fun SecurityScreen(
     onWipe: () -> Unit,
     autoLockSeconds: Int,
     onAutoLock: () -> Unit,
+    usbWipe: Boolean,
+    onUsbWipe: (Boolean) -> Unit,
 ) {
     val servers by CoreRelays.servers.collectAsState()
     val scope = rememberCoroutineScope()
@@ -160,6 +165,38 @@ fun SecurityScreen(
                         value = stringResource(autoLockValue(autoLockSeconds)), chevron = true,
                         onClick = onAutoLock,
                     )
+                    WeftItem(
+                        WeftIcon.Bolt, stringResource(R.string.usb_title), first = false,
+                        detail = stringResource(R.string.usb_detail),
+                        topAligned = true,
+                        trailing = { WeftTag(stringResource(R.string.always_on), TagTone.On, Modifier.align(Alignment.CenterVertically)) },
+                    )
+                    WeftItem(
+                        WeftIcon.Alert, stringResource(R.string.usb_wipe_title), first = false,
+                        detail = stringResource(R.string.usb_wipe_detail),
+                        tone = ItemTone.Danger,
+                        topAligned = true,
+                        trailing = {
+                            WeftSwitch(
+                                checked = usbWipe,
+                                onCheckedChange = onUsbWipe,
+                                contentDescription = stringResource(R.string.usb_wipe_title),
+                                modifier = Modifier.align(Alignment.CenterVertically),
+                            )
+                        },
+                    )
+                    if (BuildConfig.DEBUG) {
+                        val go = stringResource(R.string.toast_usb_debug)
+                        WeftItem(
+                            WeftIcon.Bolt, stringResource(R.string.usb_debug_simulate), first = false,
+                            detail = stringResource(R.string.usb_debug_detail),
+                            chevron = true,
+                            onClick = {
+                                toast(go, WeftIcon.Alert)
+                                scope.launch { delay(5000); UsbGuard.onDataConnection() }
+                            },
+                        )
+                    }
                 }
             }
             Column {

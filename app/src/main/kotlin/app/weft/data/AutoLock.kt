@@ -32,6 +32,9 @@ object AutoLock {
     fun seconds(c: Context) = prefs(c).getInt("autolock", DEFAULT)
     fun setSeconds(c: Context, seconds: Int) = prefs(c).edit().putInt("autolock", seconds).apply()
 
+    /** True while any Weft screen is visible. */
+    val isForeground: Boolean get() = started > 0
+
     fun install(application: Application) {
         app = application
         application.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {

@@ -62,6 +62,8 @@ import app.weft.ui.profile.ProfileScreen
 import app.weft.ui.security.SecurityScreen
 import app.weft.ui.sheets.AddRelaySheet
 import app.weft.ui.sheets.AutoLockSheet
+import app.weft.ui.sheets.UsbWipeSheet
+import app.weft.data.UsbGuard
 import app.weft.ui.security.autoLockValue
 import app.weft.data.AutoLock
 import app.weft.ui.sheets.FingerprintSheet
@@ -117,6 +119,9 @@ class MainActivity : ComponentActivity() {
             }
             val context = LocalContext.current
             var autoLockSeconds by remember { mutableIntStateOf(AutoLock.seconds(context)) }
+            var usbWipe by remember { mutableStateOf(UsbGuard.wipeOnUsb(context)) }
+            val usbWipeOn = stringResource(R.string.toast_usb_wipe_on)
+            val usbWipeOff = stringResource(R.string.toast_usb_wipe_off)
             val toastNow = stringResource(R.string.toast_autolock_now)
             val toastAfter = stringResource(R.string.toast_autolock)
             // Locked (by the timer, the padlock or the USB guard): whatever was on screen gives way to the PIN.
@@ -186,6 +191,15 @@ class MainActivity : ComponentActivity() {
                             onWipe = { nav.push(Route.Wipe) },
                             autoLockSeconds = autoLockSeconds,
                             onAutoLock = { open(Sheet.AutoLock) },
+                            usbWipe = usbWipe,
+                            onUsbWipe = { on ->
+                                if (on) open(Sheet.UsbWipe)
+                                else {
+                                    UsbGuard.setWipeOnUsb(context, false)
+                                    usbWipe = false
+                                    toast.show(usbWipeOff, WeftIcon.Alert)
+                                }
+                            },
                         )
                         Route.Profile -> ProfileScreen(
                             store = CoreProfile,
@@ -242,6 +256,15 @@ class MainActivity : ComponentActivity() {
                                     WeftIcon.Timer,
                                 )
                             },
+                        )
+                        Sheet.UsbWipe -> UsbWipeSheet(
+                            onTurnOn = {
+                                UsbGuard.setWipeOnUsb(context, true)
+                                usbWipe = true
+                                sheet = null
+                                toast.show(usbWipeOn, WeftIcon.Check)
+                            },
+                            onCancel = { sheet = null },
                         )
                         Sheet.Fingerprint -> FingerprintSheet(CoreProfile.profile.value.fingerprint)
                         Sheet.AddRelay -> AddRelaySheet(
