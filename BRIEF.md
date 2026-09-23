@@ -23,6 +23,8 @@ Servidor propio en Hetzner (Nuremberg), desplegado desde `~/Developer/weft-infra
 | Servidor comprometido o requerido judicialmente | El relay solo ve colas cifradas sin dueño; no hay cuenta que entregar |
 | Incautación del móvil | PIN + base de datos SQLCipher; PIN de coacción con perfil señuelo; borrado de emergencia; borrado tras 10 intentos |
 | Coacción para abrir la app | Un segundo PIN abre un perfil con chats inofensivos, indistinguible del real |
+| Extracción forense por cable (USB) | **Guardia USB**: al detectar conexión de datos USB, bloqueo inmediato, borrar claves de la RAM y pedir passphrase. Opción avanzada (apagada por defecto): borrado total al detectar USB. Recomendar GrapheneOS (bloqueo de puerto USB, PIN de coacción del sistema, auto-reinicio) |
+| Obligado a dar el código | **Contraseña de pánico**: la app parece abrirse normal mientras borra en silencio chats, contactos y claves |
 | Fuga por fotos | Metadatos EXIF/GPS eliminados en el dispositivo antes de cifrar |
 | Bloqueo del servicio | Rotación automática de relay; relays del usuario |
 | Malware en el dispositivo | Fuera de alcance de cualquier app; por eso GrapheneOS |
@@ -63,7 +65,7 @@ La referencia exacta es **`design/v3/weft-v3.html`** (prototipo navegable: ábre
 |---|---|
 | 0 · Base | Proyecto Kotlin + Compose sobre el núcleo SimpleX; arranca en GrapheneOS; SQLCipher; firma propia; build reproducible; CI sin Google |
 | 1 · Identidad y chat 1:1 | Design system v3 + pantallas Create identity, PIN, Chats, Conversation, Add contact y Profile funcionando contra el relay propio |
-| 2 · Seguridad del dispositivo | PIN de coacción + señuelo, wipe de emergencia, wipe tras 10 intentos, FLAG_SECURE, bloqueo automático |
+| 2 · Seguridad del dispositivo | PIN de coacción + señuelo, contraseña de pánico, guardia USB, wipe de emergencia, wipe tras 10 intentos, FLAG_SECURE, bloqueo automático |
 | 3 · Red | Relays del usuario, enrutado privado por defecto, Tor (Arti), rotación automática, UnifiedPush |
 | 4 · Grupos y llamadas | Grupos ≤ 50, llamadas 1:1 con TURN propio, llamadas de grupo en malla ≤ 6 |
 | 5 · Distribución | Accrescent, GitHub releases, web con textos legales |
