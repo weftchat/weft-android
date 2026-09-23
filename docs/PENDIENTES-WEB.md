@@ -13,7 +13,7 @@
 4. [x] (vía email a weftchat@proton.me) Conectar el formulario "Join the beta" a un servidor propio (ahora no envía nada).
 5. [x] Web publicada en https://weftchat.com (Porkbun Static Hosting Starter, prueba hasta 8 oct 2026; se sube con web/weft-site.zip → "upload zip file").
 5b. [x] Activar DNSSEC en weftchat.com (Porkbun → dominio → PORKBUN DNSSEC).
-6. [ ] Aclarar en BRIEF.md que las donaciones van en la web, no en la app.
+6. [x] Aclarar en BRIEF.md que las donaciones van en la web, no en la app.
 7. [x] Commit en git de logo + web + cambios Android pendientes.
 
 - [ ] Antes del 8 oct 2026: añadir tarjeta/saldo en Porkbun (Account → Billing) para renovar el hosting.
