@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -31,11 +32,14 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.weft.R
+import app.weft.data.WeftSession
+import app.weft.data.WipePolicy
 import app.weft.design.PIN_DELETE
 import app.weft.design.PinDots
 import app.weft.design.PinKeypad
@@ -82,6 +86,10 @@ fun PinScreen(
     var first by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val wipeOn = WipePolicy.wipeOnLimit(context)
+    // n/10 counts wrong PINs in a row, as the throttle does; it survives restarts.
+    var fails by remember { mutableIntStateOf(WeftSession.throttle.failures) }
     val shake = remember { Animatable(0f) }
     val mismatch = stringResource(R.string.pin_mismatch)
     val taken = stringResource(R.string.pin_taken)
@@ -96,6 +104,7 @@ fun PinScreen(
     // Wrong PIN: red rings + shake; the dots clear at 520 ms and the screen resets at 540 ms.
     fun fail(then: PinMode) = scope.launch {
         error = true
+        fails = WeftSession.throttle.failures
         launch { shake.pinShake(reduce) }
         delay(520); typed = ""; error = false
         delay(20); mode = then; busy = false
@@ -184,7 +193,10 @@ fun PinScreen(
                 PinMode.Enter -> R.string.pin_enter_title to R.string.pin_enter_sub
             }
             WeftText(stringResource(title), style = WeftType.pinTitle.copy(color = WeftColors.text, textAlign = TextAlign.Center))
-            WeftText(stringResource(sub), style = WeftType.pinSub.copy(color = WeftColors.muted, textAlign = TextAlign.Center))
+            val subText = if (mode == PinMode.Enter && wipeOn) {
+                if (fails > 0) stringResource(R.string.pin_enter_sub_wipe_count, fails) else stringResource(R.string.pin_enter_sub_wipe)
+            } else stringResource(sub)
+            WeftText(subText, style = WeftType.pinSub.copy(color = WeftColors.muted, textAlign = TextAlign.Center))
         }
         PinDots(filled = typed.length, length = LENGTH, error = error, shake = shake.value)
         Spacer(Modifier.weight(1f))

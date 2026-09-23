@@ -140,6 +140,12 @@
     <string name="panic_detail">A third code. It opens the decoy as if nothing happened, and silently erases your real chats, contacts and keys.</string>
     <string name="panic_code">Code</string>
     <string name="toast_panic_off">Panic code off</string>
+    <string name="wipe10_title">Wipe after 10 wrong PINs</string>
+    <string name="wipe10_detail">If someone keeps guessing, everything is erased.</string>
+    <string name="toast_wipe10_on">Wipes after 10 wrong PINs</string>
+    <string name="toast_wipe10_off">10-attempt wipe off</string>
+    <string name="pin_enter_sub_wipe">wrong PIN 10× wipes this phone</string>
+    <string name="pin_enter_sub_wipe_count">wrong PIN 10× wipes this phone · %1$d/10</string>
     <string name="security_relays">Relays</string>
     <string name="security_wipe_now">Wipe everything now</string>
     <string name="relay_tag_in_use">in use</string>
