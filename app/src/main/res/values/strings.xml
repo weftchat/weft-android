@@ -78,6 +78,20 @@
     <string name="timer_kept">Messages are kept</string>
     <string name="timer_set">Messages disappear %1$s after read</string>
 
+    <!-- 8 · Add contact -->
+    <string name="add_title">Add contact</string>
+    <string name="add_new_code">New code</string>
+    <string name="add_lede_before">"Show this code in person. It works "</string>
+    <string name="add_lede_once">once</string>
+    <string name="add_lede_after">" and carries nothing that identifies you."</string>
+    <string name="add_qr">One-time invitation code</string>
+    <string name="add_expires">"expires in "</string>
+    <string name="add_scan">Scan their code</string>
+    <string name="add_copy">Copy one-time link</string>
+    <string name="add_renewed">New one-time code · the old one no longer works</string>
+    <string name="add_scan_soon">Your camera opens here in the app</string>
+    <string name="add_copied">One-time link copied · works once</string>
+
     <string name="sheet_new_title">Start something new</string>
     <string name="sheet_new_contact">New contact</string>
     <string name="sheet_new_contact_detail">Show a one-time code in person</string>

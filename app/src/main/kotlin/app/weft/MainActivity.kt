@@ -34,6 +34,8 @@ import app.weft.nav.TABS
 import app.weft.nav.WeftNavHost
 import app.weft.nav.WeftNavigator
 import app.weft.relay.DemoRelays
+import app.weft.ui.add.AddContactScreen
+import app.weft.ui.add.DemoInvitations
 import app.weft.ui.chats.ChatKind
 import app.weft.ui.chats.ChatsScreen
 import app.weft.ui.conversation.ConversationScreen
@@ -87,7 +89,7 @@ class MainActivity : ComponentActivity() {
                                 nav.push(if (chat.kind == ChatKind.Group) Route.GroupChat(chat.id, chat.name) else Route.Conversation(chat.id))
                             },
                         )
-                        Route.Add -> PlaceholderScreen(stringResource(R.string.tab_add))
+                        Route.Add -> AddContactScreen(DemoInvitations, bottomPadding = 94.dp + lift, toast = toast::show)
                         Route.Security -> PlaceholderScreen(stringResource(R.string.tab_security))
                         Route.Profile -> PlaceholderScreen(stringResource(R.string.tab_profile))
                         is Route.Conversation -> ConversationScreen(

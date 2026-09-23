@@ -38,6 +38,7 @@ fun WeftButton(
     kind: ButtonKind = ButtonKind.Primary,
     trailing: WeftIcon? = null,
     leading: WeftIcon? = null,
+    leadingStroke: Float = 2.4f,
     enabled: Boolean = true,
     height: Dp = 56.dp,
     textStyle: TextStyle = WeftType.button,
@@ -65,7 +66,7 @@ fun WeftButton(
         contentAlignment = Alignment.Center,
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-            if (leading != null) WeftIconView(leading, 18.dp, ink, stroke = 2.4f)
+            if (leading != null) WeftIconView(leading, 18.dp, ink, stroke = leadingStroke)
             WeftText(text, style = textStyle.copy(color = ink, fontWeight = if (kind == ButtonKind.Ghost) androidx.compose.ui.text.font.FontWeight.W700 else textStyle.fontWeight))
             if (trailing != null) WeftIconView(trailing, 18.dp, ink, stroke = 2.6f)
         }

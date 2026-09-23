@@ -65,5 +65,6 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.foundation)
     implementation(libs.activity.compose)
+    implementation(libs.qrcodegen) // QR code of the one-time invitation link (Add contact)
     debugImplementation(libs.compose.ui.tooling.preview)
 }
