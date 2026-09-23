@@ -187,6 +187,12 @@
     <string name="pin_enter_sub_after">Weft locks itself after %1$s away</string>
     <string name="security_relays">Relays</string>
     <string name="security_wipe_now">Wipe everything now</string>
+    <string name="graphene_header">On GrapheneOS</string>
+    <string name="graphene_title">Protect the whole phone, not just Weft</string>
+    <string name="graphene_detail">An app can only guard itself. GrapheneOS guards the phone. In its Security settings:</string>
+    <string name="graphene_usb">USB-C port · “Charging-only when locked”, so a cable cannot talk to a locked phone at all.</string>
+    <string name="graphene_duress">Duress PIN · the system’s own duress PIN, entered at the lock screen, wipes the whole phone.</string>
+    <string name="graphene_reboot">Auto reboot · a few hours; after a restart everything stays encrypted until you unlock.</string>
     <string name="relay_tag_in_use">in use</string>
     <string name="relay_kind_messages">messages · your own relay</string>
     <string name="relay_kind_files">files · your own relay</string>

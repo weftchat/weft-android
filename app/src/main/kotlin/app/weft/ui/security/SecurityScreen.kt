@@ -30,12 +30,14 @@ import app.weft.data.UsbGuard
 import app.weft.data.WeftSession
 import app.weft.data.WipePolicy
 import app.weft.design.ButtonKind
+import app.weft.design.ItemIcon
 import app.weft.design.ItemTone
 import app.weft.design.TagTone
 import app.weft.design.WeftButton
 import app.weft.design.WeftCard
 import app.weft.design.WeftColors
 import app.weft.design.WeftIcon
+import app.weft.design.WeftIconView
 import app.weft.design.WeftItem
 import app.weft.design.WeftSectionHeader
 import app.weft.design.WeftSubRow
@@ -242,6 +244,24 @@ fun SecurityScreen(
                         chevron = true,
                         onClick = onAddRelay,
                     )
+                }
+            }
+            Column {
+                WeftSectionHeader(stringResource(R.string.graphene_header))
+                WeftCard {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                            ItemIcon(WeftIcon.Shield, tone = ItemTone.Safe)
+                            WeftText(stringResource(R.string.graphene_title), style = WeftType.itemTitle.copy(color = WeftColors.text), modifier = Modifier.weight(1f))
+                        }
+                        WeftText(stringResource(R.string.graphene_detail), style = WeftType.itemDetail.copy(color = WeftColors.muted))
+                        for (line in listOf(R.string.graphene_usb, R.string.graphene_duress, R.string.graphene_reboot)) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                WeftIconView(WeftIcon.Check, 14.dp, WeftColors.safe, Modifier.padding(top = 3.dp), stroke = 2.6f)
+                                WeftText(stringResource(line), style = WeftType.itemDetail.copy(color = WeftColors.text), modifier = Modifier.weight(1f))
+                            }
+                        }
+                    }
                 }
             }
             WeftButton(stringResource(R.string.security_wipe_now), onWipe, kind = ButtonKind.Danger, leading = WeftIcon.Trash, leadingStroke = 2f)
