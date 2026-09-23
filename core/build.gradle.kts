@@ -35,3 +35,7 @@ android {
         }
     }
 }
+
+dependencies {
+    implementation(libs.coroutines.android) // background event loop and suspend calls to the core
+}
