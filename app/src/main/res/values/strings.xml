@@ -92,6 +92,26 @@
     <string name="add_scan_soon">Your camera opens here in the app</string>
     <string name="add_copied">One-time link copied · works once</string>
 
+    <!-- 11 · Profile -->
+    <string name="profile_title">Profile</string>
+    <string name="profile_colours">Avatar colour</string>
+    <string name="profile_colour">Colour %1$d</string>
+    <string name="profile_nick_label">"Nickname "</string>
+    <string name="profile_nick_hint">· not an ID, never searchable</string>
+    <string name="profile_fp_header">Your fingerprint</string>
+    <string name="profile_fp_detail">Compare it in person with a contact to mark them as verified.</string>
+    <string name="profile_show_qr">Show as QR</string>
+    <string name="profile_copy">Copy</string>
+    <string name="profile_fp_copied">Fingerprint copied</string>
+    <string name="profile_phone_header">This phone</string>
+    <string name="profile_linked">Linked devices</string>
+    <string name="profile_linked_toast">Only this phone · no linked devices</string>
+    <string name="profile_change_pin">Change PIN</string>
+    <string name="profile_security">Security and duress</string>
+    <string name="profile_delete">Delete identity from this phone</string>
+    <string name="fp_sheet_title">Your fingerprint</string>
+    <string name="fp_sheet_detail">Let a contact scan this to verify you in person.</string>
+
     <string name="sheet_new_title">Start something new</string>
     <string name="sheet_new_contact">New contact</string>
     <string name="sheet_new_contact_detail">Show a one-time code in person</string>

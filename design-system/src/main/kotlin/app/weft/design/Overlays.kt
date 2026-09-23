@@ -229,10 +229,10 @@ data class TabItem(val label: String, val icon: WeftIcon)
 /**
  * `.tabbar` — floating, 12 dp from the sides, 14 dp from the bottom, radius 26, #14141F @ 88 %.
  * Slides down (140 %) when leaving a tab screen, 420 ms EaseNav; the highlight slides between tabs,
- * 380 ms EaseOut. (The mockup's backdrop blur is not reproduced: Compose has no backdrop blur.)
+ * 380 ms EaseOut. Pass [backdrop] for the mockup's 18 px blur of what scrolls behind it.
  */
 @Composable
-fun WeftTabBar(items: List<TabItem>, selected: Int, visible: Boolean, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
+fun WeftTabBar(items: List<TabItem>, selected: Int, visible: Boolean, onSelect: (Int) -> Unit, modifier: Modifier = Modifier, backdrop: Backdrop? = null) {
     val reduce = rememberReduceMotion()
     val hide = remember { Animatable(if (visible) 0f else 1f) }
     LaunchedEffect(visible) { hide.animateTo(if (visible) 0f else 1f, WeftMotion.nav(WeftMotion.TAB_BAR, reduce)) }
@@ -244,6 +244,7 @@ fun WeftTabBar(items: List<TabItem>, selected: Int, visible: Boolean, onSelect: 
                 translationY = hide.value * size.height * 1.4f
                 alpha = (1f - hide.value / 0.57f).coerceIn(0f, 1f) // opacity fades in 240 ms of the 420
             }
+            .backdropBlur(backdrop, 18.dp, RoundedCornerShape(26.dp))
             .background(WeftColors.tabBar, RoundedCornerShape(26.dp))
             .cssBorder(1.dp, WeftColors.line, RoundedCornerShape(26.dp))
             .padding(6.dp),

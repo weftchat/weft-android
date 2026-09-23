@@ -72,7 +72,9 @@ import androidx.compose.ui.unit.em
 import app.weft.BuildConfig
 import app.weft.R
 import app.weft.design.DotState
+import app.weft.design.FingerprintGrid
 import app.weft.design.StatusDot
+import app.weft.design.WeftFieldLabel
 import app.weft.design.cssBorder
 import app.weft.design.WeftButton
 import app.weft.design.WeftColors
@@ -323,35 +325,13 @@ private fun ScrambledFingerprint(groups: List<String>, start: Long?, durationMs:
 }
 
 @Composable
-private fun FingerprintGrid(groups: List<Pair<String, Boolean>>, fontSize: Float, modifier: Modifier = Modifier) {
-    Column(modifier.semantics { contentDescription = "Your device fingerprint" }, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        groups.chunked(4).forEachIndexed { rowIdx, row ->
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                row.forEachIndexed { colIdx, (text, done) ->
-                    val last = rowIdx == 1 && colIdx == 3
-                    val target = when { !done -> WeftColors.muted; last -> WeftColors.accent; else -> WeftColors.text }
-                    val ink by animateColorAsState(target, tween(300), label = "fp")
-                    WeftText(text, style = WeftType.fingerprint.copy(color = ink, fontSize = androidx.compose.ui.unit.TextUnit(fontSize, androidx.compose.ui.unit.TextUnitType.Sp)), modifier = Modifier.weight(1f))
-                }
-            }
-        }
-    }
-}
-
-@Composable
 private fun ColumnScope.NameStep(reduce: Boolean, fingerprint: List<String>, nick: String, onNick: (String) -> Unit, onNext: () -> Unit) {
     val k = Step.Name
     WeftEyebrow(stringResource(R.string.name_eyebrow), Modifier.stagger(0, k, reduce))
     WeftText(stringResource(R.string.name_title), style = WeftType.titleXl.copy(color = WeftColors.text), modifier = Modifier.stagger(1, k, reduce))
     KeyCard(fingerprint, Modifier.stagger(2, k, reduce))
     Column(Modifier.stagger(3, k, reduce), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        WeftText(
-            buildAnnotatedString {
-                append(stringResource(R.string.name_label))
-                withStyle(SpanStyle(fontWeight = FontWeight.W500, color = WeftColors.faint)) { append(stringResource(R.string.name_label_hint)) }
-            },
-            style = WeftType.fieldLabel.copy(color = WeftColors.muted),
-        )
+        WeftFieldLabel(stringResource(R.string.name_label), stringResource(R.string.name_label_hint))
         WeftTextField(nick, onNick, stringResource(R.string.name_placeholder), maxLength = 24)
     }
     WeftButton(stringResource(R.string.name_choose_pin), onNext, Modifier.stagger(4, k, reduce), trailing = WeftIcon.Arrow)

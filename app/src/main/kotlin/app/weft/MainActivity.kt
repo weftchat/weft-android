@@ -24,6 +24,8 @@ import app.weft.design.WeftIcon
 import app.weft.design.WeftTabBar
 import app.weft.design.WeftToastHost
 import app.weft.design.WeftToastState
+import app.weft.design.backdropSource
+import app.weft.design.rememberBackdrop
 import app.weft.design.tabBarBottom
 import app.weft.identity.DemoIdentityMaker
 import app.weft.lock.DemoPinVault
@@ -40,6 +42,9 @@ import app.weft.ui.chats.ChatKind
 import app.weft.ui.chats.ChatsScreen
 import app.weft.ui.conversation.ConversationScreen
 import app.weft.ui.conversation.DemoConversations
+import app.weft.ui.profile.DemoProfile
+import app.weft.ui.profile.ProfileScreen
+import app.weft.ui.sheets.FingerprintSheet
 import app.weft.ui.sheets.NewSheet
 import app.weft.ui.sheets.Sheet
 import app.weft.ui.sheets.TimerSheet
@@ -64,12 +69,16 @@ class MainActivity : ComponentActivity() {
             // `.has-tabs` keeps 94 dp clear for the bar; toasts sit 104 dp up. Both follow the bar
             // when the system navigation area pushes it higher.
             val lift = tabBarBottom() - 14.dp
+            val backdrop = rememberBackdrop()
             Box(Modifier.fillMaxSize().background(WeftColors.bg)) {
-                WeftNavHost(nav) { route ->
+                WeftNavHost(nav, Modifier.backdropSource(backdrop)) { route ->
                     when (route) {
                         Route.Onboard -> OnboardingScreen(
-                            makeIdentity = DemoIdentityMaker::create,
-                            onChoosePin = { nav.push(Route.Pin(PinMode.Choose)) },
+                            makeIdentity = { DemoIdentityMaker.create().also(DemoProfile::setFingerprint) },
+                            onChoosePin = { nickname ->
+                                DemoProfile.setNickname(nickname)
+                                nav.push(Route.Pin(PinMode.Choose))
+                            },
                         )
                         is Route.Pin -> PinScreen(
                             start = route.mode,
@@ -91,7 +100,16 @@ class MainActivity : ComponentActivity() {
                         )
                         Route.Add -> AddContactScreen(DemoInvitations, bottomPadding = 94.dp + lift, toast = toast::show)
                         Route.Security -> PlaceholderScreen(stringResource(R.string.tab_security))
-                        Route.Profile -> PlaceholderScreen(stringResource(R.string.tab_profile))
+                        Route.Profile -> ProfileScreen(
+                            store = DemoProfile,
+                            bottomPadding = 94.dp + lift,
+                            toast = toast::show,
+                            onShowQr = { open(Sheet.Fingerprint) },
+                            onChangePin = { nav.push(Route.Pin(PinMode.Choose)) },
+                            onSecurity = { nav.root(Route.Security) },
+                            onDelete = { nav.push(Route.Wipe) },
+                        )
+                        Route.Wipe -> PlaceholderScreen("Emergency wipe", onBack = nav::pop)
                         is Route.Conversation -> ConversationScreen(
                             chatId = route.chatId,
                             chatList = DemoChatList,
@@ -115,6 +133,7 @@ class MainActivity : ComponentActivity() {
                     visible = onTabs,
                     onSelect = { i -> if (TABS[i] != nav.current) nav.root(TABS[i], NavMode.Fade) },
                     modifier = Modifier.align(Alignment.BottomCenter),
+                    backdrop = backdrop,
                 )
                 WeftBottomSheet(visible = sheet != null, onDismiss = { sheet = null }) {
                     when (val s = lastSheet) {
@@ -122,6 +141,7 @@ class MainActivity : ComponentActivity() {
                             onContact = { sheet = null; nav.root(Route.Add) },
                             onGroup = { sheet = null; nav.push(Route.NewGroup) },
                         )
+                        Sheet.Fingerprint -> FingerprintSheet(DemoProfile.profile.value.fingerprint)
                         is Sheet.Timer -> TimerSheet(
                             current = DemoChatList.chats.value.firstOrNull { it.id == s.chatId }?.timer,
                             onPick = { timer, message ->

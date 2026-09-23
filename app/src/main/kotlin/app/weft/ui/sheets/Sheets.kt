@@ -1,15 +1,22 @@
 package app.weft.ui.sheets
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.weft.R
+import app.weft.design.FingerprintGrid
+import app.weft.design.QrCard
 import app.weft.design.WeftColors
 import app.weft.design.WeftIcon
 import app.weft.design.WeftNavOption
@@ -18,11 +25,29 @@ import app.weft.design.WeftRadio
 import app.weft.design.WeftSheetTitle
 import app.weft.design.WeftText
 import app.weft.design.WeftType
+import app.weft.ui.common.qrModules
 
 /** The bottom sheets of design v3. */
 sealed interface Sheet {
     data object New : Sheet
     data class Timer(val chatId: String) : Sheet
+    data object Fingerprint : Sheet
+}
+
+/** "Your fingerprint" — a QR of it (200 dp, 14 dp card padding) and the groups, centred. */
+@Composable
+fun FingerprintSheet(fingerprint: List<String>) {
+    WeftSheetTitle(stringResource(R.string.fp_sheet_title))
+    WeftText(
+        stringResource(R.string.fp_sheet_detail),
+        style = WeftType.secondary.copy(color = WeftColors.muted, lineHeight = WeftType.itemDetail.lineHeight),
+        modifier = Modifier.padding(horizontal = 4.dp).pullUp(6.dp),
+    )
+    Box(Modifier.fillMaxWidth().padding(vertical = 6.dp), contentAlignment = Alignment.Center) {
+        val modules = remember(fingerprint) { qrModules(fingerprint.joinToString(" ")) }
+        QrCard(modules, codeSize = 200.dp, padding = 14.dp)
+    }
+    FingerprintGrid(fingerprint.map { it to true }, 14f, align = TextAlign.Center)
 }
 
 /** "Start something new" — New contact / New group. */

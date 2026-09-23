@@ -41,9 +41,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.weft.R
 import app.weft.privacy.SensitiveClipboard
+import app.weft.ui.common.qrModules
 import app.weft.design.ButtonKind
 import app.weft.design.QrCard
-import app.weft.design.QrModules
 import app.weft.design.WeftButton
 import app.weft.design.WeftColors
 import app.weft.design.WeftIcon
@@ -55,7 +55,6 @@ import app.weft.design.WeftType
 import app.weft.design.cssBorder
 import app.weft.design.gradientBackground
 import app.weft.design.rememberReduceMotion
-import io.nayuki.qrcodegen.QrCode
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -198,9 +197,4 @@ private fun ExpiryPill(leftMs: Long) {
             style = WeftType.monoBody.copy(color = WeftColors.muted),
         )
     }
-}
-
-private fun qrModules(link: String): QrModules {
-    val qr = QrCode.encodeText(link, QrCode.Ecc.MEDIUM)
-    return QrModules(qr.size) { x, y -> qr.getModule(x, y) }
 }
