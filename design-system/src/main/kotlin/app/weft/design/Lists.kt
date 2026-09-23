@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 
 enum class ItemTone { Accent, Danger, Safe }
 
@@ -143,8 +144,11 @@ fun WeftItem(
     tone: ItemTone = ItemTone.Accent,
     titleStyle: TextStyle = WeftType.itemTitle,
     textGap: Dp = 4.dp,
+    /** `.item` without `.center`: icon and text sit at the top, the trailing control stays centred. */
+    topAligned: Boolean = false,
     onClick: (() -> Unit)? = null,
-    trailing: (@Composable () -> Unit)? = null,
+    below: (@Composable () -> Unit)? = null,
+    trailing: (@Composable RowScope.() -> Unit)? = null,
 ) {
     val source = remember { MutableInteractionSource() }
     val pressed by source.collectIsPressedAsState()
@@ -156,14 +160,15 @@ fun WeftItem(
             .then(if (first) Modifier else Modifier.drawBehind { drawRect(WeftColors.line, size = size.copy(height = 1.dp.toPx())) }.padding(top = 1.dp))
             .padding(horizontal = 16.dp, vertical = 15.dp),
         horizontalArrangement = Arrangement.spacedBy(14.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = if (topAligned) Alignment.Top else Alignment.CenterVertically,
     ) {
         ItemIcon(icon, tone = tone)
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(textGap)) {
             WeftText(title, style = titleStyle.copy(color = WeftColors.text))
             if (detail != null) WeftText(detail, style = WeftType.itemDetail.copy(color = WeftColors.muted))
+            below?.invoke()
         }
-        trailing?.invoke()
+        trailing?.invoke(this)
         if (value != null || chevron) {
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
                 if (value != null) WeftText(value, style = WeftType.monoBody.copy(color = WeftColors.muted))
@@ -184,4 +189,33 @@ fun WeftTag(text: String, tone: TagTone, modifier: Modifier = Modifier) {
         TagTone.Bad -> WeftColors.danger to WeftColors.danger.copy(alpha = 0.10f)
     }
     WeftText(text, style = WeftType.pill.copy(color = ink), modifier = modifier.background(fill, CircleShape).padding(horizontal = 9.dp, vertical = 5.dp))
+}
+
+/**
+ * `.sub-row` — inside an item: a label, a value in bold with wide tracking (a masked PIN), and an
+ * action on the right. Radius 14, white @ 3.5 %, 10 dp above.
+ */
+@Composable
+fun WeftSubRow(label: String, value: String, action: String, onAction: () -> Unit, modifier: Modifier = Modifier) {
+    Row(
+        modifier
+            .padding(top = 10.dp)
+            .fillMaxWidth()
+            .background(Color.White.copy(alpha = 0.035f), RoundedCornerShape(14.dp))
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        WeftText(label, style = WeftType.monoBody.copy(color = WeftColors.muted))
+        WeftText(value, style = WeftType.monoBody.copy(color = WeftColors.text, fontWeight = androidx.compose.ui.text.font.FontWeight.W600, letterSpacing = 0.2.em))
+        Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+            Box(
+                Modifier
+                    .heightIn(min = 32.dp)
+                    .weftClickable(onClick = onAction)
+                    .padding(horizontal = 10.dp),
+                contentAlignment = Alignment.Center,
+            ) { WeftText(action, style = WeftType.linkButton.copy(color = WeftColors.accent2)) }
+        }
+    }
 }

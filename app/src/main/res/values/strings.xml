@@ -39,7 +39,14 @@
     <string name="pin_enter_title">Enter your PIN</string>
     <string name="pin_enter_sub">Weft locks itself after 1 min away</string>
     <string name="pin_mismatch">PINs didn’t match — try again</string>
-    <string name="pin_is_duress">That’s the duress PIN — pick another</string>
+    <string name="pin_taken">That PIN is already in use — pick another</string>
+    <string name="pin_choose_duress_title">Choose a duress PIN</string>
+    <string name="pin_choose_duress_sub">Opens the decoy profile · not the same as your PIN</string>
+    <string name="pin_choose_panic_title">Choose a panic code</string>
+    <string name="pin_choose_panic_sub">Wipes your real chats in silence · keep it secret</string>
+    <string name="pin_ready_duress">Duress PIN set</string>
+    <string name="pin_ready_panic">Panic code set</string>
+    <string name="add_no_relay_short">Add your own relay first</string>
     <string name="pin_ready">PIN set · Weft is ready</string>
     <string name="pin_failed">Weft could not open · try again</string>
 
@@ -123,6 +130,12 @@
 
     <!-- 9 · Security (Phase 1: relays) -->
     <string name="security_title">Security</string>
+    <string name="security_phone">If someone takes your phone</string>
+    <string name="duress_title">Duress PIN</string>
+    <string name="duress_detail">A second PIN opens a harmless decoy profile. It looks exactly like the real one.</string>
+    <string name="duress_pin">PIN</string>
+    <string name="duress_change">Change</string>
+    <string name="toast_duress_off">Duress PIN off</string>
     <string name="security_relays">Relays</string>
     <string name="relay_tag_in_use">in use</string>
     <string name="relay_kind_messages">messages · your own relay</string>

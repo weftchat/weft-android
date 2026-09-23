@@ -13,12 +13,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.weft.R
 import app.weft.data.CoreRelays
+import app.weft.data.WeftSession
 import app.weft.design.ItemTone
 import app.weft.design.TagTone
 import app.weft.design.WeftCard
@@ -26,18 +32,36 @@ import app.weft.design.WeftColors
 import app.weft.design.WeftIcon
 import app.weft.design.WeftItem
 import app.weft.design.WeftSectionHeader
+import app.weft.design.WeftSubRow
+import app.weft.design.WeftSwitch
 import app.weft.design.WeftTag
 import app.weft.design.WeftText
 import app.weft.design.WeftType
+import app.weft.nav.PinPurpose
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Screen 9 — Security. Phase 1 has the Relays section only: the user's own relays and "Add your own
  * relay". The phone-seizure and privacy sections come with Phase 2.
  */
 @Composable
-fun SecurityScreen(bottomPadding: Dp, onAddRelay: () -> Unit) {
+fun SecurityScreen(
+    bottomPadding: Dp,
+    toast: (String, WeftIcon) -> Unit,
+    onAddRelay: () -> Unit,
+    onChoose: (PinPurpose) -> Unit,
+) {
     val servers by CoreRelays.servers.collectAsState()
-    LaunchedEffect(Unit) { runCatching { CoreRelays.load() } }
+    val scope = rememberCoroutineScope()
+    // Only the real profile knows whether a duress PIN exists; the decoy shows the feature off.
+    var duress by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        runCatching { CoreRelays.load() }
+        duress = withContext(Dispatchers.IO) { WeftSession.notes()?.duress == true }
+    }
+    val duressOff = stringResource(R.string.toast_duress_off)
     Column(Modifier.fillMaxSize().background(WeftColors.bg)) {
         Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 56.dp, bottom = 14.dp)) {
             WeftText(stringResource(R.string.security_title), style = WeftType.screenTitle.copy(color = WeftColors.text), modifier = Modifier.padding(start = 2.dp))
@@ -49,6 +73,34 @@ fun SecurityScreen(bottomPadding: Dp, onAddRelay: () -> Unit) {
                 .padding(start = 16.dp, end = 16.dp, top = 2.dp, bottom = 28.dp + bottomPadding),
             verticalArrangement = Arrangement.spacedBy(22.dp),
         ) {
+            Column {
+                WeftSectionHeader(stringResource(R.string.security_phone))
+                WeftCard {
+                    WeftItem(
+                        WeftIcon.Mask, stringResource(R.string.duress_title), first = true,
+                        detail = stringResource(R.string.duress_detail),
+                        topAligned = true,
+                        below = if (duress) ({
+                            WeftSubRow(stringResource(R.string.duress_pin), "••••••", stringResource(R.string.duress_change), onAction = { onChoose(PinPurpose.Duress) })
+                        }) else null,
+                        trailing = {
+                            WeftSwitch(
+                                checked = duress,
+                                onCheckedChange = { on ->
+                                    if (on) onChoose(PinPurpose.Duress)
+                                    else scope.launch {
+                                        WeftSession.disableDuress()
+                                        duress = false
+                                        toast(duressOff, WeftIcon.Alert)
+                                    }
+                                },
+                                contentDescription = stringResource(R.string.duress_title),
+                                modifier = Modifier.align(Alignment.CenterVertically),
+                            )
+                        },
+                    )
+                }
+            }
             Column {
                 WeftSectionHeader(stringResource(R.string.security_relays))
                 WeftCard {

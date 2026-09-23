@@ -171,6 +171,79 @@ object WeftSession {
         }
     }
 
+    /** Result of setting a duress or panic code. */
+    enum class SetCode { Ok, Taken, NeedRelay, NotAllowed }
+
+    /**
+     * Duress PIN (real session only): makes the decoy profile if it does not exist yet, then writes
+     * the duress slot. In the decoy session this does nothing, silently: the decoy must look like an
+     * ordinary profile with the feature off.
+     */
+    suspend fun enableDuress(pin: String): SetCode = setSecondCode(Slot.Duress, pin)
+
+    /** Panic code (real session only): a third code that opens the decoy and wipes the real profile. */
+    suspend fun enablePanic(pin: String): SetCode = setSecondCode(Slot.Panic, pin)
+
+    private suspend fun setSecondCode(slot: Slot, pin: String): SetCode {
+        if (_entry.value != Slot.Real) return SetCode.Ok // decoy session: nothing happens
+        val hit = withContext(Dispatchers.Default) { vault.open(pin.toCharArray()) }
+        if (hit != null && hit.slot != slot) return SetCode.Taken
+        if (notes()?.decoyKey.isNullOrEmpty() && !CoreRelays.ready) return SetCode.NeedRelay
+        val decoyKey = ensureDecoy()
+        withContext(Dispatchers.Default) { vault.setSlot(slot, pin.toCharArray(), decoyKey) }
+        val n = notes() ?: Notes()
+        writeSettings(if (slot == Slot.Duress) n.copy(duress = true) else n.copy(panic = true))
+        return SetCode.Ok
+    }
+
+    /** Switches the duress PIN off: its slot becomes random again. The decoy profile stays. */
+    suspend fun disableDuress() = disable(Slot.Duress)
+    suspend fun disablePanic() = disable(Slot.Panic)
+
+    private suspend fun disable(slot: Slot) {
+        if (_entry.value != Slot.Real) return
+        withContext(Dispatchers.Default) { vault.clearSlot(slot) }
+        val n = notes() ?: return
+        writeSettings(if (slot == Slot.Duress) n.copy(duress = false) else n.copy(panic = false))
+    }
+
+    /**
+     * Makes the decoy: a second real, working profile with its own random key, the same relays as
+     * the real one and no contacts (the owner fills it from inside). The core holds one store at a
+     * time, so the real one is closed while the decoy is made and opened again after.
+     */
+    private suspend fun ensureDecoy(): ByteArray {
+        notes()?.decoyKey?.takeIf { it.isNotEmpty() }?.let { h -> return ByteArray(32) { i -> h.substring(i * 2, i * 2 + 2).toInt(16).toByte() } }
+        val relays = CoreRelays.servers.value
+        val realKey = keyBytes ?: error("locked")
+        val realUid = _userId.value ?: error("locked")
+        val decoyKey = ByteArray(32).also { SecureRandom().nextBytes(it) }
+        _userId.value = null // what is on screen stays; nothing refreshes from the decoy
+        cmd("/_stop")
+        ChatCore.close()
+        try {
+            withContext(Dispatchers.IO) { decoyDir.deleteRecursively() }
+            check(ChatCore.open(decoyDir, hex(decoyKey)) == OpenResult.Ok) { "could not create the decoy store" }
+            prepare(decoyDir)
+            val user = cmd("/_create user " + JSONObject().put("profile", JSONObject().put("displayName", "Me").put("fullName", "")).put("pastTimestamp", false))
+            val uid = user.getJSONObject("user").getLong("userId")
+            disablePresetOperators()
+            cmd("/_start main=on")
+            removePresetContacts(uid)
+            CoreRelays.seed(uid, relays)
+            cmd("/_stop")
+            ChatCore.close()
+        } finally {
+            check(ChatCore.open(realDir, hex(realKey)) == OpenResult.Ok) { "could not reopen the real store" }
+            prepare(realDir)
+            start(realUid)
+        }
+        withContext(Dispatchers.IO) { File(decoyDir, "m").writeBytes(ByteArray(284).also { SecureRandom().nextBytes(it) }) }
+        writeSettings((notes() ?: Notes()).copy(decoyKey = hex(decoyKey)))
+        return decoyKey
+    }
+
+
     /** File folders (inside the app's private storage) and encrypted local files, before starting. */
     private suspend fun prepare(dir: File) {
         val files = File(dir, "f").apply { mkdirs() }

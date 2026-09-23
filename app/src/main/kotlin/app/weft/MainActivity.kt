@@ -37,6 +37,8 @@ import app.weft.design.tabBarBottom
 import app.weft.lock.CorePinVault
 import app.weft.nav.NavMode
 import app.weft.nav.PinMode
+import app.weft.nav.PinPurpose
+import app.weft.lock.SecondCodeVault
 import app.weft.nav.Route
 import app.weft.nav.TABS
 import app.weft.nav.WeftNavHost
@@ -107,9 +109,14 @@ class MainActivity : ComponentActivity() {
                         )
                         is Route.Pin -> PinScreen(
                             start = route.mode,
-                            vault = vault,
+                            purpose = route.purpose,
+                            vault = when (route.purpose) {
+                                PinPurpose.Own -> vault
+                                PinPurpose.Duress -> remember { SecondCodeVault(panic = false) }
+                                PinPurpose.Panic -> remember { SecondCodeVault(panic = true) }
+                            },
                             toast = toast::show,
-                            onUnlocked = { nav.root(Route.Chats) },
+                            onUnlocked = { if (route.purpose == PinPurpose.Own) nav.root(Route.Chats) else nav.pop() },
                         )
                         Route.Chats -> ChatsScreen(
                             chatList = CoreChats,
@@ -136,7 +143,12 @@ class MainActivity : ComponentActivity() {
                             onScan = { nav.push(Route.Scan) },
                         )
                         Route.Scan -> ScanScreen(toast = toast::show, onBack = nav::pop, onJoined = { nav.root(Route.Chats) })
-                        Route.Security -> SecurityScreen(bottomPadding = 94.dp + lift, onAddRelay = { open(Sheet.AddRelay) })
+                        Route.Security -> SecurityScreen(
+                            bottomPadding = 94.dp + lift,
+                            toast = toast::show,
+                            onAddRelay = { open(Sheet.AddRelay) },
+                            onChoose = { nav.push(Route.Pin(PinMode.Choose, it)) },
+                        )
                         Route.Profile -> ProfileScreen(
                             store = CoreProfile,
                             bottomPadding = 94.dp + lift,

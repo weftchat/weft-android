@@ -47,7 +47,9 @@ import app.weft.design.WeftType
 import app.weft.design.pinShake
 import app.weft.design.rememberReduceMotion
 import app.weft.lock.PinVault
+import app.weft.lock.SetResult
 import app.weft.nav.PinMode
+import app.weft.nav.PinPurpose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -68,6 +70,7 @@ private val DIGITS = mapOf(
 @Composable
 fun PinScreen(
     start: PinMode,
+    purpose: PinPurpose,
     vault: PinVault,
     toast: (String, WeftIcon) -> Unit,
     onUnlocked: (firstTime: Boolean) -> Unit,
@@ -81,8 +84,13 @@ fun PinScreen(
     var error by remember { mutableStateOf(false) }
     val shake = remember { Animatable(0f) }
     val mismatch = stringResource(R.string.pin_mismatch)
-    val isDuress = stringResource(R.string.pin_is_duress)
-    val ready = stringResource(R.string.pin_ready)
+    val taken = stringResource(R.string.pin_taken)
+    val needRelay = stringResource(R.string.add_no_relay_short)
+    val ready = stringResource(when (purpose) {
+        PinPurpose.Own -> R.string.pin_ready
+        PinPurpose.Duress -> R.string.pin_ready_duress
+        PinPurpose.Panic -> R.string.pin_ready_panic
+    })
     val failed = stringResource(R.string.pin_failed)
 
     // Wrong PIN: red rings + shake; the dots clear at 520 ms and the screen resets at 540 ms.
@@ -98,8 +106,11 @@ fun PinScreen(
             PinMode.Choose -> { first = pin; mode = PinMode.Repeat; typed = ""; busy = false }
             PinMode.Repeat -> if (pin == first) {
                 first = null
-                if (vault.set(pin)) { toast(ready, WeftIcon.Check); onUnlocked(true) }
-                else { toast(isDuress, WeftIcon.Alert); mode = PinMode.Choose; typed = ""; busy = false }
+                when (vault.set(pin)) {
+                    SetResult.Ok -> { toast(ready, WeftIcon.Check); onUnlocked(true) }
+                    SetResult.Taken -> { toast(taken, WeftIcon.Alert); mode = PinMode.Choose; typed = ""; busy = false }
+                    SetResult.NeedRelay -> { toast(needRelay, WeftIcon.Alert); mode = PinMode.Choose; typed = ""; busy = false }
+                }
             } else {
                 first = null
                 toast(mismatch, WeftIcon.Alert)
@@ -164,7 +175,11 @@ fun PinScreen(
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
             val (title, sub) = when (mode) {
-                PinMode.Choose -> R.string.pin_choose_title to R.string.pin_choose_sub
+                PinMode.Choose -> when (purpose) {
+                    PinPurpose.Own -> R.string.pin_choose_title to R.string.pin_choose_sub
+                    PinPurpose.Duress -> R.string.pin_choose_duress_title to R.string.pin_choose_duress_sub
+                    PinPurpose.Panic -> R.string.pin_choose_panic_title to R.string.pin_choose_panic_sub
+                }
                 PinMode.Repeat -> R.string.pin_repeat_title to R.string.pin_repeat_sub
                 PinMode.Enter -> R.string.pin_enter_title to R.string.pin_enter_sub
             }

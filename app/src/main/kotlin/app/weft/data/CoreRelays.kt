@@ -82,6 +82,16 @@ object CoreRelays {
         }
     }
 
+    /** Puts [addresses] into another user's own servers (used to prepare the decoy profile). */
+    suspend fun seed(uid: Long, addresses: List<String>) {
+        val groups = WeftSession.cmd("/_servers $uid").getJSONArray("userServers")
+        val group = custom(groups) ?: JSONObject()
+            .put("smpServers", JSONArray()).put("xftpServers", JSONArray()).put("chatRelays", JSONArray())
+            .also { groups.put(it) }
+        addresses.forEach { put(group, it) }
+        WeftSession.cmd("/_servers $uid $groups")
+    }
+
     private suspend fun edit(change: (JSONObject) -> Unit) {
         val uid = WeftSession.userId.value ?: return
         val groups = WeftSession.cmd("/_servers $uid").getJSONArray("userServers")
