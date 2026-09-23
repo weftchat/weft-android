@@ -17,3 +17,8 @@
 7. [x] Commit en git de logo + web + cambios Android pendientes.
 
 - [ ] Antes del 8 oct 2026: añadir tarjeta/saldo en Porkbun (Account → Billing) para renovar el hosting.
+
+## Publicar cambios pequeños sin la ventana de archivos (24 sep 2026)
+Si la ventana "upload zip file" no se abre, Claude puede subir archivos HTML sueltos desde el
+Static Hosting Editor de Porkbun (sesión iniciada en el navegador de Claude), comprobando antes la
+huella SHA-256 de cada archivo. Los vídeos y archivos grandes siguen subiéndose con el zip.
