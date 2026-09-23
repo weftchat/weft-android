@@ -31,6 +31,11 @@ object CoreRelays {
     /** The user's enabled relay addresses. */
     val servers: StateFlow<List<String>> = _servers
 
+    fun clear() {
+        pending = null
+        _servers.value = emptyList()
+    }
+
     val ready: Boolean get() = _servers.value.any { it.startsWith("smp://") } && _servers.value.any { it.startsWith("xftp://") }
 
     suspend fun load() {

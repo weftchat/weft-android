@@ -41,6 +41,12 @@ object CoreProfile : ProfileStore {
         }
     }
 
+    fun clear() {
+        saving?.cancel()
+        coreProfile = null
+        _profile.value = MyProfile()
+    }
+
     /** Shown at once; saved to the core after typing pauses (a blank name is never saved). */
     override fun setNickname(nickname: String) {
         _profile.update { it.copy(nickname = nickname.take(24)) }

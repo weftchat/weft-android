@@ -9,6 +9,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,6 +58,7 @@ import app.weft.ui.profile.ProfileScreen
 import app.weft.ui.security.SecurityScreen
 import app.weft.ui.sheets.AddRelaySheet
 import app.weft.ui.sheets.FingerprintSheet
+import app.weft.ui.wipe.WipeScreen
 import app.weft.ui.sheets.NewSheet
 import app.weft.ui.sheets.RelayAdd
 import app.weft.ui.sheets.Sheet
@@ -93,6 +96,12 @@ class MainActivity : ComponentActivity() {
             // `.has-tabs` keeps 94 dp clear for the bar; toasts sit 104 dp up. Both follow the bar
             // when the system navigation area pushes it higher.
             val lift = tabBarBottom() - 14.dp
+            // A wipe that did not start from the wipe screen (10 wrong PINs, USB guard) leaves no trace on
+            // screen: the app simply returns to the start, as if it had never been set up.
+            val wiped by WeftSession.wiped.collectAsState()
+            LaunchedEffect(wiped) {
+                if (wiped && nav.current !is Route.Wipe) { pendingNickname = ""; sheet = null; nav.root(Route.Onboard) }
+            }
             val backdrop = rememberBackdrop()
             val failedRelay = stringResource(R.string.relay_failed)
             Box(Modifier.fillMaxSize().background(WeftColors.bg)) {
@@ -148,6 +157,7 @@ class MainActivity : ComponentActivity() {
                             toast = toast::show,
                             onAddRelay = { open(Sheet.AddRelay) },
                             onChoose = { nav.push(Route.Pin(PinMode.Choose, it)) },
+                            onWipe = { nav.push(Route.Wipe) },
                         )
                         Route.Profile -> ProfileScreen(
                             store = CoreProfile,
@@ -158,7 +168,10 @@ class MainActivity : ComponentActivity() {
                             onSecurity = { nav.root(Route.Security) },
                             onDelete = { nav.push(Route.Wipe) },
                         )
-                        Route.Wipe -> PlaceholderScreen("Emergency wipe", onBack = nav::pop)
+                        Route.Wipe -> WipeScreen(
+                            onBack = nav::pop,
+                            onStartOver = { pendingNickname = ""; nav.root(Route.Onboard) },
+                        )
                         is Route.Conversation -> ConversationScreen(
                             chatId = route.chatId,
                             chatList = CoreChats,

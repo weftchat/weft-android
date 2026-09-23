@@ -141,6 +141,7 @@
     <string name="panic_code">Code</string>
     <string name="toast_panic_off">Panic code off</string>
     <string name="security_relays">Relays</string>
+    <string name="security_wipe_now">Wipe everything now</string>
     <string name="relay_tag_in_use">in use</string>
     <string name="relay_kind_messages">messages · your own relay</string>
     <string name="relay_kind_files">files · your own relay</string>
@@ -154,6 +155,20 @@
     <string name="relay_failed">The relay did not answer · %1$s</string>
     <string name="relay_need_partner">Tested and working. Now paste the %1$s:// address of the same server: Weft needs both, one for messages and one for files.</string>
     <string name="add_no_relay">Add your own relay first. Weft only uses relays you choose, so there is nowhere to put a code yet.</string>
+
+    <!-- 10 · Emergency wipe -->
+    <string name="wipe_cancel">Cancel</string>
+    <string name="wipe_title">Wipe this phone</string>
+    <string name="wipe_lede">Your contacts see nothing — you simply stop answering. This can’t be undone.</string>
+    <string name="wipe_keys">Your keys and fingerprint</string>
+    <string name="wipe_chats">Every chat, photo and file</string>
+    <string name="wipe_contacts">Contacts and groups</string>
+    <string name="wipe_relays">Relay list and settings</string>
+    <string name="wipe_hold">Hold to wipe</string>
+    <string name="wipe_hint">Keep pressing for 2 seconds · let go to cancel</string>
+    <string name="wipe_clean_title">This phone is clean</string>
+    <string name="wipe_clean_detail">Weft, its keys and every message are gone. To anyone looking, this app was never set up.</string>
+    <string name="wipe_start_over">Start over</string>
 
     <string name="sheet_new_title">Start something new</string>
     <string name="sheet_new_contact">New contact</string>

@@ -56,6 +56,13 @@ object CoreChats : ChatList, Conversations {
         }
     }
 
+    /** Forgets everything held in memory (after a wipe). */
+    fun clear() {
+        _chats.value = emptyList()
+        threads.clear()
+        contacts.clear()
+    }
+
     /** Reloads the list from the core. */
     fun refresh() = scope.launch {
         val uid = WeftSession.userId.value ?: return@launch

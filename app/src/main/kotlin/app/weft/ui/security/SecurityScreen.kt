@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.dp
 import app.weft.R
 import app.weft.data.CoreRelays
 import app.weft.data.WeftSession
+import app.weft.design.ButtonKind
+import app.weft.design.WeftButton
 import app.weft.design.ItemTone
 import app.weft.design.TagTone
 import app.weft.design.WeftCard
@@ -52,6 +54,7 @@ fun SecurityScreen(
     toast: (String, WeftIcon) -> Unit,
     onAddRelay: () -> Unit,
     onChoose: (PinPurpose) -> Unit,
+    onWipe: () -> Unit,
 ) {
     val servers by CoreRelays.servers.collectAsState()
     val scope = rememberCoroutineScope()
@@ -152,6 +155,7 @@ fun SecurityScreen(
                     )
                 }
             }
+            WeftButton(stringResource(R.string.security_wipe_now), onWipe, kind = ButtonKind.Danger, leading = WeftIcon.Trash, leadingStroke = 2f)
         }
     }
 }

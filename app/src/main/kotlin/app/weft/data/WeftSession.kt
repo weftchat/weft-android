@@ -79,6 +79,7 @@ object WeftSession {
      * sizes, so having only one profile looks exactly like having two.
      */
     suspend fun create(pin: String, nickname: String) {
+        _wiped.value = false
         val key = withContext(Dispatchers.Default) { vault.create(pin.toCharArray()) }
         keyBytes = key
         _entry.value = Slot.Real
@@ -338,8 +339,12 @@ object WeftSession {
             File(app.cacheDir, "t").deleteRecursively()
             for (name in listOf("weft.security", "weft.profile", "weft.guard")) {
                 app.getSharedPreferences(name, Context.MODE_PRIVATE).edit().clear().commit()
+                app.deleteSharedPreferences(name)
             }
         }
+        CoreChats.clear()
+        CoreProfile.clear()
+        CoreRelays.clear()
         _wiped.value = true
     }
 
