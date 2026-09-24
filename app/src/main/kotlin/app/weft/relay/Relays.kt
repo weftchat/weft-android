@@ -1,34 +1,30 @@
 package app.weft.relay
 
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-/** The relay in use, as the Chats pill shows it: "relay r2 · via Tor · 38 ms". */
-data class RelayInUse(val name: String, val route: String, val latencyMs: Int)
-
-interface Relays {
-    /** Null while switching. */
-    val inUse: StateFlow<RelayInUse?>
-    /** Moves to the standby relay and returns it. */
-    suspend fun rotate(): RelayInUse
+/** What the Chats pill shows: "relay host · direct · 38 ms", "switching relay…", or a problem. */
+sealed interface PillState {
+    /** No relay of the user's own yet. */
+    data object NoRelay : PillState
+    data object Switching : PillState
+    /** [latencyMs] is known only after a test. */
+    data class Live(val name: String, val route: String, val latencyMs: Int?) : PillState
+    /** Every message relay failed to answer. */
+    data class Blocked(val name: String) : PillState
 }
 
-/**
- * DEVELOPMENT ONLY — the mockup's relays (r2 in use, r3 on standby), so the pill and "Rotate" can
- * be tried. Real relay status arrives in Phase 3; this must not ship.
- */
-object DemoRelays : Relays {
-    private var standby = RelayInUse("r3", "via Tor", 61)
-    override val inUse = MutableStateFlow<RelayInUse?>(RelayInUse("r2", "via Tor", 38))
+sealed interface RotateResult {
+    /** [name] is null when the core chose among several standby relays. */
+    data class Switched(val name: String?) : RotateResult
+    /** Only one message relay that works: there is nowhere to move to. */
+    data object NoStandby : RotateResult
+    data object Failed : RotateResult
+}
 
-    override suspend fun rotate(): RelayInUse {
-        val old = inUse.value ?: return standby
-        inUse.value = null
-        delay(1300)
-        val next = standby.copy(route = "via Tor", latencyMs = 40 + (0 until 20).random())
-        standby = old.copy(route = "direct")
-        inUse.value = next
-        return next
-    }
+interface Relays {
+    val pill: StateFlow<PillState>
+    /** Re-reads the core's view of each relay (local, no network). */
+    suspend fun refresh()
+    /** Moves every conversation's receiving queue off the relay in use, to a working standby one. */
+    suspend fun rotate(): RotateResult
 }

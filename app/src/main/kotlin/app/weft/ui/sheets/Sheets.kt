@@ -36,6 +36,7 @@ import app.weft.design.WeftTextField
 import app.weft.design.WeftType
 import app.weft.ui.common.qrModules
 import app.weft.ui.security.autoLockOption
+import app.weft.ui.security.relayHost
 import kotlinx.coroutines.launch
 
 /** The bottom sheets of design v3. */
@@ -44,6 +45,7 @@ sealed interface Sheet {
     data class Timer(val chatId: String) : Sheet
     data object Fingerprint : Sheet
     data object AddRelay : Sheet
+    data class Relay(val address: String) : Sheet
     data object AutoLock : Sheet
     data object UsbWipe : Sheet
 }
@@ -194,3 +196,67 @@ fun UsbWipeSheet(onTurnOn: () -> Unit, onCancel: () -> Unit) {
         WeftButton(stringResource(R.string.usb_wipe_cancel), onCancel, kind = ButtonKind.Ghost)
     }
 }
+
+/**
+ * One of the user's relays: test it now (it shows how long it took) or remove it. The only relay
+ * of its kind cannot be removed — the core would fall back to someone else's servers.
+ */
+@Composable
+fun RelaySheet(
+    address: String,
+    onTest: suspend () -> String?,
+    onRemove: suspend () -> Boolean,
+    latencyMs: () -> Int?,
+    onRemoved: (String) -> Unit,
+) {
+    var busy by remember { mutableStateOf(false) }
+    var result by remember { mutableStateOf<String?>(null) }
+    var good by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val files = address.startsWith("xftp://")
+    val kind = stringResource(if (files) R.string.relay_kind_files_short else R.string.relay_kind_messages_short)
+    val ok = stringResource(R.string.relay_test_ok)
+    val failed = stringResource(R.string.relay_failed)
+    val last = stringResource(R.string.relay_last_of_kind, kind)
+    val removed = stringResource(R.string.relay_removed)
+    WeftSheetTitle(relayHost(address))
+    WeftText(
+        stringResource(R.string.relay_sheet_detail, kind),
+        style = WeftType.secondary.copy(color = WeftColors.muted, lineHeight = WeftType.itemDetail.lineHeight),
+        modifier = Modifier.padding(horizontal = 4.dp).pullUp(6.dp),
+    )
+    result?.let {
+        WeftText(it, style = WeftType.secondary.copy(color = if (good) WeftColors.safe else WeftColors.danger, lineHeight = WeftType.itemDetail.lineHeight), modifier = Modifier.padding(horizontal = 4.dp))
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        WeftButton(
+            stringResource(if (busy) R.string.relay_testing else R.string.relay_test_now),
+            onClick = {
+                busy = true
+                scope.launch {
+                    val failure = onTest()
+                    good = failure == null
+                    result = if (failure == null) ok.format(latencyMs() ?: 0) else failed.format(failure)
+                    busy = false
+                }
+            },
+            kind = ButtonKind.Ghost,
+            enabled = !busy,
+        )
+        WeftButton(
+            stringResource(R.string.relay_remove),
+            onClick = {
+                busy = true
+                scope.launch {
+                    if (onRemove()) onRemoved(removed) else { good = false; result = last }
+                    busy = false
+                }
+            },
+            kind = ButtonKind.Danger,
+            leading = WeftIcon.Trash,
+            leadingStroke = 2f,
+            enabled = !busy,
+        )
+    }
+}
+

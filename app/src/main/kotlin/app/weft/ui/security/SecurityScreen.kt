@@ -60,6 +60,7 @@ fun SecurityScreen(
     bottomPadding: Dp,
     toast: (String, WeftIcon) -> Unit,
     onAddRelay: () -> Unit,
+    onRelay: (String) -> Unit,
     onChoose: (PinPurpose) -> Unit,
     onWipe: () -> Unit,
     autoLockSeconds: Int,
@@ -68,6 +69,7 @@ fun SecurityScreen(
     onUsbWipe: (Boolean) -> Unit,
 ) {
     val servers by CoreRelays.servers.collectAsState()
+    val status by CoreRelays.status.collectAsState()
     val scope = rememberCoroutineScope()
     // Only the real profile knows whether a duress PIN exists; the decoy shows the feature off.
     var duress by remember { mutableStateOf(false) }
@@ -76,6 +78,7 @@ fun SecurityScreen(
     var wipe10 by remember { mutableStateOf(WipePolicy.wipeOnLimit(context)) }
     LaunchedEffect(Unit) {
         runCatching { CoreRelays.load() }
+        runCatching { CoreRelays.refresh() }
         withContext(Dispatchers.IO) { WeftSession.notes() }?.let { duress = it.duress; panic = it.panic }
     }
     val duressOff = stringResource(R.string.toast_duress_off)
@@ -225,15 +228,32 @@ fun SecurityScreen(
                 WeftSectionHeader(stringResource(R.string.security_relays))
                 WeftCard {
                     servers.forEachIndexed { i, address ->
+                        val st = status[address]
+                        val kind = stringResource(if (address.startsWith("xftp://")) R.string.relay_kind_files_short else R.string.relay_kind_messages_short)
                         WeftItem(
                             WeftIcon.Server,
                             relayHost(address),
                             first = i == 0,
-                            detail = stringResource(if (address.startsWith("xftp://")) R.string.relay_kind_files else R.string.relay_kind_messages),
-                            tone = ItemTone.Safe,
+                            detail = when {
+                                st?.state == CoreRelays.State.Blocked -> stringResource(R.string.relay_blocked_detail)
+                                st?.latencyMs != null -> stringResource(R.string.relay_route_ms, kind, "direct", st.latencyMs)
+                                else -> stringResource(R.string.relay_route, kind, "direct")
+                            },
+                            tone = when (st?.state) {
+                                CoreRelays.State.InUse -> ItemTone.Safe
+                                CoreRelays.State.Blocked -> ItemTone.Danger
+                                else -> ItemTone.Accent
+                            },
                             titleStyle = WeftType.relayName,
                             textGap = 2.dp,
-                            trailing = { WeftTag(stringResource(R.string.relay_tag_in_use), TagTone.On) },
+                            onClick = { onRelay(address) },
+                            trailing = {
+                                when (st?.state) {
+                                    CoreRelays.State.InUse -> WeftTag(stringResource(R.string.relay_tag_in_use), TagTone.On)
+                                    CoreRelays.State.Blocked -> WeftTag(stringResource(R.string.relay_tag_blocked), TagTone.Bad)
+                                    else -> WeftTag(stringResource(R.string.relay_tag_standby), TagTone.Standby)
+                                }
+                            },
                         )
                     }
                     WeftItem(

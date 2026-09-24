@@ -17,16 +17,16 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NetworkTest {
     @Before
-    fun freshIdentity() = runBlocking {
+    fun freshIdentity(): Unit = runBlocking {
         assumeFalse("an identity exists on this device; not touching it", WeftSession.hasIdentity)
         WeftSession.create("482913", "test")
     }
 
     @After
-    fun wipe() = runBlocking { if (WeftSession.hasIdentity) WeftSession.wipeAll() }
+    fun wipe(): Unit = runBlocking { if (WeftSession.hasIdentity) WeftSession.wipeAll() }
 
     @Test
-    fun privateRoutingIsAlwaysOn() = runBlocking {
+    fun privateRoutingIsAlwaysOn(): Unit = runBlocking {
         val cfg = WeftSession.cmd("/network").getJSONObject("networkConfig")
         assertEquals("always", cfg.getString("smpProxyMode"))
         assertEquals("allowProtected", cfg.getString("smpProxyFallback"))

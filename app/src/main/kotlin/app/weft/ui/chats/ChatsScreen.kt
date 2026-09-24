@@ -64,7 +64,11 @@ import app.weft.design.WeftType
 import app.weft.design.gradientBackground
 import app.weft.design.rememberReduceMotion
 import app.weft.design.weftClickable
+import androidx.compose.ui.text.AnnotatedString
+import kotlinx.coroutines.delay
+import app.weft.relay.PillState
 import app.weft.relay.Relays
+import app.weft.relay.RotateResult
 import kotlinx.coroutines.launch
 
 private enum class Filter { All, Direct, Groups, Timed }
@@ -170,15 +174,27 @@ private fun Modifier.rise(index: Int, runStart: Long): Modifier {
     }
 }
 
-/** `.relay` — status dot, "relay r2 · via Tor · 38 ms" and "Rotate". */
+/**
+ * `.relay` — status dot, "relay host · direct · 38 ms" and "Rotate", from the user's real relays.
+ * Refreshed from the core's own connection summary while the chat list is on screen.
+ */
 @Composable
 private fun RelayPill(relays: Relays, toast: (String, WeftIcon) -> Unit, modifier: Modifier = Modifier) {
     val reduce = rememberReduceMotion()
     val scope = rememberCoroutineScope()
-    val inUse by relays.inUse.collectAsState()
+    val pill by relays.pill.collectAsState()
     val textIn = remember { Animatable(1f) }
     var busy by remember { mutableStateOf(false) }
     val switched = stringResource(R.string.relay_switched)
+    val switchedAny = stringResource(R.string.relay_switched_any)
+    val noStandby = stringResource(R.string.relay_no_standby)
+    val failed = stringResource(R.string.relay_switch_failed)
+    LaunchedEffect(Unit) {
+        while (true) {
+            runCatching { relays.refresh() }
+            delay(30_000)
+        }
+    }
     Row(
         modifier
             .fillMaxWidth()
@@ -189,17 +205,23 @@ private fun RelayPill(relays: Relays, toast: (String, WeftIcon) -> Unit, modifie
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        StatusDot(if (inUse == null) DotState.Switching else DotState.Live)
-        val relay = inUse
-        val line = if (relay == null) {
-            buildAnnotatedString { append(stringResource(R.string.relay_switching)) }
-        } else {
-            val full = stringResource(R.string.relay_in_use, relay.name, relay.route, relay.latencyMs)
-            val at = full.indexOf(relay.name)
-            buildAnnotatedString {
-                append(full)
-                if (at >= 0) addStyle(SpanStyle(color = WeftColors.text, fontWeight = FontWeight.W600), at, at + relay.name.length)
-            }
+        StatusDot(
+            when (pill) {
+                PillState.Switching -> DotState.Switching
+                PillState.NoRelay -> DotState.Off
+                is PillState.Blocked -> DotState.Blocked
+                is PillState.Live -> DotState.Live
+            },
+        )
+        val line = when (val p = pill) {
+            PillState.Switching -> AnnotatedString(stringResource(R.string.relay_switching))
+            PillState.NoRelay -> AnnotatedString(stringResource(R.string.relay_none))
+            is PillState.Blocked -> bold(stringResource(R.string.relay_blocked_pill, p.name), p.name)
+            is PillState.Live -> bold(
+                if (p.latencyMs != null) stringResource(R.string.relay_in_use, p.name, p.route, p.latencyMs)
+                else stringResource(R.string.relay_in_use_untested, p.name, p.route),
+                p.name,
+            )
         }
         WeftText(
             line,
@@ -211,20 +233,32 @@ private fun RelayPill(relays: Relays, toast: (String, WeftIcon) -> Unit, modifie
                 translationY = 4.dp.toPx() * (1f - textIn.value)
             },
         )
-        WeftLinkButton(stringResource(R.string.relay_rotate), onClick = {
+        if (pill != PillState.NoRelay) WeftLinkButton(stringResource(R.string.relay_rotate), onClick = {
             if (busy) return@WeftLinkButton
             busy = true
             scope.launch {
-                val next = relays.rotate()
-                if (!reduce) {
-                    textIn.snapTo(0f)
-                    launch { textIn.animateTo(1f, tween(300, easing = WeftMotion.EaseOut)) }
+                when (val r = relays.rotate()) {
+                    is RotateResult.Switched -> {
+                        if (!reduce) {
+                            textIn.snapTo(0f)
+                            launch { textIn.animateTo(1f, tween(300, easing = WeftMotion.EaseOut)) }
+                        }
+                        toast(r.name?.let { switched.format(it) } ?: switchedAny, WeftIcon.Refresh)
+                    }
+                    RotateResult.NoStandby -> toast(noStandby, WeftIcon.Alert)
+                    RotateResult.Failed -> toast(failed, WeftIcon.Alert)
                 }
-                toast(switched.format(next.name), WeftIcon.Refresh)
                 busy = false
             }
         })
     }
+}
+
+/** [full] with [name] in the pill's bright weight. */
+private fun bold(full: String, name: String) = buildAnnotatedString {
+    append(full)
+    val at = full.indexOf(name)
+    if (at >= 0) addStyle(SpanStyle(color = WeftColors.text, fontWeight = FontWeight.W600), at, at + name.length)
 }
 
 /**

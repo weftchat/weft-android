@@ -1,6 +1,7 @@
 package app.weft.data
 
 import app.weft.data.WeftSession.objects
+import android.os.SystemClock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.json.JSONArray
@@ -34,6 +35,67 @@ object CoreRelays {
     fun clear() {
         pending = null
         _servers.value = emptyList()
+        _status.value = emptyMap()
+        tested.clear()
+    }
+
+    enum class State { InUse, Standby, Blocked }
+    /** [latencyMs] is known only once the relay has been tested from this phone. */
+    data class Status(val state: State, val latencyMs: Int? = null)
+
+    private val _status = MutableStateFlow<Map<String, Status>>(emptyMap())
+    /** Per address in [servers]; missing until the first [refresh]. */
+    val status: StateFlow<Map<String, Status>> = _status
+    /** The last test of each relay, by [fingerprint]: the time it took, or null when it failed. */
+    private val tested = mutableMapOf<String, Int?>()
+
+    /**
+     * The server's identity in an address (no password, no host). The core writes it back with
+     * base64 padding ("…=") whatever was pasted, so the padding is ignored.
+     */
+    fun fingerprint(address: String): String =
+        address.substringAfter("://").substringBefore('@').substringBefore(':').trimEnd('=')
+
+    /**
+     * Re-reads how the core sees each relay, from its own connection summary (no network traffic,
+     * so it never holds up other commands): in use = connected or holding live queues; blocked =
+     * only errors, or the last test failed; otherwise standby.
+     */
+    suspend fun refresh() {
+        val uid = WeftSession.userId.value ?: return
+        val summary = runCatching { WeftSession.cmd("/get servers summary $uid").getJSONObject("serversSummary") }.getOrNull() ?: return
+        val seen = mutableMapOf<String, JSONObject>()
+        summary.optJSONObject("currentUserSMP")?.let { smp ->
+            for (k in listOf("currentlyUsedSMPServers", "previouslyUsedSMPServers", "onlyProxiedSMPServers"))
+                smp.optJSONArray(k)?.objects()?.forEach { seen.putIfAbsent(fingerprint(it.getString("smpServer")), it) }
+        }
+        summary.optJSONObject("currentUserXFTP")?.let { xftp ->
+            for (k in listOf("currentlyUsedXFTPServers", "previouslyUsedXFTPServers"))
+                xftp.optJSONArray(k)?.objects()?.forEach { seen.putIfAbsent(fingerprint(it.getString("xftpServer")), it) }
+        }
+        _status.value = _servers.value.associateWith { a ->
+            val fp = fingerprint(a)
+            val s = seen[fp]
+            val connected = s?.optJSONObject("sessions")?.optInt("ssConnected") ?: 0
+            val errors = s?.optJSONObject("sessions")?.optInt("ssErrors") ?: 0
+            val active = s?.optJSONObject("subs")?.optInt("ssActive") ?: 0
+            val busy = s != null && (s.optBoolean("rcvInProgress") || s.optBoolean("sndInProgress"))
+            val state = when {
+                connected > 0 || active > 0 || busy -> State.InUse
+                (fp in tested && tested[fp] == null) || errors > 0 -> State.Blocked
+                else -> State.Standby
+            }
+            Status(state, tested[fp])
+        }
+    }
+
+    /** Tests [address] now (this holds up other commands until it answers); null when it works. */
+    suspend fun check(address: String): String? {
+        val start = SystemClock.elapsedRealtime()
+        val failure = runCatching { test(address) }.getOrElse { it.message ?: "error" }
+        tested[fingerprint(address)] = if (failure == null) (SystemClock.elapsedRealtime() - start).toInt() else null
+        refresh()
+        return failure
     }
 
     val ready: Boolean get() = _servers.value.any { it.startsWith("smp://") } && _servers.value.any { it.startsWith("xftp://") }
@@ -81,9 +143,29 @@ object CoreRelays {
         }
     }
 
-    suspend fun remove(address: String) = edit { g ->
-        for (key in listOf("smpServers", "xftpServers")) {
-            g.getJSONArray(key).objects().filter { it.getString("server") == address }.forEach { it.put("deleted", true) }
+    /** Thrown by [remove] for the only relay of its kind: without it the core would fall back to presets. */
+    class LastOfKind : Exception("the only relay of its kind")
+
+    suspend fun remove(address: String) {
+        val kind = address.substringBefore("://")
+        val fp = fingerprint(address)
+        if (_servers.value.none { fingerprint(it) != fp && it.startsWith("$kind://") }) throw LastOfKind()
+        edit { g ->
+            for (key in listOf("smpServers", "xftpServers")) {
+                g.getJSONArray(key).objects().filter { fingerprint(it.getString("server")) == fp }.forEach { it.put("deleted", true) }
+            }
+        }
+        tested.remove(fp)
+        refresh()
+    }
+
+    /**
+     * Whether new queues may be made on message relay [address]. [LiveRelays] turns it off for the
+     * relay being left, so the core has to choose another one; the relay still forwards (proxy role).
+     */
+    suspend fun setStorage(address: String, on: Boolean) = edit { g ->
+        g.getJSONArray("smpServers").objects().filter { fingerprint(it.getString("server")) == fingerprint(address) }.forEach {
+            it.put("roles", (it.optJSONObject("roles") ?: JSONObject()).put("storage", on))
         }
     }
 

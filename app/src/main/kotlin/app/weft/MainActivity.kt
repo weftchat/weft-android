@@ -29,6 +29,7 @@ import app.weft.data.CoreChats
 import app.weft.data.CoreInvitations
 import app.weft.data.CoreProfile
 import app.weft.data.CoreRelays
+import app.weft.data.LiveRelays
 import app.weft.data.WeftSession
 import app.weft.design.TabItem
 import app.weft.design.WeftBottomSheet
@@ -49,7 +50,6 @@ import app.weft.nav.Route
 import app.weft.nav.TABS
 import app.weft.nav.WeftNavHost
 import app.weft.nav.WeftNavigator
-import app.weft.relay.DemoRelays
 import app.weft.ui.add.AddContactScreen
 import app.weft.ui.add.ScanScreen
 import app.weft.ui.chats.ChatKind
@@ -61,6 +61,7 @@ import app.weft.ui.pin.PinScreen
 import app.weft.ui.profile.ProfileScreen
 import app.weft.ui.security.SecurityScreen
 import app.weft.ui.sheets.AddRelaySheet
+import app.weft.ui.sheets.RelaySheet
 import app.weft.ui.sheets.AutoLockSheet
 import app.weft.ui.sheets.UsbWipeSheet
 import app.weft.data.UsbGuard
@@ -160,7 +161,7 @@ class MainActivity : ComponentActivity() {
                         )
                         Route.Chats -> ChatsScreen(
                             chatList = CoreChats,
-                            relays = DemoRelays,
+                            relays = LiveRelays,
                             bottomPadding = 94.dp + lift,
                             toast = toast::show,
                             onLock = {
@@ -187,6 +188,7 @@ class MainActivity : ComponentActivity() {
                             bottomPadding = 94.dp + lift,
                             toast = toast::show,
                             onAddRelay = { open(Sheet.AddRelay) },
+                            onRelay = { open(Sheet.Relay(it)) },
                             onChoose = { nav.push(Route.Pin(PinMode.Choose, it)) },
                             onWipe = { nav.push(Route.Wipe) },
                             autoLockSeconds = autoLockSeconds,
@@ -285,6 +287,18 @@ class MainActivity : ComponentActivity() {
                             onDone = { message ->
                                 sheet = null
                                 toast.show(message, WeftIcon.Check)
+                            },
+                        )
+                        is Sheet.Relay -> RelaySheet(
+                            address = s.address,
+                            onTest = { CoreRelays.check(s.address) },
+                            onRemove = {
+                                try { CoreRelays.remove(s.address); true } catch (_: CoreRelays.LastOfKind) { false }
+                            },
+                            latencyMs = { CoreRelays.status.value[s.address]?.latencyMs },
+                            onRemoved = { message ->
+                                sheet = null
+                                toast.show(message, WeftIcon.Trash)
                             },
                         )
                         is Sheet.Timer -> TimerSheet(
