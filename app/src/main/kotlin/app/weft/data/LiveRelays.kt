@@ -20,9 +20,7 @@ import kotlinx.coroutines.flow.stateIn
 object LiveRelays : Relays {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val switching = MutableStateFlow(false)
-
-    /** How the core reaches relays; "via Tor" once Tor is on (Phase 3, Orbot). */
-    private val route: String get() = "direct"
+    private val orbotUp = MutableStateFlow(true)
 
     private fun messageRelays() = CoreRelays.servers.value.filter { it.startsWith("smp://") }
 
@@ -34,11 +32,13 @@ object LiveRelays : Relays {
     }
 
     override val pill: StateFlow<PillState> =
-        combine(CoreRelays.servers, CoreRelays.status, switching) { servers, status, busy ->
+        combine(CoreRelays.servers, CoreRelays.status, switching, CoreNetwork.tor, orbotUp) { servers, status, busy, tor, orbot ->
             val smp = servers.filter { it.startsWith("smp://") }
+            val route = if (tor) "via Tor" else "direct"
             when {
                 busy -> PillState.Switching
                 smp.isEmpty() -> PillState.NoRelay
+                tor && !orbot -> PillState.OrbotOff
                 else -> current(status)?.let { PillState.Live(relayHost(it), route, status[it]?.latencyMs) }
                     ?: PillState.Blocked(relayHost(smp.first()))
             }
@@ -46,6 +46,7 @@ object LiveRelays : Relays {
 
     override suspend fun refresh() {
         if (CoreRelays.servers.value.isEmpty()) runCatching { CoreRelays.load() }
+        orbotUp.value = !CoreNetwork.tor.value || CoreNetwork.orbotRunning()
         CoreRelays.refresh()
     }
 

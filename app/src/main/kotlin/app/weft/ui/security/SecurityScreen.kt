@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.weft.BuildConfig
 import app.weft.R
+import app.weft.data.CoreNetwork
 import app.weft.data.CoreRelays
 import app.weft.data.UsbGuard
 import app.weft.data.WeftSession
@@ -70,6 +71,11 @@ fun SecurityScreen(
 ) {
     val servers by CoreRelays.servers.collectAsState()
     val status by CoreRelays.status.collectAsState()
+    val tor by CoreNetwork.tor.collectAsState()
+    val route = if (tor) "via Tor" else "direct"
+    val torOn = stringResource(R.string.tor_on)
+    val torOff = stringResource(R.string.tor_off)
+    val torNeedOrbot = stringResource(R.string.tor_need_orbot)
     val scope = rememberCoroutineScope()
     // Only the real profile knows whether a duress PIN exists; the decoy shows the feature off.
     var duress by remember { mutableStateOf(false) }
@@ -222,6 +228,25 @@ fun SecurityScreen(
                         detail = stringResource(R.string.privacy_screens_detail),
                         trailing = { WeftTag(stringResource(R.string.always_on), TagTone.On) },
                     )
+                    WeftItem(
+                        WeftIcon.Mask, stringResource(R.string.privacy_tor), first = false,
+                        detail = stringResource(R.string.privacy_tor_detail),
+                        trailing = {
+                            WeftSwitch(
+                                checked = tor,
+                                onCheckedChange = { on ->
+                                    when {
+                                        on && !CoreNetwork.orbotInstalled() -> toast(torNeedOrbot, WeftIcon.Alert)
+                                        else -> scope.launch {
+                                            CoreNetwork.setTor(on)
+                                            toast(if (on) torOn else torOff, if (on) WeftIcon.Mask else WeftIcon.Alert)
+                                        }
+                                    }
+                                },
+                                contentDescription = stringResource(R.string.privacy_tor),
+                            )
+                        },
+                    )
                 }
             }
             Column {
@@ -236,8 +261,8 @@ fun SecurityScreen(
                             first = i == 0,
                             detail = when {
                                 st?.state == CoreRelays.State.Blocked -> stringResource(R.string.relay_blocked_detail)
-                                st?.latencyMs != null -> stringResource(R.string.relay_route_ms, kind, "direct", st.latencyMs)
-                                else -> stringResource(R.string.relay_route, kind, "direct")
+                                st?.latencyMs != null -> stringResource(R.string.relay_route_ms, kind, route, st.latencyMs)
+                                else -> stringResource(R.string.relay_route, kind, route)
                             },
                             tone = when (st?.state) {
                                 CoreRelays.State.InUse -> ItemTone.Safe

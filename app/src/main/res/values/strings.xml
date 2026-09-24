@@ -173,6 +173,12 @@
     <string name="privacy_strip_detail">GPS, device and time removed before sending.</string>
     <string name="privacy_screens">Block screenshots</string>
     <string name="privacy_screens_detail">Also hides chats in the app switcher.</string>
+    <string name="privacy_tor">Connect through Tor</string>
+    <string name="privacy_tor_detail">Hides your IP address from every relay. Uses the Orbot app.</string>
+    <string name="tor_on">Tor on · connecting through Orbot</string>
+    <string name="tor_off">Tor off · relays can see your IP address</string>
+    <string name="tor_need_orbot">Install Orbot first · from F-Droid or orbot.app</string>
+    <string name="tor_orbot_off">Tor on · open Orbot to connect</string>
     <string name="autolock_title">Lock automatically</string>
     <string name="autolock_detail">When you leave Weft, it locks after this time.</string>
     <string name="autolock_sheet_title">Lock automatically</string>

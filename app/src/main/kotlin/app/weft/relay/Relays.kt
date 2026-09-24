@@ -9,6 +9,8 @@ sealed interface PillState {
     data object Switching : PillState
     /** [latencyMs] is known only after a test. */
     data class Live(val name: String, val route: String, val latencyMs: Int?) : PillState
+    /** Tor is on but Orbot is not running: nothing connects until it is. */
+    data object OrbotOff : PillState
     /** Every message relay failed to answer. */
     data class Blocked(val name: String) : PillState
 }

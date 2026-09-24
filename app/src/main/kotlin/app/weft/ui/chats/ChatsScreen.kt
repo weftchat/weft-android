@@ -209,6 +209,7 @@ private fun RelayPill(relays: Relays, toast: (String, WeftIcon) -> Unit, modifie
             when (pill) {
                 PillState.Switching -> DotState.Switching
                 PillState.NoRelay -> DotState.Off
+                PillState.OrbotOff -> DotState.Blocked
                 is PillState.Blocked -> DotState.Blocked
                 is PillState.Live -> DotState.Live
             },
@@ -216,6 +217,7 @@ private fun RelayPill(relays: Relays, toast: (String, WeftIcon) -> Unit, modifie
         val line = when (val p = pill) {
             PillState.Switching -> AnnotatedString(stringResource(R.string.relay_switching))
             PillState.NoRelay -> AnnotatedString(stringResource(R.string.relay_none))
+            PillState.OrbotOff -> AnnotatedString(stringResource(R.string.tor_orbot_off))
             is PillState.Blocked -> bold(stringResource(R.string.relay_blocked_pill, p.name), p.name)
             is PillState.Live -> bold(
                 if (p.latencyMs != null) stringResource(R.string.relay_in_use, p.name, p.route, p.latencyMs)
