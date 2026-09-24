@@ -44,7 +44,11 @@ object CoreChats : ChatList, Conversations {
             ChatCore.events.collect { event ->
                 val r = event.optJSONObject("result") ?: return@collect
                 when (r.optString("type")) {
-                    "newChatItems", "chatItemsStatusesUpdated" -> itemsChanged(r.optJSONArray("chatItems"))
+                    "newChatItems" -> {
+                        groupCallSignals(r.optJSONArray("chatItems"))
+                        itemsChanged(r.optJSONArray("chatItems"))
+                    }
+                    "chatItemsStatusesUpdated" -> itemsChanged(r.optJSONArray("chatItems"))
                     "chatItemUpdated" -> itemsChanged(JSONArray().put(r.optJSONObject("chatItem")))
                     "joinedGroupMember", "memberAcceptedByOther" -> {
                         refresh()
@@ -133,6 +137,24 @@ object CoreChats : ChatList, Conversations {
         }
     }
 
+    /** Group call signalling (Weft's own message type) goes to [CoreGroupCalls], never on screen. */
+    private fun groupCallSignals(items: JSONArray?) {
+        for (a in items?.objects() ?: return) {
+            val ci = a.optJSONObject("chatItem") ?: continue
+            val mc = ci.optJSONObject("content")?.optJSONObject("msgContent")
+            if (!CoreGroupCalls.isSignal(mc)) continue
+            val chatId = ref(a.optJSONObject("chatInfo")) ?: continue
+            val member = ci.optJSONObject("chatDir")?.optJSONObject("groupMember") ?: continue // mine: groupSnd
+            CoreGroupCalls.onMessage(
+                chatId,
+                member.optString("memberId"),
+                member.optJSONObject("memberProfile")?.optString("displayName").orEmpty(),
+                CoreGroups.hue(member.optString("memberId")),
+                mc!!.optJSONObject("call") ?: continue,
+            )
+        }
+    }
+
     private fun ref(info: JSONObject?): String? = when (info?.optString("type")) {
         "direct" -> "@" + info.getJSONObject("contact").getLong("contactId")
         "group" -> "#" + info.getJSONObject("groupInfo").getLong("groupId")
@@ -175,6 +197,7 @@ object CoreChats : ChatList, Conversations {
         val member = dir.optJSONObject("groupMember")
         val content = ci.getJSONObject("content")
         val mc = content.optJSONObject("msgContent") ?: return null // features, connection notes, …
+        if (CoreGroupCalls.isSignal(mc)) return null // group call signalling
         val id = meta.getLong("itemId")
         val time = itemTime(meta.getString("itemTs"))
         return when (mc.optString("type")) {
@@ -192,7 +215,7 @@ object CoreChats : ChatList, Conversations {
         val mc = ci.getJSONObject("content").optJSONObject("msgContent")
         return when {
             // Core notices (features turned on, encryption info) are not messages: no preview.
-            mc == null -> ""
+            mc == null || CoreGroupCalls.isSignal(mc) -> ""
             mc.optString("type") == "image" -> "Photo · metadata stripped"
             else -> mc.optString("text")
         }

@@ -191,6 +191,7 @@ object WeftSession {
     suspend fun lock() {
         _screenLocked.value = false
         CoreCalls.finish(sendEnd = true)
+        CoreGroupCalls.drop()
         CallServers.clear()
         keyBytes?.fill(0)
         keyBytes = null

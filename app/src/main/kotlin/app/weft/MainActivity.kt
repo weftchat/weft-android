@@ -1,5 +1,9 @@
 package app.weft
 
+import app.weft.ui.sheets.GroupCallSheet
+import app.weft.ui.call.GroupCallWebView
+import app.weft.ui.call.GroupCallScreen
+import app.weft.data.CoreGroupCalls
 import app.weft.design.WeftType
 import app.weft.design.WeftText
 import app.weft.design.weftClickable
@@ -183,6 +187,15 @@ class MainActivity : ComponentActivity() {
                 afterMic = null
             }
             /** BRIEF: the microphone is asked for only when the first call starts or is answered. */
+            var afterCamera by remember { mutableStateOf<(() -> Unit)?>(null) }
+            val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+                if (granted) afterCamera?.invoke()
+                afterCamera = null
+            }
+            fun withCamera(action: () -> Unit) {
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) action()
+                else { afterCamera = action; cameraLauncher.launch(Manifest.permission.CAMERA) }
+            }
             fun withMic(action: () -> Unit) {
                 if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) action()
                 else { afterMic = action; micLauncher.launch(Manifest.permission.RECORD_AUDIO) }
@@ -195,6 +208,20 @@ class MainActivity : ComponentActivity() {
                 }
             }
             fun startCall(contactId: Long, name: String) = report(CoreCalls.start(contactId, name, video = false))
+            val groupCall by CoreGroupCalls.call.collectAsState()
+            val groupCalls by CoreGroupCalls.available.collectAsState()
+            val callFull = stringResource(R.string.gcall_full)
+            fun reportGroup(r: CoreGroupCalls.JoinResult) {
+                when (r) {
+                    CoreGroupCalls.JoinResult.NoServers -> toast.show(noServers, WeftIcon.Alert)
+                    CoreGroupCalls.JoinResult.Busy -> toast.show(busy, WeftIcon.Alert)
+                    CoreGroupCalls.JoinResult.Full -> toast.show(callFull, WeftIcon.Alert)
+                    CoreGroupCalls.JoinResult.Ok -> { callMinimized = false; if (CoreNetwork.tor.value) toast.show(torNote, WeftIcon.Mask) }
+                }
+            }
+            LaunchedEffect(Unit) {
+                CoreGroupCalls.ended.collect { seconds -> toast.show(seconds?.let { callEnded.format(callClock(it)) } ?: callEndedShort, WeftIcon.HangUp) }
+            }
             LaunchedEffect(Unit) {
                 CoreCalls.ended.collect { seconds -> toast.show(seconds?.let { callEnded.format(callClock(it)) } ?: callEndedShort, WeftIcon.HangUp) }
             }
@@ -311,6 +338,11 @@ class MainActivity : ComponentActivity() {
                             onTimer = {},
                             onLink = { open(Sheet.Link(it)) },
                             onGroupInfo = { open(Sheet.Group(route.chatId, route.name)) },
+                            onCall = {
+                                if (groupCalls.containsKey(route.chatId)) withMic { scope.launch { reportGroup(CoreGroupCalls.join(route.chatId, route.name)) } }
+                                else open(Sheet.GroupCall(route.chatId, route.name))
+                            },
+                            groupCallPeople = groupCalls[route.chatId]?.count?.takeIf { groupCall?.chatId != route.chatId },
                         )
                         Route.NewGroup -> NewGroupScreen(
                             chatList = CoreChats,
@@ -419,6 +451,13 @@ class MainActivity : ComponentActivity() {
                                 toast.show(groupInviteCopied, WeftIcon.Copy)
                             })
                         }
+                        is Sheet.GroupCall -> GroupCallSheet(
+                            onVoice = { sheet = null; withMic { scope.launch { reportGroup(CoreGroupCalls.start(s.chatId, s.name, video = false)) } } },
+                            onVideo = {
+                                sheet = null
+                                withMic { withCamera { scope.launch { reportGroup(CoreGroupCalls.start(s.chatId, s.name, video = true)) } } }
+                            },
+                        )
                         Sheet.AddCallServer -> AddCallServerSheet(
                             onAdd = { CallServers.add(it) },
                             onDone = { message ->
@@ -470,7 +509,7 @@ class MainActivity : ComponentActivity() {
                         val video = c.peerVideo && c.phase == CoreCalls.Phase.Connected && !callMinimized
                         CallWebView(if (video) Modifier.fillMaxSize() else Modifier.size(1.dp))
                         if (!callMinimized) {
-                            CallScreen(c, CoreProfile.profile.value.nickname.take(1).uppercase().ifEmpty { "Y" }, onMinimize = { callMinimized = true })
+                            CallScreen(c, CoreProfile.profile.value.nickname.take(1).uppercase().ifEmpty { "Y" }, onMinimize = { callMinimized = true }, withCamera = ::withCamera)
                         } else {
                             val label = stringResource(R.string.call_back, c.name)
                             Box(
@@ -486,6 +525,20 @@ class MainActivity : ComponentActivity() {
                             onAnswer = { withMic { report(CoreCalls.accept()) } },
                             onDecline = { CoreCalls.reject() },
                         )
+                    }
+                }
+                groupCall?.let { g ->
+                    GroupCallWebView(if (g.video && !callMinimized) Modifier.fillMaxSize() else Modifier.size(1.dp))
+                    if (!callMinimized) {
+                        GroupCallScreen(g, CoreProfile.profile.value.nickname.take(1).uppercase().ifEmpty { "Y" }, onMinimize = { callMinimized = true })
+                    } else {
+                        val label = stringResource(R.string.call_back, g.name)
+                        Box(
+                            Modifier.align(Alignment.TopCenter).padding(top = 40.dp)
+                                .background(WeftColors.safe.copy(alpha = 0.14f), CircleShape)
+                                .weftClickable { callMinimized = false }
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                        ) { WeftText(label, style = WeftType.monoBody.copy(color = WeftColors.safe)) }
                     }
                 }
                 // Toasts sit 104 dp up over the tab bar, 96 dp over a composer, 40 dp elsewhere.

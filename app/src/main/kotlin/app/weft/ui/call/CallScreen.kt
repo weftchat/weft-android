@@ -36,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -51,6 +52,7 @@ import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewClientCompat
 import app.weft.R
 import app.weft.data.CoreCalls
+import app.weft.data.CoreGroupCalls
 import app.weft.design.ButtonKind
 import app.weft.design.WeftAvatar
 import app.weft.design.WeftButton
@@ -73,7 +75,7 @@ fun callClock(seconds: Long) = "%02d:%02d".format(seconds / 60, seconds % 60)
  * microphone and camera are granted to the page only if Weft itself has them.
  */
 @SuppressLint("SetJavaScriptEnabled")
-fun newCallPage(ctx: Context, onLoaded: (WebView) -> Unit, onMessage: (String) -> Unit): WebView {
+fun newCallPage(ctx: Context, onLoaded: (WebView) -> Unit, onMessage: (String) -> Unit, url: String = CALL_PAGE): WebView {
     val loader = WebViewAssetLoader.Builder().addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(ctx)).build()
     val main = Handler(Looper.getMainLooper())
     return WebView(ctx).apply {
@@ -109,11 +111,24 @@ fun newCallPage(ctx: Context, onLoaded: (WebView) -> Unit, onMessage: (String) -
                 if (allowed.isEmpty()) request.deny() else request.grant(allowed.toTypedArray())
             }
         }
-        loadUrl(CALL_PAGE)
+        loadUrl(url)
     }
 }
 
 const val CALL_PAGE = "https://appassets.androidplatform.net/assets/www/android/call.html"
+const val GROUP_CALL_PAGE = "https://appassets.androidplatform.net/assets/www/android/group-call.html"
+
+/** Weft's group call page for [CoreGroupCalls]; like [CallWebView], composed for the whole call. */
+@Composable
+fun GroupCallWebView(modifier: Modifier) {
+    var view by remember { mutableStateOf<WebView?>(null) }
+    AndroidView(
+        modifier = modifier,
+        factory = { ctx -> newCallPage(ctx, onLoaded = { view = it }, onMessage = CoreGroupCalls::onPage, url = GROUP_CALL_PAGE) },
+        onRelease = { it.destroy() },
+    )
+    view?.let { v -> LaunchedEffect(v) { CoreGroupCalls.toPage.collect { json -> v.evaluateJavascript("processGroupCommand($json)", null) } } }
+}
 
 /**
  * The call page for [CoreCalls]. It must stay composed for the whole call: hidden, it is 1 dp;
@@ -135,7 +150,7 @@ fun CallWebView(modifier: Modifier) {
  * and them; their video instead when their camera is on) and Mute / Camera / Speaker / Leave.
  */
 @Composable
-fun CallScreen(call: CoreCalls.Call, myInitials: String, onMinimize: () -> Unit) {
+fun CallScreen(call: CoreCalls.Call, myInitials: String, onMinimize: () -> Unit, withCamera: (() -> Unit) -> Unit) {
     var now by remember { mutableLongStateOf(SystemClock.elapsedRealtime()) }
     LaunchedEffect(Unit) { while (true) { now = SystemClock.elapsedRealtime(); delay(1000) } }
     val showVideo = call.peerVideo && call.phase == CoreCalls.Phase.Connected
@@ -170,12 +185,60 @@ fun CallScreen(call: CoreCalls.Call, myInitials: String, onMinimize: () -> Unit)
         // `.controls`
         Row(Modifier.fillMaxWidth().padding(start = 14.dp, end = 14.dp, top = 18.dp, bottom = 40.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
             Control(if (call.muted) WeftIcon.MicOff else WeftIcon.Mic, stringResource(R.string.call_mute), pressed = call.muted) { CoreCalls.setMuted(!call.muted) }
-            Control(WeftIcon.Video, stringResource(R.string.call_camera), pressed = call.camera) { CoreCalls.setCamera(!call.camera) }
+            Control(WeftIcon.Video, stringResource(R.string.call_camera), pressed = call.camera) { if (call.camera) CoreCalls.setCamera(false) else withCamera { CoreCalls.setCamera(true) } }
             Control(WeftIcon.Speaker, stringResource(R.string.call_speaker), pressed = call.speaker) { CoreCalls.setSpeaker(!call.speaker) }
             Control(WeftIcon.HangUp, stringResource(R.string.call_leave), end = true) { CoreCalls.hangUp() }
         }
     }
 }
+
+/**
+ * Screen 6 — Group call: minimize, the group's name, "E2E encrypted · mm:ss", a 2-column grid of up
+ * to 6 tiles (you first; someone still connecting is dimmed), Mute / Camera / Speaker / Leave. With
+ * video the page's own grid of videos shows instead of the tiles.
+ */
+@Composable
+fun GroupCallScreen(call: CoreGroupCalls.Call, myInitials: String, onMinimize: () -> Unit) {
+    var now by remember { mutableLongStateOf(SystemClock.elapsedRealtime()) }
+    LaunchedEffect(Unit) { while (true) { now = SystemClock.elapsedRealtime(); delay(1000) } }
+    Column(Modifier.fillMaxSize().background(if (call.video) Color.Transparent else WeftColors.bg)) {
+        Row(Modifier.fillMaxWidth().padding(start = 14.dp, end = 14.dp, top = 52.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            WeftGhostButton(WeftIcon.Down, stringResource(R.string.call_minimize), onMinimize)
+            Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                WeftText(call.name, style = WeftType.rowName.copy(fontSize = 16.sp, color = WeftColors.text))
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    WeftIconView(WeftIcon.Lock, 11.dp, WeftColors.safe, stroke = 2.4f)
+                    WeftText(
+                        call.connectedAt?.let { stringResource(R.string.call_e2e, callClock((now - it) / 1000)) } ?: stringResource(R.string.call_connecting),
+                        style = WeftType.monoSmall.copy(color = WeftColors.safe),
+                    )
+                }
+            }
+            Spacer(Modifier.width(44.dp))
+        }
+        if (call.video) Spacer(Modifier.weight(1f)) else {
+            // You first, then everyone else in their own colour; someone still connecting is dimmed.
+            val you = GroupTile(myInitials, stringResource(R.string.call_you), 262f, connected = true, muted = call.muted)
+            val tiles = listOf(you) + call.people.values.map { GroupTile(it.name.take(1).uppercase().ifEmpty { "?" }, it.name, it.hue, it.connected, muted = false) }
+            Column(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                for (row in tiles.chunked(2)) {
+                    Row(Modifier.weight(1f).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        for (t in row) Tile(t.initials, t.name, t.hue, t.muted, Modifier.weight(1f).alpha(if (t.connected) 1f else 0.45f))
+                        if (row.size == 1) Spacer(Modifier.weight(1f))
+                    }
+                }
+            }
+        }
+        Row(Modifier.fillMaxWidth().padding(start = 14.dp, end = 14.dp, top = 18.dp, bottom = 40.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
+            Control(if (call.muted) WeftIcon.MicOff else WeftIcon.Mic, stringResource(R.string.call_mute), pressed = call.muted) { CoreGroupCalls.setMuted(!call.muted) }
+            if (call.video) Control(WeftIcon.Video, stringResource(R.string.call_camera), pressed = call.camera) { CoreGroupCalls.setCamera(!call.camera) }
+            Control(WeftIcon.Speaker, stringResource(R.string.call_speaker), pressed = call.speaker) { CoreGroupCalls.setSpeaker(!call.speaker) }
+            Control(WeftIcon.HangUp, stringResource(R.string.call_leave), end = true) { CoreGroupCalls.leave() }
+        }
+    }
+}
+
+private data class GroupTile(val initials: String, val name: String, val hue: Float, val connected: Boolean, val muted: Boolean)
 
 /** `.tile` — radius 24, a radial glow in the person's hue, 74 dp avatar, name bottom-left. */
 @Composable

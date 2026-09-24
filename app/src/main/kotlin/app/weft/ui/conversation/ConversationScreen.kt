@@ -1,5 +1,6 @@
 package app.weft.ui.conversation
 
+import app.weft.design.WeftLinkButton
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 import app.weft.design.WeftButton
@@ -100,6 +101,8 @@ fun ConversationScreen(
     onLink: (String) -> Unit,
     onCall: () -> Unit = {},
     onGroupInfo: () -> Unit = {},
+    /** A group call going on here that the user has not joined (people in it), or null. */
+    groupCallPeople: Int? = null,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -184,6 +187,16 @@ fun ConversationScreen(
             onLink = onLink,
             group = isGroup,
         )
+
+        if (groupCallPeople != null) Row(
+            Modifier.fillMaxWidth().topLine().background(WeftColors.safe.copy(alpha = 0.10f)).padding(horizontal = 16.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            WeftIconView(WeftIcon.Phone, 16.dp, WeftColors.safe, stroke = 2.2f)
+            WeftText(stringResource(R.string.gcall_banner, groupCallPeople), style = WeftType.monoBody.copy(color = WeftColors.safe), modifier = Modifier.weight(1f))
+            WeftLinkButton(stringResource(R.string.gcall_join), onClick = onCall)
+        }
 
         if (chat.invited) Column(
             Modifier.fillMaxWidth().topLine().padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 30.dp),

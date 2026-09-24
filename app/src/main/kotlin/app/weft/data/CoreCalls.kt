@@ -210,6 +210,10 @@ object CoreCalls {
     private fun session(sdp: String, ice: String) = JSONObject().put("rtcSession", sdp).put("rtcIceCandidates", ice)
     private fun media(video: Boolean) = if (video) "video" else "audio"
 
+    /** Call audio (communication mode) on or off; also used by [CoreGroupCalls]. */
+    fun audioMode(on: Boolean) = audio(on)
+    fun speakerOn(on: Boolean) = speaker(on)
+
     private fun audio(on: Boolean) {
         val am = app.getSystemService(AudioManager::class.java)
         am.mode = if (on) AudioManager.MODE_IN_COMMUNICATION else AudioManager.MODE_NORMAL

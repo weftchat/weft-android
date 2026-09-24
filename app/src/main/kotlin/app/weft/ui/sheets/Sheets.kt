@@ -1,5 +1,6 @@
 package app.weft.ui.sheets
 
+import app.weft.data.CoreGroupCalls
 import app.weft.data.CallServers
 import app.weft.design.WeftLinkButton
 import app.weft.design.WeftAvatar
@@ -52,6 +53,7 @@ sealed interface Sheet {
     data class Relay(val address: String) : Sheet
     data class Link(val url: String) : Sheet
     data object AddCallServer : Sheet
+    data class GroupCall(val chatId: String, val name: String) : Sheet
     data class Group(val chatId: String, val name: String) : Sheet
     data class GroupLink(val chatId: String, val name: String) : Sheet
     data object AutoLock : Sheet
@@ -379,5 +381,20 @@ fun AddCallServerSheet(onAdd: (String) -> CallServers.Problem?, onDone: (String)
         },
         enabled = text.isNotBlank(),
     )
+}
+
+/** Starting a group call: voice (up to 6) or video (up to 4), BRIEF v1. */
+@Composable
+fun GroupCallSheet(onVoice: () -> Unit, onVideo: () -> Unit) {
+    WeftSheetTitle(stringResource(R.string.gcall_sheet_title))
+    WeftText(
+        stringResource(R.string.gcall_sheet_detail),
+        style = WeftType.secondary.copy(color = WeftColors.muted, lineHeight = WeftType.itemDetail.lineHeight),
+        modifier = Modifier.padding(horizontal = 4.dp).pullUp(6.dp),
+    )
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        WeftButton(stringResource(R.string.gcall_voice, CoreGroupCalls.MAX_VOICE), onVoice, leading = WeftIcon.Phone, leadingStroke = 2f)
+        WeftButton(stringResource(R.string.gcall_video, CoreGroupCalls.MAX_VIDEO), onVideo, kind = ButtonKind.Ghost, leading = WeftIcon.Video, leadingStroke = 2f)
+    }
 }
 

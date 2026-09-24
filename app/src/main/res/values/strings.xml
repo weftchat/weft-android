@@ -203,6 +203,13 @@
     <string name="call_no_servers">Add a call server in Security first · calls only use your own</string>
     <string name="call_busy">You are already in a call</string>
     <string name="call_no_mic">Weft needs the microphone for calls</string>
+    <string name="gcall_sheet_title">Group call</string>
+    <string name="gcall_sheet_detail">Only people using Weft can join. Every voice and picture is encrypted with a key shared in this group.</string>
+    <string name="gcall_voice">Voice call · up to %1$d people</string>
+    <string name="gcall_video">Video call · up to %1$d people</string>
+    <string name="gcall_banner">Call in progress · %1$d in it</string>
+    <string name="gcall_join">Join</string>
+    <string name="gcall_full">This call is full</string>
     <string name="call_tor_note">Calls don’t use Tor · only your call server sees your IP</string>
     <string name="privacy_links">Remove tracking from links</string>
     <string name="privacy_links_detail">utm_, fbclid, gclid and similar come off before sending.</string>
