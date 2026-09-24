@@ -1,5 +1,7 @@
 package app.weft.ui.security
 
+import app.weft.design.WeftLinkButton
+import app.weft.data.CallServers
 import app.weft.privacy.Links
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -65,6 +67,7 @@ fun SecurityScreen(
     toast: (String, WeftIcon) -> Unit,
     onAddRelay: () -> Unit,
     onRelay: (String) -> Unit,
+    onAddCallServer: () -> Unit,
     onChoose: (PinPurpose) -> Unit,
     onWipe: () -> Unit,
     autoLockSeconds: Int,
@@ -75,6 +78,8 @@ fun SecurityScreen(
     val servers by CoreRelays.servers.collectAsState()
     val status by CoreRelays.status.collectAsState()
     val tor by CoreNetwork.tor.collectAsState()
+    val callServers by CallServers.list.collectAsState()
+    val callRemoved = stringResource(R.string.calls_removed)
     val route = if (tor) "via Tor" else "direct"
     val autoSwitch by LiveRelays.autoSwitch.collectAsState()
     val autoOn = stringResource(R.string.relay_auto_on)
@@ -345,6 +350,29 @@ fun SecurityScreen(
                         detail = stringResource(R.string.relay_add_detail),
                         chevron = true,
                         onClick = onAddRelay,
+                    )
+                }
+            }
+            Column {
+                WeftSectionHeader(stringResource(R.string.security_calls))
+                WeftCard {
+                    callServers.forEachIndexed { i, line ->
+                        WeftItem(
+                            WeftIcon.Phone, CallServers.label(line), first = i == 0,
+                            titleStyle = WeftType.relayName, textGap = 2.dp, tone = ItemTone.Safe,
+                            trailing = {
+                                WeftLinkButton(stringResource(R.string.group_remove), onClick = {
+                                    CallServers.remove(line)
+                                    toast(callRemoved, WeftIcon.Trash)
+                                })
+                            },
+                        )
+                    }
+                    WeftItem(
+                        WeftIcon.Plus, stringResource(R.string.calls_add), first = callServers.isEmpty(),
+                        detail = stringResource(if (callServers.isEmpty()) R.string.calls_none else if (tor) R.string.calls_tor_note else R.string.calls_add_detail),
+                        chevron = true,
+                        onClick = onAddCallServer,
                     )
                 }
             }

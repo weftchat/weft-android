@@ -192,6 +192,19 @@
     <string name="link_browser">Open in browser</string>
     <string name="link_copy">Copy link</string>
     <string name="toast_link_copied">Link copied · cleared in 60 s</string>
+    <string name="security_calls">Calls</string>
+    <string name="calls_add">Add call server</string>
+    <string name="calls_add_detail">Your own TURN server. Calls always go through it.</string>
+    <string name="calls_none">No call server yet · calls are off</string>
+    <string name="calls_tor_note">Calls don’t use Tor · only your call server sees your IP</string>
+    <string name="calls_add_sheet_detail">Paste the lines from your server, one or several at once: turn:user:password@IP:port… Only IP addresses: Weft never looks up a name.</string>
+    <string name="calls_add_placeholder">turn:…@IP:3478?transport=udp</string>
+    <string name="calls_add_button">Add</string>
+    <string name="calls_added">Call server added</string>
+    <string name="calls_removed">Call server removed</string>
+    <string name="calls_bad_format">That is not a call server line (stun:, turn: or turns:)</string>
+    <string name="calls_bad_domain">Use the server’s IP address, not a name · Weft never looks up names</string>
+    <string name="calls_bad_credentials">A TURN line needs user:password@ before the address</string>
     <string name="privacy_tor">Connect through Tor</string>
     <string name="privacy_tor_detail">Hides your IP address from every relay. Uses the Orbot app.</string>
     <string name="tor_on">Tor on · connecting through Orbot</string>

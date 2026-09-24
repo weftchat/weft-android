@@ -1,5 +1,6 @@
 package app.weft.ui.sheets
 
+import app.weft.data.CallServers
 import app.weft.design.WeftLinkButton
 import app.weft.design.WeftAvatar
 import app.weft.data.CoreGroups
@@ -50,6 +51,7 @@ sealed interface Sheet {
     data object AddRelay : Sheet
     data class Relay(val address: String) : Sheet
     data class Link(val url: String) : Sheet
+    data object AddCallServer : Sheet
     data class Group(val chatId: String, val name: String) : Sheet
     data class GroupLink(val chatId: String, val name: String) : Sheet
     data object AutoLock : Sheet
@@ -348,5 +350,34 @@ fun GroupLinkSheet(name: String, link: String?, onCopy: (String) -> Unit) {
         QrCard(remember(link) { qrModules(link) }, codeSize = 200.dp, padding = 14.dp)
     }
     WeftButton(stringResource(R.string.group_link_copy), { onCopy(link) }, kind = ButtonKind.Ghost, leading = WeftIcon.Copy, leadingStroke = 2f)
+}
+
+/** "Add call server": paste one or several lines; each is checked (format, IP only, credentials). */
+@Composable
+fun AddCallServerSheet(onAdd: (String) -> CallServers.Problem?, onDone: (String) -> Unit) {
+    var text by rememberSaveable { mutableStateOf("") }
+    var problem by remember { mutableStateOf<String?>(null) }
+    val added = stringResource(R.string.calls_added)
+    val messages = mapOf(
+        CallServers.Problem.Format to stringResource(R.string.calls_bad_format),
+        CallServers.Problem.Domain to stringResource(R.string.calls_bad_domain),
+        CallServers.Problem.NoCredentials to stringResource(R.string.calls_bad_credentials),
+    )
+    WeftSheetTitle(stringResource(R.string.calls_add))
+    WeftText(
+        stringResource(R.string.calls_add_sheet_detail),
+        style = WeftType.secondary.copy(color = WeftColors.muted, lineHeight = WeftType.itemDetail.lineHeight),
+        modifier = Modifier.padding(horizontal = 4.dp).pullUp(6.dp),
+    )
+    WeftTextField(text, { text = it; problem = null }, stringResource(R.string.calls_add_placeholder))
+    problem?.let { WeftText(it, style = WeftType.secondary.copy(color = WeftColors.danger), modifier = Modifier.padding(horizontal = 4.dp)) }
+    WeftButton(
+        stringResource(R.string.calls_add_button),
+        onClick = {
+            val p = onAdd(text)
+            if (p == null) { text = ""; onDone(added) } else problem = messages[p]
+        },
+        enabled = text.isNotBlank(),
+    )
 }
 

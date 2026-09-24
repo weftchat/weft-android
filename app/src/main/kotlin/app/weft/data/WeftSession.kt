@@ -71,6 +71,29 @@ object WeftSession {
     private fun dirFor(slot: Slot) = if (slot == Slot.Real) realDir else decoyDir
     private fun hex(b: ByteArray) = b.joinToString("") { "%02x".format(it) }
 
+    /**
+     * The open profile's call servers (BRIEF, Phase 4: the user's own, one per line), sealed with its
+     * key: each profile, the decoy included, has its own. Padded to a fixed size, and when one
+     * profile writes its file the other gets random bytes of the same size if it has none, so the
+     * files say nothing about which profile uses calls.
+     */
+    fun callServers(): List<String> {
+        val slot = _entry.value ?: return emptyList()
+        val key = keyBytes ?: return emptyList()
+        return Sealed(File(dirFor(slot), "c"), key, "c").read()?.lines()?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList()
+    }
+
+    fun setCallServers(lines: List<String>) {
+        val slot = _entry.value ?: error("locked")
+        val key = keyBytes ?: error("locked")
+        val file = File(dirFor(slot), "c")
+        Sealed(file, key, "c").write(lines.joinToString("\n").padEnd(CALLS_SIZE))
+        val other = File(dirFor(if (slot == Slot.Real) Slot.Duress else Slot.Real), "c")
+        if (!other.exists()) other.apply { parentFile?.mkdirs() }.writeBytes(ByteArray(file.length().toInt()).also { SecureRandom().nextBytes(it) })
+    }
+
+    private const val CALLS_SIZE = 2048
+
     /** The real profile's sealed notes (whether a duress PIN exists, the decoy's key); real session only. */
     internal fun sealed(): Sealed? = keyBytes?.takeIf { _entry.value == Slot.Real }?.let { Sealed(File(realDir, "m"), it, "m") }
 
@@ -167,6 +190,7 @@ object WeftSession {
     /** Locks for real: core stopped, store closed, key dropped. Nothing arrives until the PIN. */
     suspend fun lock() {
         _screenLocked.value = false
+        CallServers.clear()
         keyBytes?.fill(0)
         keyBytes = null
         _entry.value = null
@@ -259,7 +283,13 @@ object WeftSession {
             prepare(realDir)
             start(realUid)
         }
-        withContext(Dispatchers.IO) { File(decoyDir, "m").writeBytes(ByteArray(284).also { SecureRandom().nextBytes(it) }) }
+        withContext(Dispatchers.IO) {
+            File(decoyDir, "m").writeBytes(ByteArray(284).also { SecureRandom().nextBytes(it) })
+            // Call servers: the decoy starts with none, but its file must look like the real one's.
+            File(realDir, "c").takeIf { it.exists() }?.let { real ->
+                File(decoyDir, "c").writeBytes(ByteArray(real.length().toInt()).also { SecureRandom().nextBytes(it) })
+            }
+        }
         writeSettings((notes() ?: Notes()).copy(decoyKey = hex(decoyKey)))
         return decoyKey
     }
@@ -283,6 +313,7 @@ object WeftSession {
         CoreNetwork.apply()
         cmd("/_start main=on")
         if (removePresets) removePresetContacts(userId)
+        runCatching { CallServers.load() }
         _userId.value = userId
     }
 

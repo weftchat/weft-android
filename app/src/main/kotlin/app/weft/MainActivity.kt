@@ -1,5 +1,7 @@
 package app.weft
 
+import app.weft.ui.sheets.AddCallServerSheet
+import app.weft.data.CallServers
 import app.weft.ui.sheets.GroupLinkSheet
 import app.weft.ui.sheets.GroupSheet
 import app.weft.ui.group.NewGroupScreen
@@ -215,6 +217,7 @@ class MainActivity : ComponentActivity() {
                             toast = toast::show,
                             onAddRelay = { open(Sheet.AddRelay) },
                             onRelay = { open(Sheet.Relay(it)) },
+                            onAddCallServer = { open(Sheet.AddCallServer) },
                             onChoose = { nav.push(Route.Pin(PinMode.Choose, it)) },
                             onWipe = { nav.push(Route.Wipe) },
                             autoLockSeconds = autoLockSeconds,
@@ -368,6 +371,13 @@ class MainActivity : ComponentActivity() {
                                 toast.show(groupInviteCopied, WeftIcon.Copy)
                             })
                         }
+                        Sheet.AddCallServer -> AddCallServerSheet(
+                            onAdd = { CallServers.add(it) },
+                            onDone = { message ->
+                                sheet = null
+                                toast.show(message, WeftIcon.Phone)
+                            },
+                        )
                         is Sheet.Link -> LinkSheet(
                             url = s.url,
                             torBrowser = remember { runCatching { context.packageManager.getPackageInfo(TOR_BROWSER, 0); true }.getOrDefault(false) },
