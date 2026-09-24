@@ -229,6 +229,7 @@ object WeftSession {
             val user = cmd("/_create user " + JSONObject().put("profile", JSONObject().put("displayName", "Me").put("fullName", "")).put("pastTimestamp", false))
             val uid = user.getJSONObject("user").getLong("userId")
             disablePresetOperators()
+            CoreNetwork.apply()
             cmd("/_start main=on")
             removePresetContacts(uid)
             CoreRelays.seed(uid, relays)
@@ -260,6 +261,7 @@ object WeftSession {
     /** Starts the core; [removePresets] on first run, before anything shows the chat list. */
     private suspend fun start(userId: Long, removePresets: Boolean = false) {
         disablePresetOperators()
+        CoreNetwork.apply()
         cmd("/_start main=on")
         if (removePresets) removePresetContacts(userId)
         _userId.value = userId

@@ -9,6 +9,8 @@ qrcodegen = "1.8.0"      # Nayuki QR Code generator (MIT, no dependencies)
 coroutines = "1.9.0"     # same version Compose already brings in
 camerax = "1.5.3"        # AndroidX camera (no Google Play services); 1.6 adds Dagger, not needed
 zxing = "3.5.4"          # ZXing core: QR decoding on the phone (Apache 2.0, no dependencies)
+test-runner = "1.7.0"    # AndroidX test runner (tests only, never in the APK)
+test-junit = "1.3.0"     # AndroidX JUnit4 runner (tests only, never in the APK)
 
 [libraries]
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
@@ -22,6 +24,9 @@ camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = 
 camera-compose = { module = "androidx.camera:camera-compose", version.ref = "camerax" }      # camera preview as a Compose element
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }                      # reads the QR codes the camera sees
 coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }  # core: background event loop and suspend calls  # draws the one-time invitation link as a QR code
+
+test-runner = { module = "androidx.test:runner", version.ref = "test-runner" }  # runs Weft's own code against the real core on the emulator
+test-junit = { module = "androidx.test.ext:junit", version.ref = "test-junit" }  # @RunWith(AndroidJUnit4) and assertions
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

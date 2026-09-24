@@ -25,6 +25,7 @@ android {
         versionName = "0.0.1"
         // Only arm64: GrapheneOS runs on recent Pixels (decision 3).
         ndk { abiFilters += "arm64-v8a" }
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
@@ -72,4 +73,6 @@ dependencies {
     implementation(libs.camera.compose) // camera preview in Compose
     implementation(libs.zxing.core) // "Scan their code": reading the QR, on the phone
     debugImplementation(libs.compose.ui.tooling.preview)
+    androidTestImplementation(libs.test.runner)
+    androidTestImplementation(libs.test.junit)
 }
