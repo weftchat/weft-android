@@ -52,8 +52,15 @@ Servidor propio en Hetzner (Nuremberg), desplegado desde `~/Developer/weft-infra
 - Permisos: cámara (QR y fotos), micrófono (llamadas), notificaciones. **Nada más.**
 - Mensajes efímeros **activados por defecto** (1 h tras lectura), configurable.
 - Grupos: los nativos de SimpleX, tope 50 miembros.
-- Llamadas 1:1: WebRTC de SimpleX vía relay TURN propio (pendiente de desplegar).
+- Llamadas 1:1: WebRTC de SimpleX vía relay TURN propio (desplegado en `weft-infra`, coturn).
 - Llamadas de grupo: **no existen en SimpleX**. v1: malla WebRTC hasta 6 participantes, clave repartida por el chat de grupo. SFU en v2 si hace falta.
+- **Llamadas (Fase 4, confirmado por el dueño):**
+  - Se reutiliza la página de llamada de la app oficial de SimpleX (`call.html`/`call.js`, AGPL), cargada desde la propia app, sin nada de internet: cifrado de extremo a extremo y compatible con SimpleX.
+  - **Servidores de llamada del usuario:** como los relays, la app no trae ninguno (la línea lleva contraseña y el APK es público); se pegan en Security («Add call server»). Nunca se usan los servidores STUN/TURN de SimpleX ni públicos.
+  - **Siempre por el TURN** (política «relay»): el otro nunca ve tu IP. Sin interruptor.
+  - **Por IP, no por dominio** (regla «sin consultas DNS»): `turn:IP:3478` UDP y TCP. `turns:` (TLS) queda para cuando haya certificado para la IP.
+  - **Con Tor activado se puede llamar**, con aviso: las llamadas no van por Tor y solo tu servidor de llamada ve tu IP.
+  - **Llamadas de grupo v1:** voz hasta 6 personas, vídeo hasta 4. Solo entre usuarios de Weft; la llave de cada llamada va por el chat del grupo.
 - **Enlaces sin rastreo:** antes de enviar, la app quita de los enlaces los parámetros de seguimiento (`utm_*`, `fbclid`, `gclid`, `igshid`…); activado por defecto, desactivable. Sin vista previa de enlaces por defecto (si se activa, solo a través de Tor). Tocar un enlace nunca lo abre directamente: pregunta si abrir en Tor Browser, en el navegador normal o copiar.
 - **Red (Fase 3, confirmado por el dueño):**
   - **Enrutado privado siempre activado:** los mensajes van al relay del contacto a través de otro relay, para que ese relay no vea la IP. Si el reenvío falla, solo se envía directo cuando Tor está activo. Necesita al menos dos relays en servidores distintos: se despliega un segundo servidor.
