@@ -1,5 +1,10 @@
 package app.weft.ui.conversation
 
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import app.weft.design.WeftButton
+import app.weft.ui.chats.ChatKind
+import app.weft.data.CoreGroups
 import app.weft.privacy.Links
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.animation.animateColorAsState
@@ -93,13 +98,21 @@ fun ConversationScreen(
     onBack: () -> Unit,
     onTimer: () -> Unit,
     onLink: (String) -> Unit,
+    onCall: () -> Unit = {},
+    onGroupInfo: () -> Unit = {},
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val chats by chatList.chats.collectAsState()
     val chat = chats.firstOrNull { it.id == chatId } ?: return
     val thread by conversations.thread(chatId).collectAsState()
     val offTimer = stringResource(R.string.timer_off)
     val photoSent = stringResource(R.string.convo_photo_sent)
+    val joined = stringResource(R.string.group_joined)
+    val isGroup = chat.kind == ChatKind.Group
+    // Screen 5: "N members · E2E", re-read whenever the list changes (someone joined or left).
+    var members by remember(chatId) { mutableStateOf<Int?>(null) }
+    if (isGroup) LaunchedEffect(chats) { members = runCatching { CoreGroups.info(chatId).count }.getOrNull() }
 
     Column(Modifier.fillMaxSize().background(WeftColors.bg).imePadding()) {
         // `.chat-head` — 52 dp top, 12 dp sides and bottom, a line underneath.
@@ -113,7 +126,10 @@ fun ConversationScreen(
         ) {
             WeftGhostButton(WeftIcon.Back, stringResource(R.string.convo_back), onBack)
             WeftAvatar(chat.initials, chat.hue, size = 40.dp, radius = 14.dp, fontSize = 14f)
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Column(
+                Modifier.weight(1f).then(if (isGroup) Modifier.weftClickable(onClick = onGroupInfo) else Modifier),
+                verticalArrangement = Arrangement.spacedBy(3.dp),
+            ) {
                 WeftText(
                     chat.name,
                     style = WeftType.headName.copy(color = WeftColors.text),
@@ -121,7 +137,14 @@ fun ConversationScreen(
                     overflow = TextOverflow.Ellipsis,
                 )
                 val ink = if (chat.verified) WeftColors.safe else WeftColors.muted
-                Row(horizontalArrangement = Arrangement.spacedBy(5.dp), verticalAlignment = Alignment.CenterVertically) {
+                if (isGroup) Row(horizontalArrangement = Arrangement.spacedBy(5.dp), verticalAlignment = Alignment.CenterVertically) {
+                    WeftIconView(WeftIcon.Users, 12.dp, WeftColors.muted, stroke = 2.2f)
+                    WeftText(
+                        members?.let { stringResource(R.string.group_members, it) } ?: "E2E",
+                        style = WeftType.monoCaption.copy(color = WeftColors.muted),
+                        maxLines = 1,
+                    )
+                } else Row(horizontalArrangement = Arrangement.spacedBy(5.dp), verticalAlignment = Alignment.CenterVertically) {
                     WeftIconView(if (chat.verified) WeftIcon.Shield else WeftIcon.Lock, 12.dp, ink, stroke = 2.2f)
                     WeftText(
                         stringResource(if (chat.verified) R.string.convo_verified else R.string.convo_not_verified),
@@ -132,7 +155,8 @@ fun ConversationScreen(
             }
             val timer = chat.timer ?: offTimer
             val label = stringResource(R.string.convo_timer_label, timer)
-            Row(
+            if (isGroup) WeftIconButton(WeftIcon.Phone, stringResource(R.string.group_call), onCall, stroke = 2f, iconSize = 19.dp)
+            else Row(
                 Modifier
                     .heightIn(min = 40.dp)
                     .semantics { contentDescription = label }
@@ -150,12 +174,24 @@ fun ConversationScreen(
 
         ThreadList(
             thread = thread,
-            note = chat.timer?.let { stringResource(R.string.convo_note_timer, it) } ?: stringResource(R.string.convo_note_plain),
+            note = when {
+                isGroup -> stringResource(R.string.group_note)
+                else -> chat.timer?.let { stringResource(R.string.convo_note_timer, it) } ?: stringResource(R.string.convo_note_plain)
+            },
             modifier = Modifier.weight(1f),
             onLink = onLink,
+            group = isGroup,
         )
 
-        Composer(
+        if (chat.invited) Column(
+            Modifier.fillMaxWidth().topLine().padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 30.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            WeftText(stringResource(R.string.group_invited), style = WeftType.itemDetail.copy(color = WeftColors.muted), modifier = Modifier.padding(horizontal = 4.dp))
+            WeftButton(stringResource(R.string.group_join), onClick = {
+                scope.launch { runCatching { CoreGroups.join(chatId) }.onSuccess { toast(joined, WeftIcon.Users) } }
+            })
+        } else Composer(
             onSend = { conversations.send(chatId, if (Links.cleanOn(context)) Links.clean(it) else it) },
             onPhoto = {
                 conversations.sendPhoto(chatId)
@@ -167,7 +203,7 @@ fun ConversationScreen(
 
 /** `.msgs` — 14 dp top/bottom, 16 dp sides, 6 dp apart, stacked from the bottom up. */
 @Composable
-private fun ThreadList(thread: ThreadState, note: String, modifier: Modifier, onLink: (String) -> Unit) {
+private fun ThreadList(thread: ThreadState, note: String, modifier: Modifier, onLink: (String) -> Unit, group: Boolean) {
     val list = rememberLazyListState()
     // Messages already here when the screen opens sit still; later ones pop in.
     val initial = remember { thread.items.map { it.id }.toSet() }
@@ -201,8 +237,11 @@ private fun ThreadList(thread: ThreadState, note: String, modifier: Modifier, on
                     contentAlignment = if (item.mine) Alignment.CenterEnd else Alignment.CenterStart,
                 ) {
                     when (item) {
+                        // Screen 5: the sender's name, in their colour, on the first bubble of each run.
                         is TextItem -> TextBubble(
                             item.text, item.time, item.mine, bubbleMax,
+                            sender = item.sender.takeIf { group && !item.mine && (prev == null || prev.mine || (prev as? TextItem)?.sender != item.sender) },
+                            senderHue = item.senderHue,
                             modifier = Modifier.popIn(animate, item.mine),
                             delivered = if (item.mine) item.delivered else null,
                             links = remember(item.text) { Links.find(item.text) },

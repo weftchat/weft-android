@@ -19,6 +19,8 @@ data class ChatSummary(
     /** Disappearing-message timer, e.g. "1 h"; null when off. */
     val timer: String?,
     val verified: Boolean = false,
+    /** A group the user has been invited to and not joined yet. */
+    val invited: Boolean = false,
 )
 
 /** The chat list, newest first. */

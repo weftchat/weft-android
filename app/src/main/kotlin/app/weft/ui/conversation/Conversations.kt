@@ -25,7 +25,9 @@ data class TextItem(
     val text: String,
     override val time: String,
     val delivered: Boolean = true,
+    /** In groups, who wrote it (others only) and their colour. */
     val sender: String? = null,
+    val senderHue: Float = 262f,
 ) : ChatItem
 
 /** A photo, always sent with its metadata stripped. */

@@ -46,8 +46,15 @@ object CoreChats : ChatList, Conversations {
                 when (r.optString("type")) {
                     "newChatItems", "chatItemsStatusesUpdated" -> itemsChanged(r.optJSONArray("chatItems"))
                     "chatItemUpdated" -> itemsChanged(JSONArray().put(r.optJSONObject("chatItem")))
+                    "joinedGroupMember", "memberAcceptedByOther" -> {
+                        refresh()
+                        closeLinkWhenFull(r.optJSONObject("groupInfo"))
+                    }
                     "chatItemsDeleted", "contactConnecting", "contactSndReady", "contactConnected",
-                    "contactUpdated", "contactDeletedByContact", "chatInfoUpdated", "contactPrefsUpdated" -> {
+                    "contactUpdated", "contactDeletedByContact", "chatInfoUpdated", "contactPrefsUpdated",
+                    "receivedGroupInvitation", "userAcceptedGroupSent", "userJoinedGroup", "connectedToGroupMember",
+                    "leftMember", "deletedMember", "deletedMemberUser", "groupDeleted", "groupUpdated", "memberRole",
+                    "leftMemberUser", "groupRemoved" -> {
                         refresh()
                         threads.keys.toList().forEach { reload(it) }
                     }
@@ -115,6 +122,17 @@ object CoreChats : ChatList, Conversations {
         refresh()
     }
 
+    /** BRIEF: groups stop at 50. Once full, the group's invitation link is deleted (by those who can). */
+    private fun closeLinkWhenFull(groupInfo: JSONObject?) {
+        val id = groupInfo?.optLong("groupId") ?: return
+        scope.launch {
+            runCatching {
+                val info = CoreGroups.info("#$id")
+                if (info.canManage && info.count >= CoreGroups.MAX_MEMBERS) WeftSession.cmd("/_delete link #$id")
+            }
+        }
+    }
+
     private fun ref(info: JSONObject?): String? = when (info?.optString("type")) {
         "direct" -> "@" + info.getJSONObject("contact").getLong("contactId")
         "group" -> "#" + info.getJSONObject("groupInfo").getLong("groupId")
@@ -133,6 +151,7 @@ object CoreChats : ChatList, Conversations {
             else -> displayName(info.getJSONObject("groupInfo").getJSONObject("groupProfile")) to ChatKind.Group
         }
         val contact = info.optJSONObject("contact")
+        val membership = info.optJSONObject("groupInfo")?.optJSONObject("membership")
         val last = chat.optJSONArray("chatItems")?.let { if (it.length() > 0) it.getJSONObject(it.length() - 1) else null }
         return ChatSummary(
             id = id,
@@ -145,12 +164,15 @@ object CoreChats : ChatList, Conversations {
             unread = chat.optJSONObject("chatStats")?.optInt("unreadCount") ?: 0,
             timer = contact?.let(::timerOf),
             verified = contact?.optJSONObject("activeConn")?.has("connectionCode") == true,
+            invited = membership?.optString("memberStatus") == "invited",
         )
     }
 
     private fun item(ci: JSONObject): ChatItem? {
         val meta = ci.getJSONObject("meta")
-        val mine = ci.getJSONObject("chatDir").getString("type").endsWith("Snd")
+        val dir = ci.getJSONObject("chatDir")
+        val mine = dir.getString("type").endsWith("Snd")
+        val member = dir.optJSONObject("groupMember")
         val content = ci.getJSONObject("content")
         val mc = content.optJSONObject("msgContent") ?: return null // features, connection notes, …
         val id = meta.getLong("itemId")
@@ -160,6 +182,8 @@ object CoreChats : ChatList, Conversations {
             else -> TextItem(
                 id, mine, mc.optString("text"), time,
                 delivered = meta.optJSONObject("itemStatus")?.optString("type") == "sndRcvd",
+                sender = member?.optJSONObject("memberProfile")?.optString("displayName"),
+                senderHue = member?.let { CoreGroups.hue(it.optString("memberId")) } ?: 262f,
             )
         }
     }

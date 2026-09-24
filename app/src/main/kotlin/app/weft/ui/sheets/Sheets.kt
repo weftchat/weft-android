@@ -1,5 +1,8 @@
 package app.weft.ui.sheets
 
+import app.weft.design.WeftLinkButton
+import app.weft.design.WeftAvatar
+import app.weft.data.CoreGroups
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,6 +50,8 @@ sealed interface Sheet {
     data object AddRelay : Sheet
     data class Relay(val address: String) : Sheet
     data class Link(val url: String) : Sheet
+    data class Group(val chatId: String, val name: String) : Sheet
+    data class GroupLink(val chatId: String, val name: String) : Sheet
     data object AutoLock : Sheet
     data object UsbWipe : Sheet
 }
@@ -283,5 +288,65 @@ fun LinkSheet(url: String, torBrowser: Boolean, onTor: () -> Unit, onBrowser: ()
         WeftButton(stringResource(R.string.link_browser), onBrowser, kind = ButtonKind.Ghost)
         WeftButton(stringResource(R.string.link_copy), onCopy, kind = ButtonKind.Ghost, leading = WeftIcon.Copy, leadingStroke = 2f)
     }
+}
+
+/**
+ * A group's members (the user first), with Remove for those who manage the group, then "Invite with
+ * a link or QR" and "Leave group". Removing someone makes the core rotate the group's keys.
+ */
+@Composable
+fun GroupSheet(
+    info: CoreGroups.Info?,
+    onRemove: (CoreGroups.Member) -> Unit,
+    onInvite: () -> Unit,
+    onLeave: () -> Unit,
+) {
+    WeftSheetTitle(stringResource(R.string.group_info))
+    if (info == null) return
+    WeftText(
+        stringResource(R.string.group_sheet_detail, info.count, CoreGroups.MAX_MEMBERS),
+        style = WeftType.secondary.copy(color = WeftColors.muted, lineHeight = WeftType.itemDetail.lineHeight),
+        modifier = Modifier.padding(horizontal = 4.dp).pullUp(6.dp),
+    )
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        for (m in info.members.sortedByDescending { it.me }) {
+            WeftOption(onClick = {}, minHeight = 54.dp) {
+                WeftAvatar(m.name.take(1).uppercase().ifEmpty { "?" }, m.hue, size = 36.dp, radius = 12.dp, fontSize = 13f)
+                Column(Modifier.weight(1f)) {
+                    WeftText(if (m.me) "${m.name} · " + stringResource(R.string.group_you) else m.name, style = WeftType.itemTitle.copy(color = WeftColors.text), maxLines = 1)
+                    val detail = when {
+                        m.pending -> stringResource(R.string.group_pending)
+                        m.role == "owner" -> stringResource(R.string.group_owner)
+                        m.role == "admin" -> stringResource(R.string.group_admin)
+                        else -> null
+                    }
+                    detail?.let { WeftText(it, style = WeftType.monoCaption.copy(color = WeftColors.faint)) }
+                }
+                if (info.canManage && !m.me && m.role != "owner") WeftLinkButton(stringResource(R.string.group_remove), onClick = { onRemove(m) })
+            }
+        }
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        if (info.canManage && info.count < CoreGroups.MAX_MEMBERS) {
+            WeftButton(stringResource(R.string.group_invite_link), onInvite, kind = ButtonKind.Ghost, leading = WeftIcon.UserPlus, leadingStroke = 2f)
+        }
+        WeftButton(stringResource(R.string.group_leave), onLeave, kind = ButtonKind.Danger)
+    }
+}
+
+/** The group's invitation as a QR and a copyable link (like screen 8, for a group). */
+@Composable
+fun GroupLinkSheet(name: String, link: String?, onCopy: (String) -> Unit) {
+    WeftSheetTitle(stringResource(R.string.group_link_title, name))
+    WeftText(
+        stringResource(R.string.group_link_detail, CoreGroups.MAX_MEMBERS),
+        style = WeftType.secondary.copy(color = WeftColors.muted, lineHeight = WeftType.itemDetail.lineHeight),
+        modifier = Modifier.padding(horizontal = 4.dp).pullUp(6.dp),
+    )
+    if (link == null) return
+    Box(Modifier.fillMaxWidth().padding(vertical = 6.dp), contentAlignment = Alignment.Center) {
+        QrCard(remember(link) { qrModules(link) }, codeSize = 200.dp, padding = 14.dp)
+    }
+    WeftButton(stringResource(R.string.group_link_copy), { onCopy(link) }, kind = ButtonKind.Ghost, leading = WeftIcon.Copy, leadingStroke = 2f)
 }
 

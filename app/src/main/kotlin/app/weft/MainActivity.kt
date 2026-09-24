@@ -1,5 +1,9 @@
 package app.weft
 
+import app.weft.ui.sheets.GroupLinkSheet
+import app.weft.ui.sheets.GroupSheet
+import app.weft.ui.group.NewGroupScreen
+import app.weft.data.CoreGroups
 import app.weft.ui.sheets.LinkSheet
 import app.weft.privacy.SensitiveClipboard
 import android.net.Uri
@@ -147,6 +151,10 @@ class MainActivity : ComponentActivity() {
             val backdrop = rememberBackdrop()
             val failedRelay = stringResource(R.string.relay_failed)
             val linkCopied = stringResource(R.string.toast_link_copied)
+            val groupCreated = stringResource(R.string.group_created)
+            val groupLeft = stringResource(R.string.group_left)
+            val groupRemoved = stringResource(R.string.group_removed)
+            val groupInviteCopied = stringResource(R.string.group_link_copied)
             val switchedTo = stringResource(R.string.relay_switched)
             LaunchedEffect(Unit) {
                 LiveRelays.switchedOnItsOwn.collect { name -> toast.show(switchedTo.format(name), WeftIcon.Refresh) }
@@ -243,8 +251,26 @@ class MainActivity : ComponentActivity() {
                             onTimer = { open(Sheet.Timer(route.chatId)) },
                             onLink = { open(Sheet.Link(it)) },
                         )
-                        is Route.GroupChat -> PlaceholderScreen(route.name, onBack = nav::pop)
-                        Route.NewGroup -> PlaceholderScreen("New group", onBack = nav::pop)
+                        is Route.GroupChat -> ConversationScreen(
+                            chatId = route.chatId,
+                            chatList = CoreChats,
+                            conversations = CoreChats,
+                            toast = toast::show,
+                            onBack = nav::pop,
+                            onTimer = {},
+                            onLink = { open(Sheet.Link(it)) },
+                            onGroupInfo = { open(Sheet.Group(route.chatId, route.name)) },
+                        )
+                        Route.NewGroup -> NewGroupScreen(
+                            chatList = CoreChats,
+                            toast = toast::show,
+                            onBack = nav::pop,
+                            onCreated = { id, name ->
+                                nav.pop()
+                                nav.push(Route.GroupChat(id, name))
+                                toast.show(groupCreated, WeftIcon.Users)
+                            },
+                        )
                     }
                 }
                 WeftTabBar(
@@ -308,6 +334,40 @@ class MainActivity : ComponentActivity() {
                                 toast.show(message, WeftIcon.Check)
                             },
                         )
+                        is Sheet.Group -> {
+                            var info by remember(s) { mutableStateOf<CoreGroups.Info?>(null) }
+                            LaunchedEffect(s) { info = runCatching { CoreGroups.info(s.chatId) }.getOrNull() }
+                            GroupSheet(
+                                info = info,
+                                onRemove = { m ->
+                                    scope.launch {
+                                        runCatching { CoreGroups.remove(s.chatId, m.id) }.onSuccess {
+                                            info = runCatching { CoreGroups.info(s.chatId) }.getOrNull()
+                                            toast.show(groupRemoved.format(m.name), WeftIcon.Users)
+                                        }
+                                    }
+                                },
+                                onInvite = { open(Sheet.GroupLink(s.chatId, s.name)) },
+                                onLeave = {
+                                    scope.launch {
+                                        runCatching { CoreGroups.leave(s.chatId) }.onSuccess {
+                                            sheet = null
+                                            nav.root(Route.Chats)
+                                            toast.show(groupLeft, WeftIcon.Users)
+                                        }
+                                    }
+                                },
+                            )
+                        }
+                        is Sheet.GroupLink -> {
+                            var link by remember(s) { mutableStateOf<String?>(null) }
+                            LaunchedEffect(s) { link = runCatching { CoreGroups.link(s.chatId) }.getOrNull() }
+                            GroupLinkSheet(s.name, link, onCopy = {
+                                SensitiveClipboard.copy(context, it)
+                                sheet = null
+                                toast.show(groupInviteCopied, WeftIcon.Copy)
+                            })
+                        }
                         is Sheet.Link -> LinkSheet(
                             url = s.url,
                             torBrowser = remember { runCatching { context.packageManager.getPackageInfo(TOR_BROWSER, 0); true }.getOrDefault(false) },
