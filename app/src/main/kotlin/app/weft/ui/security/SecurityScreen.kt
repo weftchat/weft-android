@@ -27,6 +27,7 @@ import app.weft.BuildConfig
 import app.weft.R
 import app.weft.data.CoreNetwork
 import app.weft.data.CoreRelays
+import app.weft.data.LiveRelays
 import app.weft.data.UsbGuard
 import app.weft.data.WeftSession
 import app.weft.data.WipePolicy
@@ -73,6 +74,9 @@ fun SecurityScreen(
     val status by CoreRelays.status.collectAsState()
     val tor by CoreNetwork.tor.collectAsState()
     val route = if (tor) "via Tor" else "direct"
+    val autoSwitch by LiveRelays.autoSwitch.collectAsState()
+    val autoOn = stringResource(R.string.relay_auto_on)
+    val autoOff = stringResource(R.string.relay_auto_off)
     val torOn = stringResource(R.string.tor_on)
     val torOff = stringResource(R.string.tor_off)
     val torNeedOrbot = stringResource(R.string.tor_need_orbot)
@@ -282,9 +286,23 @@ fun SecurityScreen(
                         )
                     }
                     WeftItem(
+                        WeftIcon.Refresh, stringResource(R.string.relay_auto), first = servers.isEmpty(),
+                        detail = stringResource(R.string.relay_auto_detail),
+                        trailing = {
+                            WeftSwitch(
+                                checked = autoSwitch,
+                                onCheckedChange = { on ->
+                                    LiveRelays.setAutoSwitch(on)
+                                    toast(if (on) autoOn else autoOff, WeftIcon.Refresh)
+                                },
+                                contentDescription = stringResource(R.string.relay_auto),
+                            )
+                        },
+                    )
+                    WeftItem(
                         WeftIcon.Plus,
                         stringResource(R.string.relay_add),
-                        first = servers.isEmpty(),
+                        first = false,
                         detail = stringResource(R.string.relay_add_detail),
                         chevron = true,
                         onClick = onAddRelay,

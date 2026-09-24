@@ -186,7 +186,6 @@ private fun RelayPill(relays: Relays, toast: (String, WeftIcon) -> Unit, modifie
     val textIn = remember { Animatable(1f) }
     var busy by remember { mutableStateOf(false) }
     val switched = stringResource(R.string.relay_switched)
-    val switchedAny = stringResource(R.string.relay_switched_any)
     val noStandby = stringResource(R.string.relay_no_standby)
     val failed = stringResource(R.string.relay_switch_failed)
     LaunchedEffect(Unit) {
@@ -245,7 +244,7 @@ private fun RelayPill(relays: Relays, toast: (String, WeftIcon) -> Unit, modifie
                             textIn.snapTo(0f)
                             launch { textIn.animateTo(1f, tween(300, easing = WeftMotion.EaseOut)) }
                         }
-                        toast(r.name?.let { switched.format(it) } ?: switchedAny, WeftIcon.Refresh)
+                        toast(switched.format(r.name), WeftIcon.Refresh)
                     }
                     RotateResult.NoStandby -> toast(noStandby, WeftIcon.Alert)
                     RotateResult.Failed -> toast(failed, WeftIcon.Alert)

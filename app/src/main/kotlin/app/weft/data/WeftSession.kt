@@ -348,6 +348,7 @@ object WeftSession {
         CoreProfile.clear()
         CoreRelays.clear()
         CoreNetwork.clear()
+        LiveRelays.clear()
         _wiped.value = true
     }
 

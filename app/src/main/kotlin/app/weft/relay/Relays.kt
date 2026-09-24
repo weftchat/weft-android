@@ -16,9 +16,8 @@ sealed interface PillState {
 }
 
 sealed interface RotateResult {
-    /** [name] is null when the core chose among several standby relays. */
-    data class Switched(val name: String?) : RotateResult
-    /** Only one message relay that works: there is nowhere to move to. */
+    data class Switched(val name: String) : RotateResult
+    /** No other message relay answers a test now: there is nowhere to move to. */
     data object NoStandby : RotateResult
     data object Failed : RotateResult
 }

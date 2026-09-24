@@ -136,6 +136,10 @@ class MainActivity : ComponentActivity() {
             }
             val backdrop = rememberBackdrop()
             val failedRelay = stringResource(R.string.relay_failed)
+            val switchedTo = stringResource(R.string.relay_switched)
+            LaunchedEffect(Unit) {
+                LiveRelays.switchedOnItsOwn.collect { name -> toast.show(switchedTo.format(name), WeftIcon.Refresh) }
+            }
             Box(Modifier.fillMaxSize().background(WeftColors.bg)) {
                 WeftNavHost(nav, Modifier.backdropSource(backdrop)) { route ->
                     when (route) {

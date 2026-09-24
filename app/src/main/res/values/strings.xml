@@ -58,11 +58,10 @@
     <string name="relay_switching">switching relay…</string>
     <string name="relay_rotate">Rotate</string>
     <string name="relay_switched">Switched to relay %1$s · chats keep working</string>
-    <string name="relay_switched_any">Switched to a standby relay · chats keep working</string>
     <string name="relay_in_use_untested">relay %1$s · %2$s</string>
     <string name="relay_none">no relay yet · add yours in Security</string>
     <string name="relay_blocked_pill">relay %1$s · not answering</string>
-    <string name="relay_no_standby">Add a second relay first · there is nowhere to switch to</string>
+    <string name="relay_no_standby">No other relay answers · add a second one to switch</string>
     <string name="relay_switch_failed">Could not switch relay · try again</string>
     <string name="filter_all">All</string>
     <string name="filter_direct">Direct</string>
@@ -207,6 +206,10 @@
     <string name="graphene_reboot">Auto reboot · a few hours; after a restart everything stays encrypted until you unlock.</string>
     <string name="relay_tag_in_use">in use</string>
     <string name="relay_tag_standby">standby</string>
+    <string name="relay_auto">Switch when blocked</string>
+    <string name="relay_auto_detail">Moves to a standby relay on its own.</string>
+    <string name="relay_auto_on">Relays switch on their own when one is blocked</string>
+    <string name="relay_auto_off">Automatic switch off · use Rotate in Chats</string>
     <string name="relay_tag_blocked">blocked</string>
     <string name="relay_blocked_detail">blocked on this network</string>
     <string name="relay_route_ms">%1$s · %2$s · %3$d ms</string>
