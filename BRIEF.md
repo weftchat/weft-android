@@ -55,6 +55,11 @@ Servidor propio en Hetzner (Nuremberg), desplegado desde `~/Developer/weft-infra
 - Llamadas 1:1: WebRTC de SimpleX vía relay TURN propio (pendiente de desplegar).
 - Llamadas de grupo: **no existen en SimpleX**. v1: malla WebRTC hasta 6 participantes, clave repartida por el chat de grupo. SFU en v2 si hace falta.
 - **Enlaces sin rastreo:** antes de enviar, la app quita de los enlaces los parámetros de seguimiento (`utm_*`, `fbclid`, `gclid`, `igshid`…); activado por defecto, desactivable. Sin vista previa de enlaces por defecto (si se activa, solo a través de Tor). Tocar un enlace nunca lo abre directamente: pregunta si abrir en Tor Browser, en el navegador normal o copiar.
+- **Red (Fase 3, confirmado por el dueño):**
+  - **Enrutado privado siempre activado:** los mensajes van al relay del contacto a través de otro relay, para que ese relay no vea la IP. Si el reenvío falla, solo se envía directo cuando Tor está activo. Necesita al menos dos relays en servidores distintos: se despliega un segundo servidor.
+  - **Tor en v1 = Orbot** (app aparte, proxy SOCKS). Tor dentro de Weft (la librería de Orbot) queda para más adelante si Orbot resulta incómodo. Arti, cuando esté más probado.
+  - **Notificaciones en v1 = conexión persistente en segundo plano** (aviso fijo «Weft está activo»). UnifiedPush queda aplazado: el servidor de notificaciones de SimpleX solo sabe avisar a Apple, y añadirlo exige modificarlo.
+  - **Relays por defecto:** en el piloto, ninguno (como hasta ahora). En el lanzamiento público, relays de Weft **sin contraseña** preconfigurados, separados del relay privado actual, más «Add your own relay».
 - **Sin consultas DNS:** los relays se contactan solo por dirección `.onion` o IP fija, nunca por nombre de dominio.
 - Sin blockchain, tokens ni pagos **dentro de la app**. Nunca. (Las donaciones voluntarias van solo en la web weftchat.com, fuera de la app y sin vínculo con la identidad del usuario.)
 - Distribución: **Accrescent** (principal) + releases en GitHub con APK firmado y SHA-256 para Obtainium. Firma con clave propia (APK Signature v3). Builds reproducibles como objetivo desde v1.
@@ -73,7 +78,7 @@ La referencia exacta es **`design/v3/weft-v3.html`** (prototipo navegable: ábre
 | 0 · Base | Proyecto Kotlin + Compose sobre el núcleo SimpleX; arranca en GrapheneOS; SQLCipher; firma propia; build reproducible; CI sin Google |
 | 1 · Identidad y chat 1:1 | Design system v3 + pantallas Create identity, PIN, Chats, Conversation, Add contact y Profile funcionando contra el relay propio |
 | 2 · Seguridad del dispositivo | PIN de coacción + señuelo, contraseña de pánico, guardia USB, wipe de emergencia, wipe tras 10 intentos, FLAG_SECURE, bloqueo automático |
-| 3 · Red | Relays del usuario, enrutado privado por defecto, Tor (Arti), rotación automática, UnifiedPush |
+| 3 · Red | Relays del usuario, enrutado privado por defecto, Tor (Orbot), rotación automática, conexión en segundo plano |
 | 4 · Grupos y llamadas | Grupos ≤ 50, llamadas 1:1 con TURN propio, llamadas de grupo en malla ≤ 6 |
 | 5 · Distribución | Accrescent, GitHub releases, web con textos legales |
 
