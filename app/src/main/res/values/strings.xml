@@ -181,6 +181,17 @@
     <string name="notice_running_detail">Staying connected so messages arrive.</string>
     <string name="notice_channel_running">Connection</string>
     <string name="notice_channel_messages">New messages</string>
+    <string name="privacy_links">Remove tracking from links</string>
+    <string name="privacy_links_detail">utm_, fbclid, gclid and similar come off before sending.</string>
+    <string name="toast_links_on">Tracking removed from links you send</string>
+    <string name="toast_links_off">Links are sent exactly as typed</string>
+    <string name="link_sheet_title">Open this link?</string>
+    <string name="link_sheet_detail">Weft never opens links by itself. The site will see where the request comes from: Tor Browser hides your IP address.</string>
+    <string name="link_tor">Open in Tor Browser</string>
+    <string name="link_tor_missing">Tor Browser is not installed</string>
+    <string name="link_browser">Open in browser</string>
+    <string name="link_copy">Copy link</string>
+    <string name="toast_link_copied">Link copied · cleared in 60 s</string>
     <string name="privacy_tor">Connect through Tor</string>
     <string name="privacy_tor_detail">Hides your IP address from every relay. Uses the Orbot app.</string>
     <string name="tor_on">Tor on · connecting through Orbot</string>

@@ -1,5 +1,6 @@
 package app.weft.ui.security
 
+import app.weft.privacy.Links
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -87,6 +88,9 @@ fun SecurityScreen(
     var panic by remember { mutableStateOf(false) }
     val context = LocalContext.current
     var wipe10 by remember { mutableStateOf(WipePolicy.wipeOnLimit(context)) }
+    var cleanLinks by remember { mutableStateOf(Links.cleanOn(context)) }
+    val linksOn = stringResource(R.string.toast_links_on)
+    val linksOff = stringResource(R.string.toast_links_off)
     LaunchedEffect(Unit) {
         runCatching { CoreRelays.load() }
         runCatching { CoreRelays.refresh() }
@@ -251,6 +255,21 @@ fun SecurityScreen(
                         WeftIcon.EyeOff, stringResource(R.string.privacy_screens), first = false,
                         detail = stringResource(R.string.privacy_screens_detail),
                         trailing = { WeftTag(stringResource(R.string.always_on), TagTone.On) },
+                    )
+                    WeftItem(
+                        WeftIcon.Link, stringResource(R.string.privacy_links), first = false,
+                        detail = stringResource(R.string.privacy_links_detail),
+                        trailing = {
+                            WeftSwitch(
+                                checked = cleanLinks,
+                                onCheckedChange = { on ->
+                                    Links.setCleanOn(context, on)
+                                    cleanLinks = on
+                                    toast(if (on) linksOn else linksOff, WeftIcon.Link)
+                                },
+                                contentDescription = stringResource(R.string.privacy_links),
+                            )
+                        },
                     )
                     WeftItem(
                         WeftIcon.Mask, stringResource(R.string.privacy_tor), first = false,

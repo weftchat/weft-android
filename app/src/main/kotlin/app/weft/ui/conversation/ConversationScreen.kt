@@ -1,5 +1,7 @@
 package app.weft.ui.conversation
 
+import app.weft.privacy.Links
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -90,7 +92,9 @@ fun ConversationScreen(
     toast: (String, WeftIcon) -> Unit,
     onBack: () -> Unit,
     onTimer: () -> Unit,
+    onLink: (String) -> Unit,
 ) {
+    val context = LocalContext.current
     val chats by chatList.chats.collectAsState()
     val chat = chats.firstOrNull { it.id == chatId } ?: return
     val thread by conversations.thread(chatId).collectAsState()
@@ -148,10 +152,11 @@ fun ConversationScreen(
             thread = thread,
             note = chat.timer?.let { stringResource(R.string.convo_note_timer, it) } ?: stringResource(R.string.convo_note_plain),
             modifier = Modifier.weight(1f),
+            onLink = onLink,
         )
 
         Composer(
-            onSend = { conversations.send(chatId, it) },
+            onSend = { conversations.send(chatId, if (Links.cleanOn(context)) Links.clean(it) else it) },
             onPhoto = {
                 conversations.sendPhoto(chatId)
                 toast(photoSent, WeftIcon.Check)
@@ -162,7 +167,7 @@ fun ConversationScreen(
 
 /** `.msgs` — 14 dp top/bottom, 16 dp sides, 6 dp apart, stacked from the bottom up. */
 @Composable
-private fun ThreadList(thread: ThreadState, note: String, modifier: Modifier) {
+private fun ThreadList(thread: ThreadState, note: String, modifier: Modifier, onLink: (String) -> Unit) {
     val list = rememberLazyListState()
     // Messages already here when the screen opens sit still; later ones pop in.
     val initial = remember { thread.items.map { it.id }.toSet() }
@@ -200,6 +205,8 @@ private fun ThreadList(thread: ThreadState, note: String, modifier: Modifier) {
                             item.text, item.time, item.mine, bubbleMax,
                             modifier = Modifier.popIn(animate, item.mine),
                             delivered = if (item.mine) item.delivered else null,
+                            links = remember(item.text) { Links.find(item.text) },
+                            onLink = { onLink(item.text.substring(it)) },
                         )
                         is PhotoItem -> PhotoBubble(
                             stringResource(R.string.convo_photo_stripped),

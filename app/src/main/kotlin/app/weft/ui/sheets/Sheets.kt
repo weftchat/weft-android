@@ -46,6 +46,7 @@ sealed interface Sheet {
     data object Fingerprint : Sheet
     data object AddRelay : Sheet
     data class Relay(val address: String) : Sheet
+    data class Link(val url: String) : Sheet
     data object AutoLock : Sheet
     data object UsbWipe : Sheet
 }
@@ -257,6 +258,30 @@ fun RelaySheet(
             leadingStroke = 2f,
             enabled = !busy,
         )
+    }
+}
+
+/**
+ * A tapped link (BRIEF): never opened directly. Shows the whole address, then Tor Browser (when
+ * installed), the normal browser, or copy.
+ */
+@Composable
+fun LinkSheet(url: String, torBrowser: Boolean, onTor: () -> Unit, onBrowser: () -> Unit, onCopy: () -> Unit) {
+    WeftSheetTitle(stringResource(R.string.link_sheet_title))
+    WeftText(
+        stringResource(R.string.link_sheet_detail),
+        style = WeftType.secondary.copy(color = WeftColors.muted, lineHeight = WeftType.itemDetail.lineHeight),
+        modifier = Modifier.padding(horizontal = 4.dp).pullUp(6.dp),
+    )
+    WeftText(url, style = WeftType.monoBody.copy(color = WeftColors.text), modifier = Modifier.padding(horizontal = 4.dp))
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        WeftButton(
+            stringResource(if (torBrowser) R.string.link_tor else R.string.link_tor_missing),
+            onTor,
+            enabled = torBrowser,
+        )
+        WeftButton(stringResource(R.string.link_browser), onBrowser, kind = ButtonKind.Ghost)
+        WeftButton(stringResource(R.string.link_copy), onCopy, kind = ButtonKind.Ghost, leading = WeftIcon.Copy, leadingStroke = 2f)
     }
 }
 

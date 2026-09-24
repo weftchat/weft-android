@@ -1,5 +1,9 @@
 package app.weft
 
+import app.weft.ui.sheets.LinkSheet
+import app.weft.privacy.SensitiveClipboard
+import android.net.Uri
+import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -142,6 +146,7 @@ class MainActivity : ComponentActivity() {
             }
             val backdrop = rememberBackdrop()
             val failedRelay = stringResource(R.string.relay_failed)
+            val linkCopied = stringResource(R.string.toast_link_copied)
             val switchedTo = stringResource(R.string.relay_switched)
             LaunchedEffect(Unit) {
                 LiveRelays.switchedOnItsOwn.collect { name -> toast.show(switchedTo.format(name), WeftIcon.Refresh) }
@@ -236,6 +241,7 @@ class MainActivity : ComponentActivity() {
                             toast = toast::show,
                             onBack = nav::pop,
                             onTimer = { open(Sheet.Timer(route.chatId)) },
+                            onLink = { open(Sheet.Link(it)) },
                         )
                         is Route.GroupChat -> PlaceholderScreen(route.name, onBack = nav::pop)
                         Route.NewGroup -> PlaceholderScreen("New group", onBack = nav::pop)
@@ -302,6 +308,23 @@ class MainActivity : ComponentActivity() {
                                 toast.show(message, WeftIcon.Check)
                             },
                         )
+                        is Sheet.Link -> LinkSheet(
+                            url = s.url,
+                            torBrowser = remember { runCatching { context.packageManager.getPackageInfo(TOR_BROWSER, 0); true }.getOrDefault(false) },
+                            onTor = {
+                                sheet = null
+                                runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(s.url)).setPackage(TOR_BROWSER)) }
+                            },
+                            onBrowser = {
+                                sheet = null
+                                runCatching { context.startActivity(Intent.createChooser(Intent(Intent.ACTION_VIEW, Uri.parse(s.url)), null)) }
+                            },
+                            onCopy = {
+                                SensitiveClipboard.copy(context, s.url)
+                                sheet = null
+                                toast.show(linkCopied, WeftIcon.Copy)
+                            },
+                        )
                         is Sheet.Relay -> RelaySheet(
                             address = s.address,
                             onTest = { CoreRelays.check(s.address) },
@@ -354,3 +377,4 @@ private fun AskForNotices() {
     }
 }
 
+private const val TOR_BROWSER = "org.torproject.torbrowser"

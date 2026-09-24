@@ -28,6 +28,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
@@ -81,6 +84,9 @@ fun TextBubble(
     sender: String? = null,
     senderHue: Float = 262f,
     delivered: Boolean? = null,
+    /** Link ranges in [text]: drawn underlined; a tap on one calls [onLink] with it. */
+    links: List<IntRange> = emptyList(),
+    onLink: (IntRange) -> Unit = {},
 ) {
     val shape = bubbleShape(mine)
     Column(
@@ -96,12 +102,17 @@ fun TextBubble(
         if (sender != null) {
             WeftText(sender, style = WeftType.fieldLabel.copy(color = WeftColors.hsl(senderHue, 0.80f, 0.78f)))
         }
+        val linkInk = if (mine) WeftColors.onAccent else WeftColors.accent2
         WeftText(
-            text,
+            buildAnnotatedString {
+                append(text)
+                links.forEach { addStyle(SpanStyle(color = linkInk, textDecoration = TextDecoration.Underline), it.first, it.last + 1) }
+            },
             style = WeftType.body.copy(
                 color = if (mine) WeftColors.onAccent else WeftColors.text,
                 fontWeight = if (mine) FontWeight.W600 else FontWeight.W500,
             ),
+            onTap = if (links.isEmpty()) null else { i -> links.firstOrNull { i in it }?.let(onLink) },
         )
         val metaInk = if (mine) WeftColors.onAccent.copy(alpha = 0.62f) else WeftColors.faint
         // With ticks the row is 16 dp: the icon sits on the text baseline, as inline SVG does.

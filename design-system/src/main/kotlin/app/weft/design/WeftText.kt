@@ -6,7 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.FirstBaseline
@@ -41,17 +43,30 @@ fun WeftText(
     modifier: Modifier = Modifier,
     maxLines: Int = Int.MAX_VALUE,
     overflow: TextOverflow = TextOverflow.Clip,
+    /** Called with the character index under a tap (for links in bubbles). */
+    onTap: ((Int) -> Unit)? = null,
 ) {
     val measurer = rememberTextMeasurer()
     // Written while measuring and read while drawing, so new text always redraws — even when it
     // measures to the same size as the old.
     var lines by remember { mutableStateOf(emptyList<Pair<TextLayoutResult, Offset>>()) }
+    var starts by remember { mutableStateOf(emptyList<Int>()) }
     // Measure without the line-height: we place the lines ourselves.
     val natural = style.copy(lineHeight = TextUnit.Unspecified)
     Layout(
         content = {},
         modifier = modifier
             .semantics { this.text = text }
+            .then(
+                if (onTap == null) Modifier
+                else Modifier.pointerInput(text) {
+                    detectTapGestures { tap ->
+                        val i = lines.indexOfLast { (_, at) -> tap.y >= at.y }.coerceAtLeast(0)
+                        val (layout, at) = lines.getOrNull(i) ?: return@detectTapGestures
+                        onTap(starts[i] + layout.getOffsetForPosition(tap - at))
+                    }
+                },
+            )
             .drawBehind { lines.forEach { (layout, at) -> drawText(layout, topLeft = at) } },
     ) { _, constraints ->
         val maxWidth = if (constraints.hasBoundedWidth) constraints.maxWidth else Int.MAX_VALUE
@@ -90,6 +105,7 @@ fun WeftText(
             LastBaseline to (placed.last().second.y + placed.last().first.lastBaseline).roundToInt(),
         )
         lines = placed
+        starts = (0 until count).map { full.getLineStart(it) }
         layout(width, height, baselines) {}
     }
 }
