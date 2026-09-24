@@ -66,11 +66,11 @@ object UsbGuard {
 
     /** A data connection appeared (or, in debug builds, was simulated). */
     fun onDataConnection() {
-        val unlocked = WeftSession.userId.value != null
-        // In use, unlocked, in the owner's hands: nothing to do.
-        if (AutoLock.isForeground && unlocked) return
+        // In use, unlocked, in the owner's hands: nothing to do. A screen lock counts as locked.
+        if (AutoLock.isForeground && WeftSession.isUnlocked) return
         scope.launch {
-            if (wipeOnUsb(app)) WeftSession.wipeAll() else if (unlocked) WeftSession.lock()
+            // Also ends a screen lock: the key leaves memory.
+            if (wipeOnUsb(app)) WeftSession.wipeAll() else if (WeftSession.userId.value != null) WeftSession.lock()
             if (!AutoLock.isForeground) Process.killProcess(Process.myPid())
         }
     }

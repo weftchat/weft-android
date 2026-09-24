@@ -172,6 +172,15 @@
     <string name="privacy_strip_detail">GPS, device and time removed before sending.</string>
     <string name="privacy_screens">Block screenshots</string>
     <string name="privacy_screens_detail">Also hides chats in the app switcher.</string>
+    <string name="listen_title">Receive messages while locked</string>
+    <string name="listen_detail">Messages arrive with Weft locked. Off: nothing arrives until you enter your PIN, and the key never stays in memory.</string>
+    <string name="toast_listen_on">Messages keep arriving while Weft is locked</string>
+    <string name="toast_listen_off">Locking closes everything · nothing arrives until your PIN</string>
+    <string name="notice_new_message">New message</string>
+    <string name="notice_running">Weft is running</string>
+    <string name="notice_running_detail">Staying connected so messages arrive.</string>
+    <string name="notice_channel_running">Connection</string>
+    <string name="notice_channel_messages">New messages</string>
     <string name="privacy_tor">Connect through Tor</string>
     <string name="privacy_tor_detail">Hides your IP address from every relay. Uses the Orbot app.</string>
     <string name="tor_on">Tor on · connecting through Orbot</string>

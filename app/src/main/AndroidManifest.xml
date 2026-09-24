@@ -7,6 +7,11 @@
     <!-- Asked for the first time "Scan their code" is used (BRIEF: camera for QR and photos). -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera.any" android:required="false" />
+    <!-- Receiving in the background (BRIEF, Phase 3): notices are asked for once, the first time the
+         chat list opens; the foreground service is the "Weft is running" notice (no prompt). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING" />
     <!-- Lets Weft see whether Orbot is installed (Tor, Phase 3). Nothing else is visible to it. -->
     <queries>
         <package android:name="org.torproject.android" />
@@ -20,6 +25,10 @@
         android:label="Weft"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Material.NoActionBar">
+        <service
+            android:name=".WeftService"
+            android:exported="false"
+            android:foregroundServiceType="remoteMessaging" />
         <activity
             android:name=".MainActivity"
             android:exported="true">

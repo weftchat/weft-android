@@ -1,5 +1,10 @@
 package app.weft
 
+import androidx.compose.runtime.Composable
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.compose.rememberLauncherForActivityResult
+import android.content.Context
+import android.Manifest
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -127,9 +132,10 @@ class MainActivity : ComponentActivity() {
             val toastAfter = stringResource(R.string.toast_autolock)
             // Locked (by the timer, the padlock or the USB guard): whatever was on screen gives way to the PIN.
             val userId by WeftSession.userId.collectAsState()
-            LaunchedEffect(userId) {
+            val screenLocked by WeftSession.screenLocked.collectAsState()
+            LaunchedEffect(userId, screenLocked) {
                 val c = nav.current
-                if (userId == null && WeftSession.hasIdentity && c !is Route.Pin && c !is Route.Onboard && c !is Route.Wipe) {
+                if ((userId == null || screenLocked) && WeftSession.hasIdentity && c !is Route.Pin && c !is Route.Onboard && c !is Route.Wipe) {
                     sheet = null
                     nav.root(Route.Pin(PinMode.Enter))
                 }
@@ -163,7 +169,9 @@ class MainActivity : ComponentActivity() {
                             toast = toast::show,
                             onUnlocked = { if (route.purpose == PinPurpose.Own) nav.root(Route.Chats) else nav.pop() },
                         )
-                        Route.Chats -> ChatsScreen(
+                        Route.Chats -> {
+                            AskForNotices()
+                            ChatsScreen(
                             chatList = CoreChats,
                             relays = LiveRelays,
                             bottomPadding = 94.dp + lift,
@@ -180,6 +188,7 @@ class MainActivity : ComponentActivity() {
                                 nav.push(if (chat.kind == ChatKind.Group) Route.GroupChat(chat.id, chat.name) else Route.Conversation(chat.id))
                             },
                         )
+                        }
                         Route.Add -> AddContactScreen(
                             CoreInvitations,
                             bottomPadding = 94.dp + lift,
@@ -326,3 +335,22 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+/**
+ * Asks once for notifications (Android 13+), the first time the chat list opens: without them
+ * "New message" and "Weft is running" stay hidden (receiving still works).
+ */
+@Composable
+private fun AskForNotices() {
+    if (Build.VERSION.SDK_INT < 33) return
+    val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
+    LaunchedEffect(Unit) {
+        val prefs = context.getSharedPreferences("weft.guard", Context.MODE_PRIVATE)
+        if (!prefs.getBoolean("askedNotices", false)) {
+            prefs.edit().putBoolean("askedNotices", true).apply()
+            launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+}
+

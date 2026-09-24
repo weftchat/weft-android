@@ -49,6 +49,15 @@ object WeftSession {
     val entry: StateFlow<Slot?> = _entry
     /** True in the decoy profile (opened by the duress or the panic code). */
     val isDecoy: Boolean get() = _entry.value.let { it != null && it != Slot.Real }
+    private val _screenLocked = MutableStateFlow(false)
+    /**
+     * Locked by the timer with "Receive messages while locked" on: the PIN covers the app, but the
+     * core keeps running (and its key stays in memory) so messages arrive. [lock] ends it.
+     */
+    val screenLocked: StateFlow<Boolean> = _screenLocked
+    /** Unlocked and on screen-worthy terms: signed in and not covered by the PIN. */
+    val isUnlocked: Boolean get() = _userId.value != null && !_screenLocked.value
+
     /** The open profile's database key, kept only while unlocked. */
     private var keyBytes: ByteArray? = null
 
@@ -115,8 +124,11 @@ object WeftSession {
         if (opened == null) {
             throttle.failed()
             WipePolicy.onWrongPin(app)
-            return Unlock.WrongPin
+            return Unlock.WrongPin // a screen lock keeps listening
         }
+        // From a screen lock every right code closes the open profile and opens its own, so the
+        // real, duress and panic codes still take the same steps and time.
+        if (ChatCore.isOpen) lock()
         val dir = dirFor(opened.slot)
         return when (val r = ChatCore.open(dir, hex(opened.profileKey))) {
             OpenResult.WrongKey -> { throttle.failed(); Unlock.WrongPin }
@@ -147,7 +159,14 @@ object WeftSession {
         }
     }
 
+    /** The timer's lock with "Receive messages while locked" on: see [screenLocked]. */
+    fun lockScreen() {
+        if (_userId.value != null) _screenLocked.value = true
+    }
+
+    /** Locks for real: core stopped, store closed, key dropped. Nothing arrives until the PIN. */
     suspend fun lock() {
+        _screenLocked.value = false
         keyBytes?.fill(0)
         keyBytes = null
         _entry.value = null
@@ -349,6 +368,7 @@ object WeftSession {
         CoreRelays.clear()
         CoreNetwork.clear()
         LiveRelays.clear()
+        Background.clear()
         _wiped.value = true
     }
 

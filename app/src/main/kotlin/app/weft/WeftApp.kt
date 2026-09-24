@@ -2,6 +2,7 @@ package app.weft
 
 import android.app.Application
 import app.weft.data.AutoLock
+import app.weft.data.Background
 import app.weft.data.CoreChats
 import app.weft.data.CoreNetwork
 import app.weft.data.LiveRelays
@@ -16,6 +17,7 @@ class WeftApp : Application() {
         WeftSession.init(this)
         CoreNetwork.init(this)
         LiveRelays.init(this)
+        Background.init(this)
         CoreProfile.start(this)
         CoreChats.start()
         AutoLock.install(this)

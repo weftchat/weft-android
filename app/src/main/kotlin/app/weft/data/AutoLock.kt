@@ -13,8 +13,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
- * Locks the app (core closed, database key dropped) when the user leaves it: at once, or after a
- * time chosen in Security (default 1 min). The wait runs while the app is in the background; if
+ * Locks the app when the user leaves it: at once, or after a time chosen in Security (default
+ * 1 min). The core is closed and the database key dropped, unless "Receive messages while locked"
+ * is on — then the PIN covers the app and messages keep arriving. The wait runs while the app is in the background; if
  * Android froze the process meanwhile, the elapsed time is checked when the user comes back.
  */
 object AutoLock {
@@ -52,21 +53,26 @@ object AutoLock {
     }
 
     private fun wentAway() {
-        if (WeftSession.userId.value == null) return
+        if (!WeftSession.isUnlocked) return
         leftAt = SystemClock.elapsedRealtime()
         val wait = seconds(app)
         pending?.cancel()
         pending = scope.launch {
             delay(wait * 1000L)
-            WeftSession.lock()
+            lockNow()
         }
     }
 
     private fun cameBack() {
         pending?.cancel()
         pending = null
-        if (WeftSession.userId.value != null && SystemClock.elapsedRealtime() - leftAt >= seconds(app) * 1000L) {
-            scope.launch { WeftSession.lock() }
+        if (WeftSession.isUnlocked && SystemClock.elapsedRealtime() - leftAt >= seconds(app) * 1000L) {
+            scope.launch { lockNow() }
         }
+    }
+
+    /** With "Receive messages while locked" on, the PIN only covers the app (BRIEF, Phase 3). */
+    private suspend fun lockNow() {
+        if (Background.listen(app)) WeftSession.lockScreen() else WeftSession.lock()
     }
 }

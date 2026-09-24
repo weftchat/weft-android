@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.weft.BuildConfig
 import app.weft.R
+import app.weft.data.Background
 import app.weft.data.CoreNetwork
 import app.weft.data.CoreRelays
 import app.weft.data.LiveRelays
@@ -94,6 +95,9 @@ fun SecurityScreen(
     val duressOff = stringResource(R.string.toast_duress_off)
     val panicOff = stringResource(R.string.toast_panic_off)
     val wipe10On = stringResource(R.string.toast_wipe10_on)
+    val listening by Background.listening.collectAsState()
+    val listenOn = stringResource(R.string.toast_listen_on)
+    val listenOff = stringResource(R.string.toast_listen_off)
     val wipe10Off = stringResource(R.string.toast_wipe10_off)
     Column(Modifier.fillMaxSize().background(WeftColors.bg)) {
         Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 56.dp, bottom = 14.dp)) {
@@ -179,6 +183,22 @@ fun SecurityScreen(
                         detail = stringResource(R.string.autolock_detail),
                         value = stringResource(autoLockValue(autoLockSeconds)), chevron = true,
                         onClick = onAutoLock,
+                    )
+                    WeftItem(
+                        WeftIcon.Chat, stringResource(R.string.listen_title), first = false,
+                        detail = stringResource(R.string.listen_detail),
+                        topAligned = true,
+                        trailing = {
+                            WeftSwitch(
+                                checked = listening,
+                                onCheckedChange = { on ->
+                                    Background.setListen(on)
+                                    toast(if (on) listenOn else listenOff, if (on) WeftIcon.Check else WeftIcon.Lock)
+                                },
+                                contentDescription = stringResource(R.string.listen_title),
+                                modifier = Modifier.align(Alignment.CenterVertically),
+                            )
+                        },
                     )
                     WeftItem(
                         WeftIcon.Bolt, stringResource(R.string.usb_title), first = false,
