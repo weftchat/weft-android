@@ -190,6 +190,7 @@ object WeftSession {
     /** Locks for real: core stopped, store closed, key dropped. Nothing arrives until the PIN. */
     suspend fun lock() {
         _screenLocked.value = false
+        CoreCalls.finish(sendEnd = true)
         CallServers.clear()
         keyBytes?.fill(0)
         keyBytes = null

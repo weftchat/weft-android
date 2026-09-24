@@ -1,5 +1,19 @@
 package app.weft
 
+import app.weft.design.WeftType
+import app.weft.design.WeftText
+import app.weft.design.weftClickable
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import app.weft.ui.call.callClock
+import app.weft.ui.call.IncomingCallScreen
+import app.weft.ui.call.CallWebView
+import app.weft.ui.call.CallScreen
+import app.weft.data.CoreNetwork
+import app.weft.data.CoreCalls
+import androidx.core.content.ContextCompat
+import android.content.pm.PackageManager
 import app.weft.ui.sheets.AddCallServerSheet
 import app.weft.data.CallServers
 import app.weft.ui.sheets.GroupLinkSheet
@@ -154,6 +168,36 @@ class MainActivity : ComponentActivity() {
             val failedRelay = stringResource(R.string.relay_failed)
             val linkCopied = stringResource(R.string.toast_link_copied)
             val groupCreated = stringResource(R.string.group_created)
+            // --- calls (Phase 4) ---
+            val call by CoreCalls.call.collectAsState()
+            var callMinimized by remember { mutableStateOf(false) }
+            val callEnded = stringResource(R.string.call_ended)
+            val callEndedShort = stringResource(R.string.call_ended_short)
+            val noServers = stringResource(R.string.call_no_servers)
+            val busy = stringResource(R.string.call_busy)
+            val noMic = stringResource(R.string.call_no_mic)
+            val torNote = stringResource(R.string.call_tor_note)
+            var afterMic by remember { mutableStateOf<(() -> Unit)?>(null) }
+            val micLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+                if (granted) afterMic?.invoke() else toast.show(noMic, WeftIcon.MicOff)
+                afterMic = null
+            }
+            /** BRIEF: the microphone is asked for only when the first call starts or is answered. */
+            fun withMic(action: () -> Unit) {
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) action()
+                else { afterMic = action; micLauncher.launch(Manifest.permission.RECORD_AUDIO) }
+            }
+            fun report(r: CoreCalls.StartResult) {
+                when (r) {
+                    CoreCalls.StartResult.NoServers -> toast.show(noServers, WeftIcon.Alert)
+                    CoreCalls.StartResult.Busy -> toast.show(busy, WeftIcon.Alert)
+                    CoreCalls.StartResult.Ok -> { callMinimized = false; if (CoreNetwork.tor.value) toast.show(torNote, WeftIcon.Mask) }
+                }
+            }
+            fun startCall(contactId: Long, name: String) = report(CoreCalls.start(contactId, name, video = false))
+            LaunchedEffect(Unit) {
+                CoreCalls.ended.collect { seconds -> toast.show(seconds?.let { callEnded.format(callClock(it)) } ?: callEndedShort, WeftIcon.HangUp) }
+            }
             val groupLeft = stringResource(R.string.group_left)
             val groupRemoved = stringResource(R.string.group_removed)
             val groupInviteCopied = stringResource(R.string.group_link_copied)
@@ -253,6 +297,10 @@ class MainActivity : ComponentActivity() {
                             onBack = nav::pop,
                             onTimer = { open(Sheet.Timer(route.chatId)) },
                             onLink = { open(Sheet.Link(it)) },
+                            onCall = {
+                                val name = CoreChats.chats.value.firstOrNull { it.id == route.chatId }?.name.orEmpty()
+                                withMic { startCall(route.chatId.removePrefix("@").toLong(), name) }
+                            },
                         )
                         is Route.GroupChat -> ConversationScreen(
                             chatId = route.chatId,
@@ -414,6 +462,29 @@ class MainActivity : ComponentActivity() {
                                 sheet = null
                                 toast.show(message, WeftIcon.Timer)
                             },
+                        )
+                    }
+                }
+                call?.let { c ->
+                    if (c.phase != CoreCalls.Phase.Incoming) {
+                        val video = c.peerVideo && c.phase == CoreCalls.Phase.Connected && !callMinimized
+                        CallWebView(if (video) Modifier.fillMaxSize() else Modifier.size(1.dp))
+                        if (!callMinimized) {
+                            CallScreen(c, CoreProfile.profile.value.nickname.take(1).uppercase().ifEmpty { "Y" }, onMinimize = { callMinimized = true })
+                        } else {
+                            val label = stringResource(R.string.call_back, c.name)
+                            Box(
+                                Modifier.align(Alignment.TopCenter).padding(top = 40.dp)
+                                    .background(WeftColors.safe.copy(alpha = 0.14f), CircleShape)
+                                    .weftClickable { callMinimized = false }
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                            ) { WeftText(label, style = WeftType.monoBody.copy(color = WeftColors.safe)) }
+                        }
+                    } else if (WeftSession.isUnlocked && !screenLocked) {
+                        IncomingCallScreen(
+                            c,
+                            onAnswer = { withMic { report(CoreCalls.accept()) } },
+                            onDecline = { CoreCalls.reject() },
                         )
                     }
                 }

@@ -155,8 +155,10 @@ fun ConversationScreen(
             }
             val timer = chat.timer ?: offTimer
             val label = stringResource(R.string.convo_timer_label, timer)
-            if (isGroup) WeftIconButton(WeftIcon.Phone, stringResource(R.string.group_call), onCall, stroke = 2f, iconSize = 19.dp)
-            else Row(
+            // BRIEF Phase 4: 1:1 calls; the mockup's conversation header has no call button, so it
+            // sits before the timer pill, as the group chat's does.
+            WeftIconButton(WeftIcon.Phone, stringResource(if (isGroup) R.string.group_call else R.string.call_start), onCall, stroke = 2f, iconSize = 19.dp)
+            if (!isGroup) Row(
                 Modifier
                     .heightIn(min = 40.dp)
                     .semantics { contentDescription = label }

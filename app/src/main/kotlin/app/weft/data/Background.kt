@@ -31,6 +31,8 @@ import kotlinx.coroutines.launch
 object Background {
     private const val CH_RUNNING = "running"
     private const val CH_MESSAGES = "messages"
+    private const val CH_CALLS = "calls"
+    private const val ID_CALL = 3
     const val ID_RUNNING = 1
     private const val ID_MESSAGE = 2
 
@@ -103,6 +105,30 @@ object Background {
         )
     }
 
+    /**
+     * An incoming call while Weft is not on screen: "Incoming call", no name. It rings and opens
+     * Weft over the lock screen; answering still needs the PIN when Weft is locked.
+     */
+    fun incomingCall() {
+        val open = PendingIntent.getActivity(
+            app, 1, Intent(app, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
+            PendingIntent.FLAG_IMMUTABLE,
+        )
+        manager().notify(
+            ID_CALL,
+            builder(CH_CALLS)
+                .setContentTitle("Weft")
+                .setContentText(app.getString(R.string.notice_incoming_call))
+                .setCategory(Notification.CATEGORY_CALL)
+                .setFullScreenIntent(open, true)
+                .setOngoing(true)
+                .setVisibility(Notification.VISIBILITY_PUBLIC)
+                .build(),
+        )
+    }
+
+    fun cancelCallNotice() = manager().cancel(ID_CALL)
+
     /** The fixed notice of [WeftService]. */
     fun runningNotice(c: Context): Notification =
         builder(CH_RUNNING, c)
@@ -130,6 +156,8 @@ object Background {
                 NotificationChannel(CH_RUNNING, app.getString(R.string.notice_channel_running), NotificationManager.IMPORTANCE_MIN)
                     .apply { setShowBadge(false) },
                 NotificationChannel(CH_MESSAGES, app.getString(R.string.notice_channel_messages), NotificationManager.IMPORTANCE_HIGH)
+                    .apply { lockscreenVisibility = Notification.VISIBILITY_PUBLIC },
+                NotificationChannel(CH_CALLS, app.getString(R.string.notice_channel_calls), NotificationManager.IMPORTANCE_HIGH)
                     .apply { lockscreenVisibility = Notification.VISIBILITY_PUBLIC },
             ),
         )

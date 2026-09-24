@@ -12,6 +12,11 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING" />
+    <!-- Calls (BRIEF, Phase 4): the microphone is asked for the first time a call starts or is
+         answered; audio routing (speaker) and the incoming-call screen need no prompt. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <!-- Lets Weft see whether Orbot is installed (Tor, Phase 3). Nothing else is visible to it. -->
     <queries>
         <package android:name="org.torproject.android" />

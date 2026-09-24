@@ -72,6 +72,7 @@ dependencies {
     implementation(libs.camera.lifecycle)
     implementation(libs.camera.compose) // camera preview in Compose
     implementation(libs.zxing.core) // "Scan their code": reading the QR, on the phone
+    implementation(libs.webkit) // calls: the call page is served from the APK, nothing from the network
     debugImplementation(libs.compose.ui.tooling.preview)
     androidTestImplementation(libs.test.runner)
     androidTestImplementation(libs.test.junit)
