@@ -47,6 +47,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.annotation.Keep
 import androidx.core.content.ContextCompat
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewClientCompat
@@ -85,7 +86,9 @@ fun newCallPage(ctx: Context, onLoaded: (WebView) -> Unit, onMessage: (String) -
         settings.allowFileAccess = false
         settings.allowContentAccess = false
         settings.setSupportMultipleWindows(false)
+        // The page finds postMessage by name at run time: @Keep stops the release optimiser renaming it.
         addJavascriptInterface(object {
+            @Keep
             @JavascriptInterface
             fun postMessage(message: String) { main.post { onMessage(message) } }
         }, "WebRTCInterface")
