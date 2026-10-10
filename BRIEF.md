@@ -90,6 +90,8 @@ La referencia exacta es **`design/v3/weft-v3.html`** (prototipo navegable: ábre
 | 4 · Grupos y llamadas | Grupos ≤ 50, llamadas 1:1 con TURN propio, llamadas de grupo en malla ≤ 6 |
 | 5 · Distribución | Accrescent, GitHub releases, web con textos legales |
 
+**Estado y siguientes pasos (oct 2026):** fases 0–4 hechas (v0.0.3). La hoja de ruta completa, con las mejoras nuevas (borrados extra, Weft Guard, familia Weft Privacy), está en `docs/ROADMAP.md`.
+
 **Empieza por la Fase 0.** Antes de escribir código, propón la estructura del proyecto y cómo vas a integrar el núcleo de SimpleX (qué repositorio, qué versión, cómo se compila la librería nativa para arm64) y espera confirmación.
 
 ## Reglas de trabajo
