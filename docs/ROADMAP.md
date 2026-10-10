@@ -2,6 +2,7 @@
 
 Actualizada: 10 oct 2026. Une el proyecto original (BRIEF.md) con las mejoras nuevas
 (docs/IDEAS-AEGIS.md y el plano del ecosistema en design/plano-ecosistema).
+Prioridad actual: **terminar Weft Chat (bloque A) y pasar a la siguiente app (Weft Guard)**.
 Regla: **no se empieza un paso hasta cerrar el anterior** con algo que funcione y una lista de pruebas.
 
 Leyenda: ✅ hecho · 🔜 siguiente · ⏳ pendiente · 💶 cuesta dinero · 🙋 lo haces tú (compras, cuentas, decisiones)
@@ -100,18 +101,10 @@ Reglas: ningún servicio comparte datos con otro; quitar nombres y logos origina
 
 ---
 
-## BLOQUE E · Negocio a futuro
-
-### Paso E1 ⏳ Weft Phone
-- Pixel + GrapheneOS oficial + Weft Guard (Device Owner) + todas las apps Weft configuradas.
-- Pago en cripto, envío discreto. Precio por debajo de Aegis (1.299–2.199 €).
-- Antes: abogado; no usar la marca GrapheneOS.
-
-### Paso E2 ⏳ WeftOS (solo si el negocio lo permite)
-- Fork de GrapheneOS con cambios propios. Necesita un equipo de 3–5 ingenieros de sistemas
-  y actualizaciones mensuales en días. Hasta entonces, E1 cubre casi todo.
+## ~~BLOQUE E · Weft Phone y WeftOS~~ — CANCELADO (10 oct 2026)
+Decisión del dueño: no se harán ni el teléfono propio ni el sistema operativo propio. Weft se centra en las apps.
 
 ---
 
 ## Orden recomendado (resumen)
-A1 → A2 → A3 → B1 → A4 → A5 → A6 → C1 → C2 → B2 → B3 → D1 → D2 → C3 → D3 → D4 → D5 → E1 → (E2)
+A1 → A2 → A3 → B1 → A4 → A5 → A6 → C1 → C2 → B2 → B3 → D1 → D2 → C3 → D3 → D4 → D5

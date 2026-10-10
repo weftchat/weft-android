@@ -34,7 +34,7 @@ Un guardián del móvil que reúne lo mejor de Aegis que una app sí puede hacer
 
 Límites: sin root no se puede detectar ARP spoofing de forma fiable, bloquear la cámara o el micrófono del sistema, ni cambiar la voz fuera de las llamadas de Weft.
 
-### Negocio: "Weft Phone" (más adelante)
+### ~~Negocio: "Weft Phone"~~ — CANCELADO (10 oct 2026), igual que WeftOS
 Un Pixel con GrapheneOS preinstalado y las apps Weft configuradas, con relay privado, VPN y Pass incluidos 6–12 meses, pagado con Monero/BTC y enviado en embalaje neutro.
 Precio objetivo por debajo de Aegis.
 Antes: revisar con un abogado, y no usar el nombre ni el logo de GrapheneOS en la marca. Es un proyecto aparte y no oficial.
@@ -50,4 +50,4 @@ Modificador de voz para todo el sistema, etiquetado de memoria MTE, bloqueo de 2
 2. Weft Guard: detección de ataques Wi-Fi/DNS, permisos y lista GrapheneOS.
 3. Modificador de voz en llamadas de Weft.
 4. Resto de la familia (Pass, VPN, Meet, Cloud, Wallet) según OPEN-SOURCE.md.
-5. Weft Phone, cuando haya clientes y asesoría legal.
+5. ~~Weft Phone~~ (cancelado).
