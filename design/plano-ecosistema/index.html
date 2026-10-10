@@ -1,0 +1,405 @@
+<title>Plano Weft Privacy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a constellation (seven apps orbiting one server, no lines between apps) with a dossier panel beside it, then the ecosystem argument, the threat map and the build order. Single dark look: Weft's own brand world. */
+:root{
+  --ink:#07070C;
+  --night:#1B1530;
+  --night-2:#241C40;
+  --line:#3A2F63;
+  --violet:#A78BFA;
+  --lilac:#C4B5FD;
+  --deep:#5B45C9;
+  --safe:#5CF0B8;
+  --text:#ECE8FA;
+  --muted:#A69DC8;
+  --dim:#7A7299;
+  --display:"Manrope",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --body:"Manrope",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--ink);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:28px 64px}
+a{color:var(--lilac)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--violet)}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+h1{font-size:clamp(34px,6vw,60px);font-weight:800;letter-spacing:-.025em;line-height:1.02}
+h2{font-size:clamp(24px,3.4vw,34px);font-weight:700;letter-spacing:-.015em;line-height:1.1}
+h3{font-size:20px;font-weight:700}
+p{margin:0}
+.lede{color:var(--muted);font-size:18px;max-width:62ch}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--lilac);outline-offset:3px;border-radius:8px}
+
+/* Header */
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:24px;padding-block:8px 28px;border-bottom:1px solid var(--line)}
+.head-text{display:grid;gap:14px;min-width:0;flex:1 1 420px}
+.listen{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:10px;border-radius:999px;padding:12px 20px;border:1px solid var(--line);background:var(--night);font-weight:700;font-size:15px}
+.btn.primary{background:var(--violet);color:var(--night);border-color:var(--violet)}
+.btn:hover{border-color:var(--lilac)}
+.btn svg{width:16px;height:16px;flex:none}
+.now{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+/* Constellation + dossier */
+.stage{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:28px;padding-block:32px;align-items:start}
+@media (max-width:880px){.stage{grid-template-columns:1fr}}
+.map{position:relative;min-width:0}
+.map svg{width:100%;height:auto;display:block;max-width:620px;margin:0 auto}
+.orbit{fill:none;stroke:var(--line);stroke-width:1}
+.spoke{stroke:var(--line);stroke-width:1.5;stroke-dasharray:4 6;transition:stroke .3s}
+.spoke.on{stroke:var(--violet);stroke-dasharray:none}
+.node{cursor:pointer}
+.node .halo{fill:none;stroke:transparent;stroke-width:2;transition:stroke .25s}
+.node:hover .halo{stroke:var(--line)}
+.node.on .halo{stroke:var(--violet)}
+.node.speaking .halo{animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{stroke-opacity:1}50%{stroke-opacity:.25}}
+.node text{font-family:var(--body);font-size:14px;font-weight:700;fill:var(--text);text-anchor:middle}
+.node text.st{font-family:var(--mono);font-size:10px;font-weight:400;fill:var(--muted);letter-spacing:.06em}
+.hub-label{font-family:var(--display);font-weight:800;font-size:17px;fill:var(--text);text-anchor:middle}
+.hub-sub{font-family:var(--mono);font-size:10px;fill:var(--muted);text-anchor:middle;letter-spacing:.05em}
+.rule-note{font-family:var(--mono);font-size:12px;color:var(--dim);text-align:center;margin-top:10px}
+.rule-note b{color:var(--muted);font-weight:500}
+
+.dossier{background:var(--night);border:1px solid var(--line);border-radius:20px;padding:24px;display:grid;gap:18px;min-width:0}
+.d-head{display:flex;gap:16px;align-items:center}
+.d-head svg{width:64px;height:64px;flex:none}
+.d-head .meta{display:grid;gap:4px;min-width:0}
+.pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted);width:max-content}
+.pill.done{color:var(--safe);border-color:color-mix(in srgb,var(--safe) 45%,transparent)}
+.pill.next{color:var(--violet);border-color:var(--violet)}
+.pill .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.d-what{color:var(--text);font-size:17px}
+.d-list{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.d-list li{display:grid;grid-template-columns:18px 1fr;gap:10px;color:var(--muted)}
+.d-list li svg{width:18px;height:18px;margin-top:3px;color:var(--safe)}
+.d-list li b{color:var(--text);font-weight:600}
+.d-foot{display:flex;flex-wrap:wrap;gap:8px 18px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:12px;color:var(--dim)}
+.d-foot span b{color:var(--muted);font-weight:500}
+.player{display:flex;align-items:center;gap:12px}
+.play{width:44px;height:44px;border-radius:50%;border:none;background:var(--violet);color:var(--night);display:grid;place-items:center;flex:none}
+.play svg{width:18px;height:18px}
+.bar{flex:1;height:4px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--violet)}
+.time{font-family:var(--mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:74px;text-align:right}
+
+/* Sections */
+section{padding-block:44px;border-top:1px solid var(--line);display:grid;gap:24px}
+.sec-head{display:grid;gap:10px;max-width:70ch}
+.why{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.why article{background:var(--night);border-radius:16px;padding:20px;display:grid;gap:12px;align-content:start;min-width:0}
+.why h3{font-size:18px}
+.why p{color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips svg{width:26px;height:26px}
+
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px}
+table{border-collapse:collapse;width:100%;min-width:720px}
+th,td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:center}
+tr:last-child td{border-bottom:none}
+th:first-child,td:first-child{text-align:left;padding-left:18px}
+thead th{background:var(--night);font-weight:600;font-size:12px;color:var(--muted)}
+thead th svg{width:30px;height:30px;display:block;margin:0 auto 4px}
+td:first-child{color:var(--text);font-weight:500;max-width:280px}
+td .yes{display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--violet)}
+td .main{background:var(--safe)}
+.legend{display:flex;flex-wrap:wrap;gap:18px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.legend i{width:12px;height:12px;border-radius:50%;display:inline-block}
+
+.steps{display:grid;gap:0;counter-reset:s;border-left:1px solid var(--line);margin-left:22px}
+.step{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:16px;align-items:center;padding:14px 0 14px 0;position:relative}
+.step .ic{margin-left:-24px;width:48px;height:48px}
+.step .ic svg{width:48px;height:48px}
+.step h3{font-size:17px}
+.step p{color:var(--muted);font-size:14px}
+@media (max-width:560px){.step{grid-template-columns:48px minmax(0,1fr)}.step .pill{grid-column:2}}
+
+.pay{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.pay div{border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;gap:6px}
+.pay b{font-family:var(--display);font-size:17px}
+.pay p{color:var(--muted);font-size:14px}
+footer{padding-top:28px;border-top:1px solid var(--line);font-family:var(--mono);font-size:12px;color:var(--dim)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="head-text">
+      <span class="eyebrow">Weft Privacy · Plano del ecosistema · Oct 2026</span>
+      <h1>Siete apps.<br>Un servidor.<br>Cero datos compartidos.</h1>
+      <p class="lede">Toca cualquier icono para ver qué hace esa app y escuchar por qué importa. O escucha el recorrido completo, de unos tres minutos.</p>
+    </div>
+    <div class="listen">
+      <button class="btn primary" id="tour" type="button">
+        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 2.5v11l9-5.5z"/></svg>
+        <span id="tour-label">Escuchar el plano completo</span>
+      </button>
+      <span class="now" id="now" aria-live="polite"></span>
+    </div>
+  </header>
+
+  <div class="stage">
+    <div class="map">
+      <svg viewBox="0 0 640 640" id="constellation" role="group" aria-label="Las siete apps de Weft alrededor del servidor común"></svg>
+      <p class="rule-note">Líneas solo hacia el servidor: <b>las apps nunca se hablan entre sí</b>.</p>
+    </div>
+    <aside class="dossier" id="dossier" aria-live="polite"></aside>
+  </div>
+
+  <section id="together">
+    <div class="sec-head">
+      <span class="eyebrow">Por qué todo junto</span>
+      <h2>Cada app protege una parte. Juntas cubren toda tu vida digital.</h2>
+      <p class="lede">Cuatro ventajas que una app suelta no te puede dar.</p>
+    </div>
+    <div class="listen">
+      <button class="btn" type="button" data-play="8">
+        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 2.5v11l9-5.5z"/></svg>
+        Escuchar: por qué todo junto
+      </button>
+    </div>
+    <div class="why" id="why"></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">Mapa de amenazas</span>
+      <h2>¿Qué app te protege de qué?</h2>
+    </div>
+    <div class="legend"><span><i style="background:var(--safe)"></i>Protección principal</span><span><i style="background:var(--violet)"></i>Ayuda</span></div>
+    <div class="table-wrap"><table id="threats"></table></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">Orden de construcción</span>
+      <h2>De lo que ya funciona a lo que viene</h2>
+      <p class="lede">Weft Chat ya existe. Cada paso siguiente reutiliza el mismo servidor, la misma marca y el mismo sistema de pago.</p>
+    </div>
+    <div class="steps" id="steps"></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">Cómo se paga</span>
+      <h2>Sin cuenta, sin email, sin tarjeta</h2>
+    </div>
+    <div class="pay">
+      <div><b>Fuera de las apps</b><p>Todo se contrata en weftchat.com. Dentro de las apps no hay pagos nunca.</p></div>
+      <div><b>Código de acceso anónimo</b><p>Pagas y recibes un código. El código activa el servicio y no está ligado a tu nombre.</p></div>
+      <div><b>Monero o Bitcoin</b><p>Pago en cripto. Weft Wallet puede pagarlo sin salir de la familia.</p></div>
+      <div><b>Un servidor, un país</b><p>Todos los servicios en un servidor pagado por adelantado en un país con leyes de privacidad fuertes.</p></div>
+    </div>
+  </section>
+
+  <footer>Weft Privacy · plano interno · basado en BRIEF.md, OPEN-SOURCE.md e IDEAS-AEGIS.md del proyecto. Las apps 2–7 están planificadas, no construidas.</footer>
+</div>
+
+<audio id="audio" preload="none"></audio>
+
+<script>
+(function(){
+  // App icons from design/weft-privacy-brand/svg (app-icon versions). Guard is new, same construction.
+  const INNER = {
+    chat:'<path d="M20 12H44A8 8 0 0 1 52 20V36A8 8 0 0 1 44 44H30L20 54V44A8 8 0 0 1 12 36V20A8 8 0 0 1 20 12Z" fill="#A78BFA" stroke="#A78BFA" stroke-width="5" stroke-linejoin="round"/><rect x="19" y="22" width="26" height="7" rx="1.5" fill="#1B1530"/><line x1="21" y1="35" x2="35" y2="35" stroke="#1B1530" stroke-width="3.5" stroke-linecap="round"/>',
+    guard:'<path d="M8 33C15 21 23 15.5 32 15.5C41 15.5 49 21 56 33C49 45 41 50.5 32 50.5C23 50.5 15 45 8 33Z" fill="#A78BFA" stroke="#A78BFA" stroke-width="5" stroke-linejoin="round"/><rect x="19" y="29.5" width="26" height="7" rx="1.5" fill="#1B1530"/><line x1="26" y1="42" x2="38" y2="42" stroke="#1B1530" stroke-width="3.5" stroke-linecap="round"/>',
+    pass:'<path d="M22 29V22A10 10 0 0 1 42 22V29" fill="none" stroke="#A78BFA" stroke-width="5" stroke-linecap="round"/><rect x="13" y="29" width="38" height="25" rx="7" fill="#A78BFA" stroke="#A78BFA" stroke-width="5"/><rect x="21" y="34.5" width="22" height="7" rx="1.5" fill="#1B1530"/><line x1="23" y1="47" x2="35" y2="47" stroke="#1B1530" stroke-width="3.5" stroke-linecap="round"/>',
+    vpn:'<path d="M32 11L50 17.5V31C50 42 42.5 49.5 32 54C21.5 49.5 14 42 14 31V17.5Z" fill="#A78BFA" stroke="#A78BFA" stroke-width="5" stroke-linejoin="round"/><rect x="21" y="24" width="22" height="7" rx="1.5" fill="#1B1530"/><line x1="24" y1="37" x2="36" y2="37" stroke="#1B1530" stroke-width="3.5" stroke-linecap="round"/>',
+    meet:'<rect x="11" y="20" width="30" height="26" rx="7" fill="#A78BFA" stroke="#A78BFA" stroke-width="5"/><path d="M41 29.5L52.5 23V43L41 36.5Z" fill="#A78BFA" stroke="#A78BFA" stroke-width="5" stroke-linejoin="round"/><rect x="16" y="25.5" width="20" height="7" rx="1.5" fill="#1B1530"/><line x1="18" y1="38.5" x2="28" y2="38.5" stroke="#1B1530" stroke-width="3.5" stroke-linecap="round"/>',
+    cloud:'<path d="M21.5 48H43A8.5 8.5 0 0 0 42.96 31A12 12 0 1 0 19.02 29.33A9.5 9.5 0 0 0 21.5 48Z" fill="#A78BFA" stroke="#A78BFA" stroke-width="5" stroke-linejoin="round"/><rect x="21" y="29.5" width="22" height="7" rx="1.5" fill="#1B1530"/><line x1="23" y1="41.5" x2="35" y2="41.5" stroke="#1B1530" stroke-width="3.5" stroke-linecap="round"/>',
+    wallet:'<path d="M12.5 27V37A19.5 13.5 0 0 0 51.5 37V27A19.5 13.5 0 0 0 12.5 27Z" fill="#A78BFA" stroke="#A78BFA" stroke-width="5" stroke-linejoin="round"/><path d="M12.5 27A19.5 13.5 0 0 0 51.5 27" fill="none" stroke="#1B1530" stroke-width="3"/><rect x="21" y="20" width="22" height="7" rx="1.5" fill="#1B1530"/>'
+  };
+  const iconBody = (id) => '<rect width="64" height="64" rx="14" fill="#1B1530" stroke="#3A2F63" stroke-width="1"/><g transform="translate(8.96 8.24) scale(0.72)">' + INNER[id] + '</g>';
+  const icon = (id, label) => '<svg viewBox="0 0 64 64" role="img" aria-label="' + label + '">' + iconBody(id) + '</svg>';
+
+  const APPS = [
+    { id:'chat', name:'Weft Chat', audio:1, step:1, status:'done', statusText:'Construida · v0.0.3',
+      what:'Mensajería sin número de teléfono ni email. Nadie sabe quién habla con quién.',
+      perks:[['Sin identidad','tu cuenta es una clave creada en tu móvil, sin KYC.'],['PIN de coacción','abre un perfil señuelo idéntico al real.'],['Código de pánico','parece abrir la app mientras borra todo en silencio.'],['Guardia USB','bloquea y saca las claves de la memoria si conectan un cable de datos.'],['Grupos y llamadas','hasta 50 personas; las llamadas nunca muestran tu IP.']],
+      base:'SimpleX Chat', license:'AGPL-3.0' },
+    { id:'guard', name:'Weft Guard', audio:2, step:2, status:'next', statusText:'Siguiente · nueva',
+      what:'El guardián del móvil: vigila la red, los permisos y los borrados de emergencia.',
+      perks:[['Wi-Fi falsas','detecta redes gemelas maliciosas y routers que cambian.'],['DNS secuestrado','comprueba que nadie redirige tus conexiones.'],['Permisos','qué apps usan micrófono, cámara o ubicación, y cuándo.'],['Blindaje GrapheneOS','guía para activar bloqueo 2G, puerto USB y PIN de coacción del sistema.'],['Borrados coordinados','por inactividad, sin red o a distancia por un contacto de confianza.']],
+      base:'Diseño propio (ideas de Aegis Mobile)', license:'AGPL-3.0' },
+    { id:'pass', name:'Weft Pass', audio:3, step:3, status:'plan', statusText:'Paso 3',
+      what:'Caja fuerte de contraseñas y códigos 2FA, cifrada en tu dispositivo.',
+      perks:[['Cifrado local','el servidor guarda datos que no puede leer.'],['Compatible con Bitwarden','apps probadas en móvil, escritorio y navegador.'],['Llave de todo','una contraseña única y fuerte para cada servicio.']],
+      base:'Vaultwarden + Bitwarden clients', license:'AGPL-3.0 / GPL-3.0' },
+    { id:'vpn', name:'Weft VPN', audio:4, step:4, status:'plan', statusText:'Paso 4',
+      what:'Oculta tu IP y tu tráfico a tu operador y a las redes públicas.',
+      perks:[['VPN camuflada','AmneziaWG disimula que es una VPN; funciona donde las bloquean.'],['Sin registros','en el servidor propio de Weft.'],['Protege a las demás','todas las apps salen por ella.']],
+      base:'Amnezia VPN', license:'GPL-3.0' },
+    { id:'meet', name:'Weft Meet', audio:5, step:5, status:'plan', statusText:'Paso 5',
+      what:'Videollamadas por enlace, cifradas de extremo a extremo, sin cuenta.',
+      perks:[['Sin instalar nada','abres el enlace y hablas.'],['Para fuentes','entrevistas y reuniones sin dejar rastro.'],['Voz modificada','más adelante, para proteger a quien habla.']],
+      base:'Jitsi Meet (LiveKit más adelante)', license:'Apache-2.0' },
+    { id:'cloud', name:'Weft Cloud', audio:6, step:6, status:'plan', statusText:'Paso 6',
+      what:'Tu disco en la nube, cifrado antes de salir del dispositivo.',
+      perks:[['Bibliotecas cifradas','ni el servidor puede abrir tus archivos.'],['Documentos en equipo','edición conjunta cifrada de extremo a extremo.'],['Ligero','funciona bien en un servidor pequeño.']],
+      base:'Seafile + CryptPad', license:'AGPL-3.0' },
+    { id:'wallet', name:'Weft Wallet', audio:7, step:7, status:'plan', statusText:'Paso 7 · con asesoría legal',
+      what:'Monedero sencillo y sin custodia con las monedas principales.',
+      perks:[['Tus claves, en tu móvil','Weft nunca puede mover tu dinero.'],['BTC, ETH, XMR, USDT, USDC','las que de verdad se usan.'],['Pago anónimo','paga el resto de servicios Weft sin dar tu nombre.']],
+      base:'Cake Wallet', license:'MIT' }
+  ];
+
+  const WHY = [
+    { t:'Una sola confianza', d:'El mismo servidor en un país seguro, el mismo cifrado y el mismo diseño en todas las apps.', apps:['chat','pass','vpn','meet','cloud','wallet','guard'] },
+    { t:'Un solo pago anónimo', d:'Un código de acceso pagado en cripto activa los servicios. Sin email ni tarjeta.', apps:['wallet','pass'] },
+    { t:'Se protegen entre sí', d:'La VPN oculta tu IP en todo, Pass protege las cuentas y Guard vigila el móvil y puede borrarlo todo a la vez.', apps:['vpn','pass','guard','chat'] },
+    { t:'Independientes por diseño', d:'Ningún servicio comparte datos con otro. Si uno cae, los demás no saben nada de ti.', apps:['chat','cloud','meet'] }
+  ];
+
+  // 2 = protección principal, 1 = ayuda
+  const THREATS = [
+    ['Tu operador o el Estado ven con quién hablas', {chat:2, vpn:1, meet:1}],
+    ['Te quitan el móvil o te obligan a abrirlo', {chat:2, guard:2, pass:1}],
+    ['Una Wi-Fi falsa en un hotel o aeropuerto', {guard:2, vpn:2}],
+    ['Se filtra una contraseña tuya', {pass:2, guard:1}],
+    ['Graban o identifican tu voz en una llamada', {meet:2, chat:1}],
+    ['Alguien entra en tu nube y lee tus archivos', {cloud:2, pass:1}],
+    ['Rastrean tus pagos hasta tu nombre', {wallet:2}],
+    ['Una app espía tu micrófono o tu ubicación', {guard:2}]
+  ];
+
+  // ---------- constellation ----------
+  const svg = document.getElementById('constellation');
+  const C = 320, R = 228, N = APPS.length, S = 84;
+  let html = '<circle class="orbit" cx="'+C+'" cy="'+C+'" r="'+R+'"/>';
+  const pos = APPS.map((a,i)=>{ const ang = -Math.PI/2 + i*2*Math.PI/N; return {x:C+R*Math.cos(ang), y:C+R*Math.sin(ang)}; });
+  APPS.forEach((a,i)=>{ html += '<line class="spoke" id="sp-'+a.id+'" x1="'+C+'" y1="'+C+'" x2="'+pos[i].x.toFixed(1)+'" y2="'+pos[i].y.toFixed(1)+'"/>'; });
+  html += '<g aria-hidden="true"><circle cx="'+C+'" cy="'+C+'" r="78" fill="#1B1530" stroke="#5B45C9" stroke-width="1.5"/>'
+    + '<g transform="translate('+(C-15)+' '+(C-52)+')" fill="none" stroke="#A78BFA" stroke-width="2.4"><rect x="0" y="0" width="30" height="10" rx="2.5"/><rect x="0" y="13" width="30" height="10" rx="2.5"/><circle cx="6" cy="5" r="1.2" fill="#5CF0B8" stroke="none"/><circle cx="6" cy="18" r="1.2" fill="#5CF0B8" stroke="none"/></g>'
+    + '<text class="hub-label" x="'+C+'" y="'+(C+8)+'">Servidor Weft</text>'
+    + '<text class="hub-sub" x="'+C+'" y="'+(C+26)+'">UN PAÍS SEGURO</text>'
+    + '<text class="hub-sub" x="'+C+'" y="'+(C+40)+'">PAGADO EN CRIPTO</text></g>';
+  APPS.forEach((a,i)=>{
+    const x = pos[i].x - S/2, y = pos[i].y - S/2;
+    html += '<g class="node" id="nd-'+a.id+'" tabindex="0" role="button" aria-label="'+a.name+'">'
+      + '<rect class="halo" x="'+(x-7)+'" y="'+(y-7)+'" width="'+(S+14)+'" height="'+(S+14)+'" rx="24"/>'
+      + '<svg x="'+x+'" y="'+y+'" width="'+S+'" height="'+S+'" viewBox="0 0 64 64">'+iconBody(a.id)+'</svg>'
+      + '<text x="'+pos[i].x+'" y="'+(y+S+22)+'">'+a.name+'</text>'
+      + '<text class="st" x="'+pos[i].x+'" y="'+(y+S+37)+'">'+a.step+' · '+(a.status==='done'?'HECHA':a.status==='next'?'SIGUIENTE':'PLAN')+'</text>'
+      + '</g>';
+  });
+  svg.innerHTML = html;
+
+  // ---------- dossier ----------
+  const dossier = document.getElementById('dossier');
+  const check = '<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5l3.2 3L14 5.5"/></svg>';
+  const playIc = '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 2.5v11l9-5.5z"/></svg>';
+  const pauseIc = '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 2.5h3v11H4zM9 2.5h3v11H9z"/></svg>';
+  let current = APPS[0];
+
+  function renderDossier(a){
+    const cls = a.status==='done' ? 'done' : a.status==='next' ? 'next' : '';
+    dossier.innerHTML =
+      '<div class="d-head">'+icon(a.id,a.name)+'<div class="meta"><h3>'+a.name+'</h3><span class="pill '+cls+'"><span class="dot"></span>'+a.statusText+'</span></div></div>'
+      + '<div class="player"><button class="play" type="button" id="dplay" aria-label="Escuchar '+a.name+'">'+playIc+'</button><div class="bar"><i id="dbar"></i></div><span class="time" id="dtime">0:00</span></div>'
+      + '<p class="d-what">'+a.what+'</p>'
+      + '<ul class="d-list">'+a.perks.map(p=>'<li>'+check+'<span><b>'+p[0]+':</b> '+p[1]+'</span></li>').join('')+'</ul>'
+      + '<div class="d-foot"><span>Base: <b>'+a.base+'</b></span><span>Licencia: <b>'+a.license+'</b></span></div>';
+    document.getElementById('dplay').addEventListener('click', ()=> toggle(a.audio));
+    syncButton();
+  }
+
+  function select(a){
+    current = a;
+    APPS.forEach(x=>{
+      document.getElementById('nd-'+x.id).classList.toggle('on', x===a);
+      document.getElementById('sp-'+x.id).classList.toggle('on', x===a);
+    });
+    renderDossier(a);
+  }
+
+  APPS.forEach(a=>{
+    const n = document.getElementById('nd-'+a.id);
+    const go = ()=>{ stopTour(); select(a); play(a.audio); };
+    n.addEventListener('click', go);
+    n.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); }});
+  });
+
+  // ---------- audio ----------
+  const audio = document.getElementById('audio');
+  const now = document.getElementById('now');
+  let playing = null; // index
+  const fmt = s => isFinite(s) ? Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0') : '0:00';
+  const LABEL = ['Introducción'].concat(APPS.map(a=>a.name)).concat(['Por qué todo junto']);
+
+  function play(i){
+    playing = i;
+    audio.src = 'audio/' + String(i).padStart(2,'0') + '.mp3';
+    audio.play().catch(()=>{});
+    now.textContent = 'Sonando: ' + LABEL[i];
+    APPS.forEach(a=>document.getElementById('nd-'+a.id).classList.toggle('speaking', a.audio===i));
+    syncButton();
+  }
+  function toggle(i){
+    if (playing===i && !audio.paused){ audio.pause(); }
+    else if (playing===i && audio.paused && audio.src){ audio.play().catch(()=>{}); }
+    else { stopTour(); play(i); }
+    syncButton();
+  }
+  function syncButton(){
+    const b = document.getElementById('dplay'); if(!b) return;
+    const on = playing===current.audio && !audio.paused;
+    b.innerHTML = on ? pauseIc : playIc;
+    b.setAttribute('aria-label', (on?'Pausar ':'Escuchar ')+current.name);
+  }
+  audio.addEventListener('timeupdate', ()=>{
+    if (playing!==current.audio) return;
+    const bar = document.getElementById('dbar'), t = document.getElementById('dtime');
+    if (bar) bar.style.width = (audio.duration ? 100*audio.currentTime/audio.duration : 0) + '%';
+    if (t) t.textContent = fmt(audio.currentTime) + ' / ' + fmt(audio.duration);
+  });
+  audio.addEventListener('play', syncButton);
+  audio.addEventListener('pause', syncButton);
+
+  // Tour: intro, the seven apps, then "todo junto"
+  const tourBtn = document.getElementById('tour'), tourLabel = document.getElementById('tour-label');
+  let touring = false, tourIdx = 0;
+  function stopTour(){ touring=false; tourLabel.textContent='Escuchar el plano completo'; }
+  function tourStep(){
+    if (!touring) return;
+    if (tourIdx>8){ stopTour(); now.textContent='Recorrido terminado'; APPS.forEach(a=>document.getElementById('nd-'+a.id).classList.remove('speaking')); return; }
+    const app = APPS.find(a=>a.audio===tourIdx);
+    if (app) select(app);
+    if (tourIdx===8) document.getElementById('together').scrollIntoView({behavior:'smooth', block:'start'});
+    play(tourIdx);
+  }
+  audio.addEventListener('ended', ()=>{
+    APPS.forEach(a=>document.getElementById('nd-'+a.id).classList.remove('speaking'));
+    if (touring){ tourIdx++; tourStep(); } else { now.textContent=''; }
+    syncButton();
+  });
+  tourBtn.addEventListener('click', ()=>{
+    if (touring){ audio.pause(); stopTour(); return; }
+    touring = true; tourIdx = 0; tourLabel.textContent='Parar el recorrido'; tourStep();
+  });
+  document.querySelectorAll('[data-play]').forEach(b=>b.addEventListener('click', ()=>{ stopTour(); play(+b.dataset.play); }));
+
+  // ---------- why ----------
+  document.getElementById('why').innerHTML = WHY.map(w=>
+    '<article><h3>'+w.t+'</h3><p>'+w.d+'</p><div class="chips">'+w.apps.map(id=>icon(id, APPS.find(a=>a.id===id).name)).join('')+'</div></article>').join('');
+
+  // ---------- threats ----------
+  document.getElementById('threats').innerHTML =
+    '<thead><tr><th>Amenaza</th>'+APPS.map(a=>'<th>'+icon(a.id,a.name)+a.name.replace('Weft ','')+'</th>').join('')+'</tr></thead><tbody>'
+    + THREATS.map(t=>'<tr><td>'+t[0]+'</td>'+APPS.map(a=>{ const v=t[1][a.id]; return '<td>'+(v===2?'<span class="yes main" title="Protección principal"></span>':v===1?'<span class="yes" title="Ayuda"></span>':'')+'</td>'; }).join('')+'</tr>').join('')
+    + '</tbody>';
+
+  // ---------- steps ----------
+  document.getElementById('steps').innerHTML = APPS.map(a=>{
+    const cls = a.status==='done' ? 'done' : a.status==='next' ? 'next' : '';
+    return '<div class="step"><div class="ic">'+icon(a.id,a.name)+'</div><div><h3>'+a.step+'. '+a.name+'</h3><p>'+a.what+'</p></div><span class="pill '+cls+'"><span class="dot"></span>'+a.statusText+'</span></div>';
+  }).join('');
+
+  select(APPS[0]);
+})();
+</script>
